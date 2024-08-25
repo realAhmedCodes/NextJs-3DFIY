@@ -74,7 +74,7 @@ console.log(
 
 import path from "path";
 import fs from "fs";
-import pool from "@/app/lib/db"; // Adjust the path to your db config
+import pool from "@/app/lib/db"; 
 
 const uploadDir = path.join(process.cwd(), "public", "uploads");
 

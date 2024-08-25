@@ -62,6 +62,7 @@ const Page = () => {
         const decodedToken = jwtDecode(token);
         const sellerId = decodedToken.seller_id;
         setPrinterOwnerId(sellerId);
+        console.log(decodedToken.user_id);
       }
     } catch (error) {
       if (error instanceof InvalidTokenError) {
@@ -92,7 +93,7 @@ const Page = () => {
     formData.append("image", image);
 
     try {
-      const response = await fetch("/api/printers/printersUpload", {
+      const response = await fetch("/api/printers/printerUpload", {
         method: "POST",
         body: formData,
       });

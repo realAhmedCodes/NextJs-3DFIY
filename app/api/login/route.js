@@ -45,10 +45,10 @@ console.log(  user.user_id,
           : null;
         console.log(sellerId, "cccc");
         tokenPayload = { ...tokenPayload, seller_id: sellerId };
-      } else if (user.sellerType === "Printer_Owners") {
+      } else if (user.sellerType === "Printer Owner") {
         console.log("pri");
         const printerOwnerQuery =
-          "SELECT * FROM 'Printer_Owners' WHERE user_id = $1";
+         ' SELECT * FROM "Printer_Owners" WHERE user_id = $1';
         const printerOwnerResult = await client.query(printerOwnerQuery, [
           user.user_id,
         ]);
