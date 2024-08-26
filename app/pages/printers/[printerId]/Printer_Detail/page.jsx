@@ -26,6 +26,8 @@ const page = () => {
   const [printer, setPrinter] = useState(null);
   const [sellerType, setSellerType] = useState("");
   console.log("idddd", printerId);
+
+  const nav = useRouter();
   useEffect(() => {
     const token = window.sessionStorage.getItem("token");
     if (token) {
@@ -61,10 +63,11 @@ const page = () => {
     fetchModelDetail();
   }, [printerId]);
 
+ 
 
   
   const updateModelBtn = () => {
-    nav.push(`/pages/${modelId}/updateModel`);
+    nav.push(`/pages/printers/${printerId}/Printer_Update`);
   };
 
   const delModelBtn = async () => {
