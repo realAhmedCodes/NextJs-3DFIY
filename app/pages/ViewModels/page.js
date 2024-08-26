@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 
 export const page = () => {
   const [models, setModels] = useState([]);
 
-  const router = useRouter(); 
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {

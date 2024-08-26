@@ -43,7 +43,7 @@ export const page = () => {
             key={printer.printer_id}
             /// onClick={() => router.push(`/pages/ModelDetail/${model.model_id}`)}
             //onClick={() => router.push(`/pages/model`)}onClick={() => router.push(`/model/${model.model_id}`)}
-            onClick={() => router.push(`/pages/${printer.printer_id}/printerDetail`)}
+            onClick={() => router.push(`/pages/printers/${printer.printer_id}/Printer_Detail`)}
             className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
           >
             <p>{printer.name}</p>

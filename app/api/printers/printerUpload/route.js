@@ -40,16 +40,18 @@ export async function POST(req) {
     const now = new Date().toISOString();
 
     const result = await pool.query(
-      'INSERT INTO "printers" (printer_owner_id, name, description, printer_type, materials, price, location, image) VALUES ($1, $2, $3, $4, $5::text[], $6, $7, $8) RETURNING *',
+      'INSERT INTO "printers" (printer_owner_id, name, description, printer_type, materials, price, location, image, "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5::text[], $6, $7, $8,$9,$10) RETURNING *',
       [
         printer_owner_id,
         name,
         description,
         printerType,
-        [material], // Ensure material is an array
+        [material], 
         price,
         location,
         imageFilename,
+        now,
+        now
       ]
     );
 
