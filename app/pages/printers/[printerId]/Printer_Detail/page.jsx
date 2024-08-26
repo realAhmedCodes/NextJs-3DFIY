@@ -71,10 +71,10 @@ const page = () => {
     try {
       // Replace with actual user ID or a variable containing it
 
-      const payload = { user_id: userId, modelId: modelId };
+     
 
       await axios.delete(
-        `/api/models/delete?user_id=${userId}&model_id=${modelId}`
+        `/api/printers/${printerId}/delete`
       );
     } catch (err) {
       console.error("Failed to update like status", err);
