@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ChatComponent from "@/componets/Chat";
+import ChatComponent from "@/app/componets/Chat";
 
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
   };
 
   return (
-    <div className="font-['Poppins']">
+    <div className="">
       <nav>
         <ChatComponent></ChatComponent>
         <div className="mx-auto max-w-7xl mt-2">

@@ -15,7 +15,7 @@ export async function POST(req,{params}){
 
     const userId = body.user_id;
     if (!userId) {
-      return new Response(JSOn.stringify({ error: "User ID is required" }), {
+      return new Response(JSON.stringify({ error: "User ID is required" }), {
         status: 400,
       });
     }

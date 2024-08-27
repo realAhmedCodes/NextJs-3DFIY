@@ -1,4 +1,4 @@
-import LoginForm from "@/componets/LoginForm"
+import LoginForm from "@/app/componets/LoginForm"
 
 
 

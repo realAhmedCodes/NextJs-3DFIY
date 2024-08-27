@@ -46,8 +46,8 @@ export default Page;
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {jwtDecode} from "jwt-decode"; // Correct import
-import ChatComponent from "@/componets/Chat";
-import ChatList from "@/componets/ChatList";
+import ChatComponent from "@/app/componets/Chat";
+import ChatList from "@/app/componets/ChatList";
 
 const Page = () => {
   const { roomId, userId } = useParams();

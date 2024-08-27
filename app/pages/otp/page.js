@@ -1,4 +1,4 @@
-import OtpCheck from '@/componets/OtpCheck'
+import OtpCheck from '@/app/componets/OtpCheck'
 import React from 'react'
 
 const page = () => {
