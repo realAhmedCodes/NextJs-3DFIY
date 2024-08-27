@@ -7,6 +7,7 @@ const uploadDir = path.join(process.cwd(), "public", "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+
 export async function POST(req) {
   try {
     const form = await req.formData();
@@ -15,12 +16,22 @@ export async function POST(req) {
     const name = form.get("name");
     const description = form.get("description");
     const printerType = form.get("printerType");
-    const material = form.get("material");
+    const materials = JSON.parse(form.get("materials"));
+    const colors = JSON.parse(form.get("colors"));
+    const services = JSON.parse(form.get("services"));
     const price = parseFloat(form.get("price"));
     const location = form.get("location");
     const image = form.get("image");
 
-    if (!printer_owner_id || !name || !printerType || !material || !image) {
+    if (
+      !printer_owner_id ||
+      !name ||
+      !printerType ||
+      !materials.length ||
+      !colors.length ||
+      !services.length ||
+      !image
+    ) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         {
@@ -40,18 +51,21 @@ export async function POST(req) {
     const now = new Date().toISOString();
 
     const result = await pool.query(
-      'INSERT INTO "printers" (printer_owner_id, name, description, printer_type, materials, price, location, image, "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5::text[], $6, $7, $8,$9,$10) RETURNING *',
+      `INSERT INTO "printers" (printer_owner_id, name, description, printer_type, materials, colors, services, price, location, image, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5::text[], $6::text[], $7::text[], $8, $9, $10, $11, $12) RETURNING *`,
       [
         printer_owner_id,
         name,
         description,
         printerType,
-        [material], 
+        materials,
+        colors,
+        services,
         price,
         location,
         imageFilename,
         now,
-        now
+        now,
       ]
     );
 

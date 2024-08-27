@@ -47,11 +47,13 @@ const Page = () => {
   const [name, setName] = useState("");
   const [printerType, setPrinterType] = useState("");
   const [materials, setMaterials] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState("");
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
   const [checkToken, setCheckToken] = useState("");
   const [printerOwnerId, setPrinterOwnerId] = useState(null);
+  const [colors, setColors] = useState([""]);
+  const [services, setServices] = useState([""]);
 
   useEffect(() => {
     const token = window.sessionStorage.getItem("token");
@@ -72,13 +74,52 @@ const Page = () => {
   }, []);
 
   useEffect(() => {
-    // Update the materials dropdown when printer type changes
     if (printerType) {
       setMaterials(printerOptions[printerType]?.materials || []);
+      setSelectedMaterials([]); // Reset selected materials
     } else {
       setMaterials([]);
+      setSelectedMaterials([]); // Reset selected materials
     }
   }, [printerType]);
+
+  const handleMaterialChange = (material) => {
+    setSelectedMaterials((prevSelectedMaterials) =>
+      prevSelectedMaterials.includes(material)
+        ? prevSelectedMaterials.filter((m) => m !== material)
+        : [...prevSelectedMaterials, material]
+    );
+  };
+
+  const handleColorChange = (index, value) => {
+    const updatedColors = [...colors];
+    updatedColors[index] = value;
+    setColors(updatedColors);
+  };
+
+  const addColor = () => {
+    setColors([...colors, ""]);
+  };
+
+  const removeColor = (index) => {
+    const updatedColors = colors.filter((_, i) => i !== index);
+    setColors(updatedColors);
+  };
+
+  const handleServiceChange = (index, value) => {
+    const updatedServices = [...services];
+    updatedServices[index] = value;
+    setServices(updatedServices);
+  };
+
+  const addService = () => {
+    setServices([...services, ""]);
+  };
+
+  const removeService = (index) => {
+    const updatedServices = services.filter((_, i) => i !== index);
+    setServices(updatedServices);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,7 +129,9 @@ const Page = () => {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("printerType", printerType);
-    formData.append("material", selectedMaterial);
+    formData.append("materials", JSON.stringify(selectedMaterials));
+    formData.append("colors", JSON.stringify(colors));
+    formData.append("services", JSON.stringify(services));
     formData.append("location", location);
     formData.append("image", image);
 
@@ -157,19 +200,60 @@ const Page = () => {
           </div>
 
           <div>
-            <label htmlFor="material">Select Material</label>
-            <select
-              value={selectedMaterial}
-              onChange={(e) => setSelectedMaterial(e.target.value)}
-              disabled={!materials.length}
-            >
-              <option value="">Select a Material</option>
-              {materials.map((material, index) => (
-                <option key={index} value={material}>
+            <label>Select Materials</label>
+            {materials.map((material, index) => (
+              <div key={index}>
+                <label>
+                  <input
+                    type="checkbox"
+                    value={material}
+                    checked={selectedMaterials.includes(material)}
+                    onChange={() => handleMaterialChange(material)}
+                  />
                   {material}
-                </option>
-              ))}
-            </select>
+                </label>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <label>Colors</label>
+            {colors.map((color, index) => (
+              <div key={index}>
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => handleColorChange(index, e.target.value)}
+                  placeholder="Enter a color"
+                />
+                <button type="button" onClick={() => removeColor(index)}>
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={addColor}>
+              Add Color
+            </button>
+          </div>
+
+          <div>
+            <label>Services</label>
+            {services.map((service, index) => (
+              <div key={index}>
+                <input
+                  type="text"
+                  value={service}
+                  onChange={(e) => handleServiceChange(index, e.target.value)}
+                  placeholder="Enter a service"
+                />
+                <button type="button" onClick={() => removeService(index)}>
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={addService}>
+              Add Service
+            </button>
           </div>
 
           <div>
