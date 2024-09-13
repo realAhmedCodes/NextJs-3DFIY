@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { useCookies } from "react-cookie";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/features/userSlice";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
-
-
+import { useRouter } from "next/navigation";
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [cookies, setCookie, removeCookie] = useCookies(null);
   const [passwordShown, setPasswordShown] = useState(false);
-  const togglePasswordVisiblity = () => setPasswordShown((cur) => !cur);
+  const dispatch = useDispatch();
+    const router = useRouter();
 
+  const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
 
   const submitBtn = async (e) => {
-
     e.preventDefault();
 
     try {
@@ -31,10 +31,19 @@ const LoginForm = () => {
       if (data.detail) {
         setError(data.detail);
       } else {
-        window.sessionStorage.setItem("token", data.token);
+        // Save user data in Redux store
+        dispatch(
+          setUser({
+            userId: data.user_id,
+            sellerType: data.sellerType,
+            sellerId: data.seller_id,
+            email: data.email,
+            isVerified: data.is_verified,
+          })
+        );
 
         console.log("Login successful");
-        window.location.reload();
+      router.push(`/`);
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -70,9 +79,7 @@ const LoginForm = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@mail.com"
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
-              labelProps={{
-                className: "hidden",
-              }}
+              labelProps={{ className: "hidden" }}
             />
           </div>
           <div className="mb-6">
@@ -87,15 +94,13 @@ const LoginForm = () => {
             <Input
               size="lg"
               placeholder="********"
-              labelProps={{
-                className: "hidden",
-              }}
+              labelProps={{ className: "hidden" }}
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               type={passwordShown ? "text" : "password"}
               icon={
-                <i onClick={togglePasswordVisiblity}>
+                <i onClick={togglePasswordVisibility}>
                   {passwordShown ? (
                     <EyeIcon className="h-5 w-5" />
                   ) : (
@@ -105,8 +110,14 @@ const LoginForm = () => {
               }
             />
           </div>
-          <Button color="gray" size="lg" className="mt-6" fullWidth>
-            sign in
+          <Button
+            color="gray"
+            size="lg"
+            className="mt-6"
+            fullWidth
+            onClick={submitBtn}
+          >
+            Sign In
           </Button>
           <div className="!mt-4 flex justify-end">
             <Typography
