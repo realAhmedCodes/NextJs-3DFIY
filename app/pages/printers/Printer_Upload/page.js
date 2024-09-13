@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCookies } from "react-cookie";
-import { jwtDecode, InvalidTokenError } from "jwt-decode";
-
+//import { jwtDecode, InvalidTokenError } from "jwt-decode";
+import { useSelector } from "react-redux";
 const printerOptions = {
   FDM: {
     name: "Fused Deposition Modeling",
@@ -55,24 +55,11 @@ const Page = () => {
   const [colors, setColors] = useState([""]);
   const [services, setServices] = useState([""]);
 
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-    console.log(token);
-    setCheckToken(token || "");
-    try {
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const sellerId = decodedToken.seller_id;
-        setPrinterOwnerId(sellerId);
-        console.log(decodedToken.user_id);
-      }
-    } catch (error) {
-      if (error instanceof InvalidTokenError) {
-        console.error("Invalid token");
-      }
-    }
-  }, []);
+  const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+    (state) => state.user
+  );
 
+  setPrinterOwnerId(sellerId)
   useEffect(() => {
     if (printerType) {
       setMaterials(printerOptions[printerType]?.materials || []);

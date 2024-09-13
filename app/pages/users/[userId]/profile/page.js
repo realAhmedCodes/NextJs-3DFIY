@@ -43,54 +43,40 @@ export default Page;
 
 
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {jwtDecode} from "jwt-decode"; // Correct import
+//import {jwtDecode} from "jwt-decode"; // Correct import
 import ChatComponent from "@/app/componets/Chat";
 import ChatList from "@/app/componets/ChatList";
+import PendingOrder from "@/app/componets/PlaceOrder/PendingOrder"
+import ActiveOrder from "@/app/componets/PlaceOrder/ActiveOrder";
+import ModelOrder from "@/app/componets/PlaceOrder/Model_Order";
+import { useSelector } from "react-redux";
+
 
 const Page = () => {
   const { roomId, userId } = useParams();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userDetail, setUserDetail] = useState(null);
-  const [sellerType, setSellerType] = useState("");
+
   const [models, setModels] = useState([]);
  const [checkToken, setCheckToken] = useState("");
    const [activeRoomId, setActiveRoomId] = useState(roomId || null);
  const [otherUser, setOtherUser] = useState(userId || null);
  const [showChat, setShowChat]= useState(false)
+const[ownUserId, setOwnUserId]= useState(null)
 
   
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-    console.log(token);
-    setCheckToken(token || "");
-    try {
-      if (token) {
-        console.log(token);
-        const decodedToken = jwtDecode(token);
-       setCurrentUser(decodedToken.user_id); 
-        const email = decodedToken.email;
-        const sellerType = decodedToken.sellerType;
-        const sellerId = decodedToken.seller_id;
-        console.log(userId, email, sellerType, sellerId);
-        
-      }
-    } catch (error) {
-      if (error instanceof InvalidTokenError) {
-        console.error("Invalid token");
-      }
-    }
-  }, []);
-
-
+ 
+  const {  email, sellerType, isVerified, sellerId } = useSelector(
+    (state) => state.user
+  );
+  setOwnUserId(userId)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `/api/users/${userId}/getUser?sellerType=${sellerType}`
-        );
+        const response = await fetch(`/api/users/${userId}/getUser`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -98,6 +84,7 @@ const Page = () => {
         setUserDetail(userData);
         setModels(userData.models || []);
         setSellerType(userData.sellerType);
+        setSellerId(userData.sellerId); // Set the sellerId
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
@@ -134,6 +121,9 @@ const Page = () => {
     ? `/uploads/${profilePicFilename}`
     : "";
 
+
+    console.log("own id", ownUserId)
+
   return (
     <div className="flex">
       <div>
@@ -168,30 +158,36 @@ const Page = () => {
           </div>
         )}
       </div>
-      <div><button>Place Order</button></div>
+      <div>
+
+        <PendingOrder
+          userId={ownUserId}
+          sellerType={sellerType}
+          sellerId={sellerId}
+        ></PendingOrder>
+      </div>
+      <div>
+        <ActiveOrder
+          userId={userId}
+          sellerType={sellerType}
+          sellerId={sellerId}
+        ></ActiveOrder>
+      </div>
+      <div>
+        <button>Place Order</button>
+      </div>
       <div>
         <button onClick={showChatBtn}>Message</button>
       </div>
-      {showChat === false ? (
-        <></>
-      ) : (
-        <>
-         
-          {currentUser && (
-            <>
-              <ChatList
-                currentUser={currentUser}
-                onSelectChat={handleSelectChat}
-              />
-              <ChatComponent
-                currentUser={currentUser}
-                roomId={activeRoomId}
-                otherUser={otherUser}
-              />
-            </>
-          )}
-        </>
-      )}
+      <div>
+        {sellerType === "Designer" ? (
+          <>
+            <ModelOrder sellerId={sellerId} userId={ownUserId}> </ModelOrder>
+          </>
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   );
 };
@@ -263,3 +259,24 @@ const Page = () => {
 
 export default Page;
 */
+
+/* {showChat === false ? (
+        <></>
+      ) : (
+        <>
+         
+          {currentUser && (
+            <>
+              <ChatList
+                currentUser={currentUser}
+                onSelectChat={handleSelectChat}
+              />
+              <ChatComponent
+                currentUser={currentUser}
+                roomId={activeRoomId}
+                otherUser={otherUser}
+              />
+            </>
+          )}
+        </>
+      )}*/

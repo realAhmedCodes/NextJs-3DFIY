@@ -1,6 +1,6 @@
 import "./globals.css";
 import ThemeProviders from "./ThemeProviders";
-
+import Providers from "./Providers";
 
 export const metadata = {
   title: "Create Next App",
@@ -11,7 +11,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ThemeProviders>{children}</ThemeProviders>
+        <Providers>
+          <ThemeProviders>{children}</ThemeProviders>
+        </Providers>
       </body>
     </html>
   );

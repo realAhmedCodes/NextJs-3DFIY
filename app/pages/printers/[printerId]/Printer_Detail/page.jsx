@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode"; // Import jwtDecode correctly
+//import { jwtDecode } from "jwt-decode"; 
 import axios from "axios";
 import { useParams } from "next/navigation";
+import Printer_Orders from "@/app/componets/PlaceOrder/Printer_Orders";
+import { useSelector } from "react-redux";
 
 const page = () => {
   const { printerId } = useParams();
@@ -22,25 +24,17 @@ const page = () => {
   const [printerOwnerId, setPrinterOwnerId] = useState(null);
   const [isLiked, setIsLiked] = useState(null);
   const [isSaved, setIsSaved] = useState(null);
-  const [userId, setUserId] = useState(null);
+ 
   const [printer, setPrinter] = useState(null);
-  const [sellerType, setSellerType] = useState("");
+
   console.log("idddd", printerId);
 
   const nav = useRouter();
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-    if (token) {
-      setCheckToken(token);
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserId(decodedToken.user_id);
-        setSellerType(decodedToken.sellerType);
-      } catch (error) {
-        console.error("Invalid token", error);
-      }
-    }
-  }, []);
+
+  
+ const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+   (state) => state.user
+ );
 
   useEffect(() => {
     const fetchModelDetail = async () => {
@@ -129,17 +123,16 @@ const page = () => {
             )}
           </div>
           <div className="flex items-center justify-between">
-           
             {sellerType === "Printer Owner" && (
               <div>
                 <button onClick={updateModelBtn}>Update Model</button>
                 <button onClick={delModelBtn}>Delete Model</button>
               </div>
             )}
-            
           </div>
         </div>
       </div>
+      <Printer_Orders printerId={printerId}></Printer_Orders>
     </div>
   );
 };
