@@ -1,18 +1,18 @@
-"use client";
-
+"use client"
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
 import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
+
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [passwordShown, setPasswordShown] = useState(false);
   const dispatch = useDispatch();
-    const router = useRouter();
+  const router = useRouter();
 
   const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
 
@@ -31,7 +31,7 @@ const LoginForm = () => {
       if (data.detail) {
         setError(data.detail);
       } else {
-        // Save user data in Redux store
+        // Save non-sensitive user data in Redux store
         dispatch(
           setUser({
             userId: data.user_id,
@@ -43,7 +43,7 @@ const LoginForm = () => {
         );
 
         console.log("Login successful");
-      router.push(`/`);
+        router.push(`/`);
       }
     } catch (error) {
       console.error("Error during login:", error);
