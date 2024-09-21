@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
+//import { jwtDecode, InvalidTokenError } from "jwt-decode";
 
+import { useSelector } from "react-redux";
 const resistances = [0, 20, 40, 60, 80, 100];
 
 const resolutions = {
@@ -16,10 +18,17 @@ const printerOrder = ({ printerId }) => {
   const [resolution, setResolution] = useState("");
   const [resistance, setResistance] = useState("");
   const [cost, setCost] = useState(null);
-  const [fileData, setFileData] = useState(null);
+  const [modelFile, setModelFile] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  
+  const[printerOwnerId, setPrinterOwnerId]=useState(null)
+  const [checkToken, setCheckToken] = useState("");
+  const [instructions, setIntructions]= useState("")
+  const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+    (state) => state.user
+  );
+ 
   useEffect(() => {
     const fetchModelDetail = async () => {
       try {
@@ -41,26 +50,56 @@ const printerOrder = ({ printerId }) => {
     fetchModelDetail();
   }, [printerId]);
 
-  console.log(printerMaterials);
+
+
+
+
+  
+  useEffect(() => {
+    const fetchOwnerId = async () => {
+      try {
+        const response = await fetch(
+          `/api/printers/${printerId}/printerOwnerId`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch model details");
+        }
+        const data = await response.json();
+        setPrinterOwnerId(data.printer_owner_id); // Accessing the 'materials' array directly
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchOwnerId();
+  }, [printerId]);
+
+  console.log("ownersid",printerOwnerId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!fileData) {
+    if (!modelFile) {
       console.error("No file selected");
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", fileData);
+    formData.append("file", modelFile);
     formData.append("material", material);
     formData.append("color", color);
     formData.append("resolution", resolution);
     formData.append("resistance", resistance);
+
+    formData.append("userId", userId);
+    formData.append("instructions", instructions);
+    formData.append("printer_Owner_id", printerOwnerId);
  
 
     try {
-      const response = await fetch("http://localhost:8001/upload", {
+      const response = await fetch(`/api/orders/printers/${printerId}/pendingOrders`, {
         method: "POST",
         body: formData,
       });
@@ -87,7 +126,7 @@ const printerOrder = ({ printerId }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">3D Model Upload</h2>
+      <h2 className="text-2xl font-bold mb-4">Place Order</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label
@@ -171,9 +210,15 @@ const printerOrder = ({ printerId }) => {
               </option>
             ))}
           </select>
+          <label htmlFor="instructions">Enter Instructions</label>
+          <input
+            type="text"
+            value={instructions}
+            onChange={(e) => setIntructions(e.target.value)}
+          />
         </div>
         <div>
-          <label htmlFor="modelFile">Upload Your 3D Model</label>
+          <label htmlFor="modelFile">Upload Your 3D Model File</label>
           <input
             onChange={handleFileChange}
             type="file"
@@ -186,7 +231,7 @@ const printerOrder = ({ printerId }) => {
           type="submit"
           className="mt-4 rounded-md py-2 px-4 bg-[#539e60] text-sm font-medium text-white"
         >
-          Calculate Cost
+          Order
         </button>
       </form>
       {cost !== null && (

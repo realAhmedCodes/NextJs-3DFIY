@@ -3,12 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatComponent from "@/app/componets/Chat";
+import { useSelector } from "react-redux";
 
 
 export default function Home() {
   const [file, setFile] = useState(null);
   const router = useRouter();
 
+
+   const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+     (state) => state.user
+   );
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
@@ -27,7 +32,7 @@ export default function Home() {
       );
     }
   };
-
+console.log(userId, email, sellerType, isVerified, sellerId);
   return (
     <div className="">
       <nav>

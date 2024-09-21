@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCookies } from "react-cookie";
-import { jwtDecode, InvalidTokenError } from "jwt-decode";
+//import { jwtDecode, InvalidTokenError } from "jwt-decode";
+import { useSelector } from "react-redux";
 
 const page = () => {
   const [categories, setCategories] = useState([]);
@@ -28,29 +29,11 @@ const page = () => {
   const [category_id, setCategory_Id] = useState(null);
   const [checkToken, setCheckToken] = useState("");
 
+    const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+      (state) => state.user
+    );
+    setDesigner_Id(sellerId)
 
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-    console.log(token);
-    setCheckToken(token || "");
-    try {
-      if (token) {
-        console.log(token);
-        const decodedToken = jwtDecode(token);
-        const userId = decodedToken.user_id;
-        const email = decodedToken.email;
-        const sellerType = decodedToken.sellerType;
-        const sellerId = decodedToken.seller_id;
-        console.log(userId, email, sellerType, sellerId);
-        setDesigner_Id(sellerId);
-      }
-    } catch (error) {
-      if (error instanceof InvalidTokenError) {
-        console.error("Invalid token");
-      }
-    }
-  }, []);
-console.log()
   useEffect(() => {
     const fetchData = async () => {
       try {

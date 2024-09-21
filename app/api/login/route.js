@@ -20,22 +20,17 @@ export async function POST(req) {
 
     const user = userResult.rows[0];
     const match = await bcrypt.compare(password, user.password);
-console.log(  user.user_id,
-       user.email,
-       user.sellerType,
-      user.phoneNo,
-    user.location)
+
     if (match) {
-      console.log("match")
       let sellerId = null;
       let tokenPayload = {
         user_id: user.user_id,
         email: user.email,
         sellerType: user.sellerType,
+        is_verified: user.is_verified,
       };
 
       if (user.sellerType === "Designer") {
-        console.log("des");
         const designerQuery = 'SELECT * FROM "Designers" WHERE user_id = $1';
         const designerResult = await client.query(designerQuery, [
           user.user_id,
@@ -43,19 +38,16 @@ console.log(  user.user_id,
         sellerId = designerResult.rows.length
           ? designerResult.rows[0].designer_id
           : null;
-        console.log(sellerId, "cccc");
         tokenPayload = { ...tokenPayload, seller_id: sellerId };
       } else if (user.sellerType === "Printer Owner") {
-        console.log("pri");
         const printerOwnerQuery =
-         ' SELECT * FROM "Printer_Owners" WHERE user_id = $1';
+          'SELECT * FROM "Printer_Owners" WHERE user_id = $1';
         const printerOwnerResult = await client.query(printerOwnerQuery, [
           user.user_id,
         ]);
         sellerId = printerOwnerResult.rows.length
           ? printerOwnerResult.rows[0].printer_owner_id
           : null;
-        console.log(sellerId, "cccc");
         tokenPayload = { ...tokenPayload, seller_id: sellerId };
       }
 
@@ -63,7 +55,15 @@ console.log(  user.user_id,
         expiresIn: "1hr",
       });
 
-      return NextResponse.json({ email: user.email, token });
+      return NextResponse.json({
+        user_id: user.user_id,
+        sellerType: user.sellerType,
+        seller_id: sellerId,
+        email: user.email,
+        is_verified: user.is_verified,
+        
+        token,
+      });
     } else {
       return NextResponse.json({ detail: "Login failed" }, { status: 401 });
     }
@@ -75,9 +75,6 @@ console.log(  user.user_id,
     );
   }
 }
-
-
-
 
 /*import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";

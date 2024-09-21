@@ -1,19 +1,21 @@
-"use client";
-
+"use client"
 import React, { useState } from "react";
-import { useCookies } from "react-cookie";
-import { Typography, Input, Button, Alert } from "@material-tailwind/react";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/features/userSlice";
+import { Typography, Input, Button } from "@material-tailwind/react";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [cookies, setCookie, removeCookie] = useCookies(null);
   const [passwordShown, setPasswordShown] = useState(false);
-  const togglePasswordVisiblity = () => setPasswordShown((cur) => !cur);
-  const [open, setOpen] = React.useState(true);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
+
   const submitBtn = async (e) => {
     e.preventDefault();
 
@@ -32,10 +34,19 @@ const LoginForm = () => {
       if (data.detail) {
         setError(data.detail);
       } else {
-        window.sessionStorage.setItem("token", data.token);
-        setSuccess("Login successful!");
+        // Save non-sensitive user data in Redux store
+        dispatch(
+          setUser({
+            userId: data.user_id,
+            sellerType: data.sellerType,
+            sellerId: data.seller_id,
+            email: data.email,
+            isVerified: data.is_verified,
+          })
+        );
+
         console.log("Login successful");
-        window.location.reload();
+        router.push(`/`);
       }
     } catch (error) {
       setOpen(true);
@@ -78,20 +89,20 @@ const LoginForm = () => {
               name="email"
               onChange={(e) => setEmail(e.target.value)}
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
-              labelProps={{
-                className: "",
-              }}
+              labelProps={{ className: "hidden" }}
             />
           </div>
           <div className="mb-6">
             <Input
               size="lg"
+              placeholder="********"
+              labelProps={{ className: "hidden" }}
               onChange={(e) => setPassword(e.target.value)}
               label="Password"
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               type={passwordShown ? "text" : "password"}
               icon={
-                <i onClick={togglePasswordVisiblity}>
+                <i onClick={togglePasswordVisibility}>
                   {passwordShown ? (
                     <EyeIcon className="h-5 w-5" />
                   ) : (
@@ -103,10 +114,10 @@ const LoginForm = () => {
           </div>
           <Button
             color="gray"
-            onClick={submitBtn}
             size="lg"
             className="mt-6"
             fullWidth
+            onClick={submitBtn}
           >
             Sign In
           </Button>
