@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode"; // Import jwtDecode correctly
+//import { jwtDecode } from "jwt-decode"; // Import jwtDecode correctly
 import axios from "axios";
 import { useParams } from "next/navigation";
+import { useSelector } from "react-redux";
 
 const page = () => {
   const { modelId } = useParams();
@@ -12,26 +13,18 @@ const page = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [checkToken, setCheckToken] = useState("");
-  const [sellerType, setSellerType] = useState("");
+
   const [isLiked, setIsLiked] = useState(null);
   const [isSaved, setIsSaved] = useState(null);
-  const [userId, setUserId] = useState(null);
+
 
 
   const nav= useRouter()
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-    if (token) {
-      setCheckToken(token);
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserId(decodedToken.user_id);
-        setSellerType(decodedToken.sellerType);
-      } catch (error) {
-        console.error("Invalid token", error);
-      }
-    }
-  }, []);
+
+
+  const { userId, email, sellerType, isVerified, sellerId } = useSelector(
+    (state) => state.user
+  );
 
   console.log(userId, sellerType);
 
