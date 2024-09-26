@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatComponent from "@/app/componets/Chat";
 import { useSelector } from "react-redux";
+import { ComplexNavbar } from "./componets/Navbar";
+import Footer from "./componets/Footer";
+
 
 
 export default function Home() {
@@ -35,45 +38,11 @@ export default function Home() {
 console.log(userId, email, sellerType, isVerified, sellerId);
   return (
     <div className="">
+     
       <nav>
-        <ChatComponent></ChatComponent>
+       
         <div className="mx-auto max-w-7xl mt-2">
-          <div className="flex h-16 items-center">
-            <div className="flex flex-1 items-center justify-between sm:items-stretch sm:justify-start">
-              <div className="flex flex-shrink-0 items-center">
-                <a href="#" className="text-2xl text-green-600 font-semibold">
-                  3Dify
-                </a>
-              </div>
-              <div className="flex w-full justify-center ml-8">
-                <div className="flex">
-                  <a
-                    href="#"
-                    className="px-3 py-2 text-gray-900 text-base font-medium"
-                  >
-                    About us
-                  </a>
-                  <a href="#" className="px-3 py-2 text-base font-medium">
-                    Design Library
-                  </a>
-                  <a href="#" className="px-3 py-2 text-base font-medium">
-                    Printers Hub
-                  </a>
-                  <a href="#" className="px-3 py-2 text-base font-medium">
-                    Custom Orders
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="absolute inset-y-0 right-0 font-medium flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <a
-                href="/login"
-                className="py-2 px-4 bg-[#539e60] text-white rounded-[8px] font-medium"
-              >
-                Get started
-              </a>
-            </div>
-          </div>
+         
         </div>
       </nav>
       <div className="relative isolate">
@@ -154,6 +123,7 @@ console.log(userId, email, sellerType, isVerified, sellerId);
           </div>
         </div>
       </div>
+     
       <div className="max-w-7xl"></div>
     
     </div>

@@ -506,6 +506,7 @@ const upload = multer({ storage: multer.memoryStorage() });
   fs.writeFileSync(filePath, buffer);
   return filePath;
 };*/
+
 const saveFileLocally = (buffer, filename) => {
   const uploadsDir = path.join(process.cwd(), "public", "uploads"); // Updated path
   if (!fs.existsSync(uploadsDir)) {

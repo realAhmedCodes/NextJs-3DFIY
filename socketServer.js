@@ -77,6 +77,8 @@ server.listen(PORT, () => {
   console.log(`Socket.io server running on port ${PORT}`);
 });
 */
+
+
 require("dotenv").config({ path: ".env.local" }); // Load environment variables from .env.local
 
 const express = require("express");
@@ -130,24 +132,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send_message", async (data) => {
-    console.log(
-      data.room,
-      data.sender_id,
-      data.receiver_id,
-      data.message,
-      data.time
-    );
-    try {
-      await pool.query(
-        'INSERT INTO "Chats" (room_id, sender_id, receiver_id, message, createdAt) VALUES ($1, $2, $3, $4, $5)',
-        [data.room, data.sender_id, data.receiver_id, data.message, data.time]
-      );
-      socket.to(data.room).emit("receive_message", data);
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  });
+ socket.on("send_message", async (data) => {
+   try {
+     // Insert the message into the database
+     await pool.query(
+       'INSERT INTO "Chats" (room_id, sender_id, receiver_id, message, createdAt) VALUES ($1, $2, $3, $4, $5)',
+       [data.room, data.sender_id, data.receiver_id, data.message, data.time]
+     );
+
+     // Emit to everyone in the room except the sender
+     socket.to(data.room).emit("receive_message", data);
+
+     // Emit an event to update the chat list for everyone
+     io.emit("update_chat_list");
+   } catch (error) {
+     console.error("Error sending message:", error);
+   }
+ });
+
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
