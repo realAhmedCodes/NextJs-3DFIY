@@ -1,3 +1,4 @@
+/*
 import React from "react";
 import DesignersList from "@/app/componets/DesignersList"; // Import the client component
 export default async function DesignersPage() {
@@ -15,12 +16,12 @@ export default async function DesignersPage() {
       <DesignersList users={users} />
     </div>
   );
-}
+}*/
 
 
 
 
-/*
+
 "use client";
 import React from "react";
 import useSWR from "swr";
@@ -100,4 +101,4 @@ const DesignersPage = () => {
 };
 
 export default DesignersPage;
-*/
+

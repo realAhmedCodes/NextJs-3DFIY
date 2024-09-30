@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Category model
+model Category {
+  category_id        Int      @id @default(autoincrement())
+  parent_category_id Int?
+  name               String   @db.VarChar(50)
+  createdAt          DateTime @default(now()) @db.Timestamptz
+  updatedAt          DateTime @updatedAt @db.Timestamptz
+
+  // Self-referencing relation for parent-child categories
+  parentCategory     Category? @relation("CategoryParent", fields: [parent_category_id], references: [category_id])
+  childCategories    Category[] @relation("CategoryParent")
+
+  // Relationship with Models
+  models             Models[]
+}
+
+// Models model
+model Models {
+  model_id       Int      @id @default(autoincrement())
+  category_id    Int
+  designer_id    Int
+  name           String   @db.VarChar(50)
+  description    String   @db.VarChar(50)
+  price          String?  @db.VarChar(255)
+  is_free        Boolean  @default(false)
+  image          String   @db.VarChar
+ model_file      String   @db.VarChar(255) 
+  likes_count    Int      @default(0)
+  download_count Int?
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @updatedAt @db.Timestamptz
+  tags           String[] // Array of text values
+
+  // Foreign key relationships
+  Category        Category   @relation(fields: [category_id], references: [category_id])
+  Designers       Designers  @relation(fields: [designer_id], references: [designer_id])
+
+  // Relationships with Likes and SavedModels
+  likes           Likes[]
+  savedModels     SavedModels[]
+
+  @@index([category_id])
+  @@index([designer_id])
+}
+
+
+
+
+
+// Likes model
+model Likes {
+  like_id   Int      @id @default(autoincrement())
+  model_id  Int
+  user_id   Int
+  liked     Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @default(now()) @db.Timestamptz
+
+  // Foreign key relationships
+  Models    Models   @relation(fields: [model_id], references: [model_id], onDelete: Cascade)
+  Users     Users    @relation(fields: [user_id], references: [user_id])
+
+  @@index([model_id])
+  @@index([user_id])
+  @@unique([model_id, user_id])  // Ensure uniqueness like the previous schema
+}
+
+
+
+// SavedModels model
+model SavedModels {
+  saved_model_id Int      @id @default(autoincrement())
+  model_id       Int
+  user_id        Int
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @default(now()) @db.Timestamptz
+  saved          Boolean  @default(false)
+
+  // Foreign key relationships
+  Models         Models   @relation(fields: [model_id], references: [model_id])
+  Users          Users    @relation(fields: [user_id], references: [user_id])
+
+  @@index([model_id])
+  @@index([user_id])
+  @@unique([model_id, user_id]) // Compound unique constraint
+}
+
+
+
+// Users model
+model Users {
+  user_id     Int      @id @default(autoincrement())
+  name        String   @db.VarChar(50)
+  username    String   @db.VarChar(50) @unique
+  location    String   @db.VarChar(255)
+  email       String   @db.VarChar(100) @unique
+  profile_pic String?  @db.VarChar
+  password    String   @db.VarChar(255)
+  phoneNo     String   @db.VarChar(255)
+  sellerType  String   @db.VarChar(50)
+  createdAt   DateTime @default(now()) @db.Timestamptz
+  updatedAt   DateTime @updatedAt @db.Timestamptz
+  is_verified Boolean  @default(false)
+
+  // Relationships
+  designers       Designers[]
+  printer_owners  Printer_Owners[]
+  likes           Likes[]
+  savedModels     SavedModels[]
+  model_orders    model_orders[] // Opposite relation to model_orders
+  printer_orders  printer_orders[] // Opposite relation to printer_orders
+  ChatsReceived   Chats[]   @relation("ChatReceiver")
+  ChatsSent       Chats[]   @relation("ChatSender")
+
+  @@index([user_id])
+}
+
+// Designers model
+model Designers {
+  designer_id Int      @id @default(autoincrement())
+  user_id     Int
+  cnic_number String   @db.VarChar(50) @unique
+  bio         String   @db.VarChar(255)
+  ratings     Int?
+  createdAt   DateTime @default(now()) @db.Timestamptz
+  updatedAt   DateTime @updatedAt @db.Timestamptz
+
+  // Foreign key relation to Users
+  Users       Users     @relation(fields: [user_id], references: [user_id])
+
+  // Relationship with Models
+  models      Models[]
+  
+  // Opposite relation to model_orders
+  model_orders model_orders[]
+
+  @@index([user_id])
+}
+
+// Printer_Owners model
+model Printer_Owners {
+  printer_owner_id    Int      @id @default(autoincrement())
+  user_id             Int
+  cnic_number         String   @db.VarChar(50) @unique
+  bio                 String   @db.VarChar(255)
+  ratings             Int?
+  quality_certificate Bytes?
+  createdAt           DateTime @default(now()) @db.Timestamptz
+  updatedAt           DateTime @updatedAt @db.Timestamptz
+
+  // Foreign key relation to Users
+  Users               Users     @relation(fields: [user_id], references: [user_id])
+
+  // Opposite relation to Printers and printer_orders
+  printers            Printers[]
+  printer_orders      printer_orders[]
+
+  @@index([user_id])
+}
+
+// Printers model
+model Printers {
+  printer_id       Int      @id @default(autoincrement())
+  location         String   @db.VarChar(100)
+  description      String   @db.Text
+  name             String   @db.VarChar(50)
+  printer_type     String   @db.VarChar(50)
+  materials        String[] // Array of text values (automatically mapped to PostgreSQL `text[]`)
+  price            Int?
+  image            String   @db.VarChar(255)
+  printer_owner_id Int?
+  rating           Int?
+  created_at       DateTime @default(now()) @db.Timestamptz
+  updated_at       DateTime @updatedAt @db.Timestamptz
+  colors           String[] // Array of text values
+  services         String[] // Array of text values
+
+  // Foreign key relation to Printer_Owners
+  Printer_Owners   Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
+
+  // Relation with printer_orders
+  printer_orders   printer_orders[]
+
+  @@index([printer_id])
+  @@index([printer_owner_id])
+}
+
+// model_orders table
+model model_orders {
+  order_id         Int      @id @default(autoincrement())
+  user_id          Int
+  model_name       String   @db.VarChar(255)
+  description      String   @db.Text
+  dimensions       Json     @db.JsonB
+  file_format      String   @db.VarChar(50)
+  reference_file   String?  @db.VarChar(255)
+  additional_notes String?  @db.Text
+  designer_id      Int
+  created_at       DateTime @default(now()) @db.Timestamptz
+  updated_at       DateTime @updatedAt @db.Timestamptz
+  status           String?  @db.VarChar @default("pending")
+  reasons          String?  @db.Text
+  updates          String?  @db.Text
+
+  // Foreign key relations
+  Users            Users     @relation(fields: [user_id], references: [user_id])
+  Designers        Designers @relation(fields: [designer_id], references: [designer_id])
+
+  @@index([order_id])
+  @@index([user_id])
+  @@index([designer_id])
+}
+
+// printer_orders table
+model printer_orders {
+  pending_order_id Int      @id @default(autoincrement())
+  user_id          Int
+  printerid        Int
+  printer_owner_id Int?
+  model_file       String   @db.VarChar
+  instructions     String   @db.Text
+  material         String   @db.VarChar
+  color            String   @db.VarChar
+  resolution       String   @db.VarChar
+  resistance       String   @db.VarChar
+  status           String?  @db.VarChar @default("pending")
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt @db.Timestamptz
+  updates          String?  @db.Text
+  reasons          String?  @db.Text
+
+  // Foreign key relations
+  Users            Users           @relation(fields: [user_id], references: [user_id])
+  Printer_Owners   Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
+  Printers         Printers        @relation(fields: [printerid], references: [printer_id])
+
+  @@index([pending_order_id])
+  @@index([user_id])
+  @@index([printerid])
+}
+
+// Chats table
+model Chats {
+  chat_id     Int      @id @default(autoincrement())
+  room_id     String   @db.VarChar(255)
+  sender_id   Int
+  receiver_id Int
+  message     String   @db.Text
+  createdat   DateTime @default(now()) @db.Timestamptz
+
+  // Foreign key relations
+  sender      Users    @relation("ChatSender", fields: [sender_id], references: [user_id])
+  receiver    Users    @relation("ChatReceiver", fields: [receiver_id], references: [user_id])
+
+  @@index([chat_id])
+  @@index([room_id])
+  @@index([sender_id])
+  @@index([receiver_id])
+}
+
+// otp table
+model otp {
+  id      Int      @id @default(autoincrement())
+  email   String   @db.VarChar(255) @unique
+  otp     String   @db.VarChar(6)
+  expiry  DateTime @db.Timestamptz
+
+  @@index([id])
+  @@index([email])
+}
