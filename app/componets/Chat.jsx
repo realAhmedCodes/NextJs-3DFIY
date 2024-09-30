@@ -124,13 +124,12 @@ import ChatList from "./ChatList";
 
 // SWR fetcher function
 const fetcher = (url) => fetch(url).then((res) => res.json());
-
 const ChatComponent = ({ currentUser, roomId, otherUser }) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // Messages state
   const [socket, setSocket] = useState(null);
-  const [activeRoomId, setActiveRoomId] = useState(roomId || null);
-  const [activeOtherUser, setActiveOtherUser] = useState(otherUser || null);
+  const [activeRoomId, setActiveRoomId] = useState(roomId || null); // Active room ID
+  const [activeOtherUser, setActiveOtherUser] = useState(otherUser || null); // Active other user
 
   // Use SWR to fetch the chat list when `currentUser` is available
   const {
@@ -147,10 +146,12 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
     if (activeRoomId) {
       const newSocket = io.connect("http://localhost:3001");
 
+      // Join the selected room and fetch previous messages
       newSocket.emit("join_room", activeRoomId);
+      setMessages([]); // Clear previous messages
 
-      newSocket.on("previous_messages", (messages) => {
-        setMessages(messages);
+      newSocket.on("previous_messages", (previousMessages) => {
+        setMessages(previousMessages);
       });
 
       newSocket.on("receive_message", (message) => {
@@ -160,10 +161,10 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
       setSocket(newSocket);
 
       return () => {
-        newSocket.disconnect();
+        newSocket.disconnect(); // Clean up on component unmount
       };
     }
-  }, [activeRoomId, activeOtherUser]); // Trigger effect on both roomId and otherUser changes
+  }, [activeRoomId]); // Trigger the effect when activeRoomId changes
 
   // Listen for real-time chat list updates
   useEffect(() => {
@@ -197,22 +198,16 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
   };
 
   const handleSelectChat = (roomId, otherUserId) => {
-    setActiveRoomId(roomId);
-    setActiveOtherUser(otherUserId);
+    setActiveRoomId(roomId); // Set the selected room ID
+    setActiveOtherUser(otherUserId); // Set the selected other user ID
+    setMessages([]); // Clear messages when changing chat
   };
 
   if (chatListError) return <p>Error loading chat list</p>;
 
   return (
     <div className="flex w-full">
-      {/* ChatList rendered inside ChatComponent */}
-      <ChatList
-        currentUser={currentUser}
-        onSelectChat={handleSelectChat} // Pass function to update active chat
-        chatRooms={chatRooms}
-      />
-
-      {/* Chat Window */}
+      <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
       <div className="flex-grow flex flex-col w-full max-w-2xl p-4 bg-white rounded shadow-lg">
         <div className="p-2 text-lg font-bold text-center text-white bg-blue-500 rounded">
           Live Chat
@@ -263,6 +258,7 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
 };
 
 export default ChatComponent;
+
 
 
 

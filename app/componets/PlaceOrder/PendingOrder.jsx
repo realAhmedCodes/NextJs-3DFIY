@@ -18,7 +18,8 @@ export const PendingOrder = ({ profileUserId }) => {
 
   // Fetch pending orders conditionally based on sellerType
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
-    sellerType === "Regular" ? `/api/orders/userId/${userId}` : null,
+    sellerType === "Regular" ?
+     `/api/orders/userId/${userId}` : null,
     fetcher
   );
 
@@ -31,7 +32,7 @@ export const PendingOrder = ({ profileUserId }) => {
 
   const { data: ownersPrinterOrders, error: ownersPrinterError } = useSWR(
     sellerType === "Printer Owner"
-      ? `/api/orders/printerPendingOrders/${sellerId}`
+      ? `/api/orders/printerOwners/${sellerId}`
       : null,
     fetcher
   );
