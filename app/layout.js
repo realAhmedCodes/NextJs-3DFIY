@@ -15,12 +15,12 @@ export default function RootLayout({ children }) {
       <body className="flex flex-col min-h-screen">
         <Providers>
           <ThemeProviders>
-            <Navbar />
+           
             {/* This div ensures that the content expands to fill the screen, pushing the footer down */}
             <div className="flex-grow">{children}</div>
           </ThemeProviders>
         </Providers>
-        <Footer />
+        
       </body>
     </html>
   );
