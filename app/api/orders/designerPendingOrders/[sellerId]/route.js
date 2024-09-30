@@ -1,5 +1,8 @@
-import pool from "@/app/lib/db";
+
 // seller ke pending orders
+
+/*
+import pool from "@/app/lib/db";
 export async function GET(req, { params }) {
   const { sellerId } = params; // Extract the designer_id from the request params
 console.log(sellerId)
@@ -33,6 +36,64 @@ console.log(sellerId)
     }
 
     return new Response(JSON.stringify(result.rows), { status: 200 });
+  } catch (error) {
+    console.error("Failed to fetch orders for designer:", error);
+    return new Response(JSON.stringify({ error: "Failed to fetch orders" }), {
+      status: 500,
+    });
+  }
+}*/
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+// Fetch pending or denied orders for a seller (designer)
+export async function GET(req, { params }) {
+  const { sellerId } = params; // Extract the designer_id from the request params
+  console.log(sellerId); // For debugging
+
+  try {
+    // Fetch model orders with Prisma
+    const orders = await prisma.model_orders.findMany({
+      where: {
+        designer_id: parseInt(sellerId, 10), // Ensure sellerId is an integer
+        status: {
+          in: ["pending", "denied"], // Only select orders with "pending" or "denied" status
+        },
+      },
+      orderBy: {
+        created_at: "desc", // Order by creation date in descending order
+      },
+      select: {
+        order_id: true,
+        status: true,
+        created_at: true,
+        Users: {
+          select: {
+            name: true, // Get the user's name associated with the order
+          },
+        },
+      },
+    });
+
+    if (orders.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "No orders found for this designer" }),
+        {
+          status: 404,
+        }
+      );
+    }
+
+    // Map the response to match the original structure
+    const formattedOrders = orders.map((order) => ({
+      order_id: order.order_id,
+      status: order.status,
+      created_at: order.created_at,
+      user_name: order.Users.name,
+    }));
+
+    return new Response(JSON.stringify(formattedOrders), { status: 200 });
   } catch (error) {
     console.error("Failed to fetch orders for designer:", error);
     return new Response(JSON.stringify({ error: "Failed to fetch orders" }), {

@@ -1,23 +1,23 @@
-// app/api/models/detail/route.js
-import pool from "@/app/lib/db";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET() {
-  
-
   try {
-    const result = await pool.query(
-      'SELECT * FROM "Models"',
-     
-    );
-    if (result.rows.length === 0) {
+    // Fetch all models from the database using Prisma
+    const models = await prisma.models.findMany();
+
+    // If no models are found, return a 404 response
+    if (models.length === 0) {
       return new Response(JSON.stringify({ error: "Models not found" }), {
         status: 404,
       });
     }
-    return new Response(JSON.stringify(result.rows), { status: 200 });
 
+    // Return the fetched models as a JSON response with status 200
+    return new Response(JSON.stringify(models), { status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching models:", error);
     return new Response(
       JSON.stringify({ error: "Failed to fetch model details" }),
       { status: 500 }
