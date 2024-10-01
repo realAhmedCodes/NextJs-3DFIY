@@ -19,6 +19,9 @@ const LoginForm = () => {
   const submitBtn = async (e) => {
     e.preventDefault();
 
+    setError(null); // Reset error state on each submission
+    setSuccess(null); // Reset success state on each submission
+
     try {
       const response = await fetch("/api/login", {
         method: "POST",
@@ -46,6 +49,8 @@ const LoginForm = () => {
         router.push(`/`);
       }
     } catch (error) {
+      setOpen(true);
+      setError("Error during login, please try again.");
       console.error("Error during login:", error);
     }
   };
@@ -56,47 +61,44 @@ const LoginForm = () => {
         <Typography variant="h3" color="blue-gray" className="mb-2">
           Sign In
         </Typography>
-        <Typography className="mb-16 text-gray-600 font-normal text-[18px]">
+        <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
           Enter your email and password to sign in
         </Typography>
+
+        {error && (
+          <Alert color="red" open={open} onClose={() => setOpen(false)} className="mb-4 max-w-96 absolute bottom-0 right-0 m-4">
+            {error}
+          </Alert>
+        )}
+
+        {/* Alert for success */}
+        {success && (
+          <Alert color="green" open={open} onClose={() => setOpen(false)} className="mb-4">
+            {success}
+          </Alert>
+        )}
+
         <form action="#" className="mx-auto max-w-[24rem] text-left">
           <div className="mb-6">
-            <label htmlFor="email">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Your Email
-              </Typography>
-            </label>
             <Input
               id="email"
               color="gray"
               size="lg"
               type="email"
+              label="Email"
               name="email"
-              required
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@mail.com"
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               labelProps={{ className: "hidden" }}
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="password">
-              <Typography
-                variant="small"
-                className="mb-2 block font-medium text-gray-900"
-              >
-                Password
-              </Typography>
-            </label>
             <Input
               size="lg"
               placeholder="********"
               labelProps={{ className: "hidden" }}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              label="Password"
               className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
               type={passwordShown ? "text" : "password"}
               icon={
