@@ -1,99 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-//import { jwtDecode } from "jwt-decode"; 
+import React from "react";
+import useSWR from "swr";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
-import { useParams } from "next/navigation";
 import Printer_Orders from "@/app/componets/PlaceOrder/Printer_Orders";
 import { useSelector } from "react-redux";
 
-const page = () => {
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const Page = () => {
   const { printerId } = useParams();
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [name, setName] = useState("");
-  const [printerType, setPrinterType] = useState("");
-  const [materials, setMaterials] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState(null);
-  const [checkToken, setCheckToken] = useState("");
-  const [printerOwnerId, setPrinterOwnerId] = useState(null);
-  const [isLiked, setIsLiked] = useState(null);
-  const [isSaved, setIsSaved] = useState(null);
- 
-  const [printer, setPrinter] = useState(null);
+  const { userId, email, sellerType } = useSelector((state) => state.user);
+  const router = useRouter();
 
-  console.log("idddd", printerId);
+  const { data: printer, error } = useSWR(
+    printerId ? `/api/printers/${printerId}/printerDetail` : null,
+    fetcher
+  );
 
-  const nav = useRouter();
-
-  
- const { userId, email, sellerType, isVerified, sellerId } = useSelector(
-   (state) => state.user
- );
-
-  useEffect(() => {
-    const fetchModelDetail = async () => {
-      try {
-        const response = await fetch(
-          `/api/printers/${printerId}/printerDetail`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch model details");
-        }
-        const data = await response.json();
-        setPrinter(data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchModelDetail();
-  }, [printerId]);
-
- 
-
-  
   const updateModelBtn = () => {
-    nav.push(`/pages/printers/${printerId}/Printer_Update`);
+    router.push(`/pages/printers/${printerId}/Printer_Update`);
   };
 
   const delModelBtn = async () => {
     try {
-      // Replace with actual user ID or a variable containing it
-
-     
-
-      await axios.delete(
-        `/api/printers/${printerId}/delete`
-      );
+      await axios.delete(`/api/printers/${printerId}/delete`);
+      // Optionally, you can redirect or update the UI after deletion
+      router.push("/pages/printers");
     } catch (err) {
-      console.error("Failed to update like status", err);
+      console.error("Failed to delete model", err);
     }
   };
-  
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (!printer && !error) return <div>Loading...</div>;
+  if (error) return <div>Error loading printer details</div>;
+  if (!printer) return <div>No model found</div>;
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!printer) {
-    return <div>No model found</div>;
-  }
-
-  console.log(printer);
   const profilePicFilename = printer.profile_pic.split("\\").pop();
   const profilePicPath = `/uploads/${profilePicFilename}`;
+
   return (
     <div className="container mx-auto p-8">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -132,8 +78,9 @@ const page = () => {
           </div>
         </div>
       </div>
-      <Printer_Orders printerId={printerId}></Printer_Orders>
+      <Printer_Orders printerId={printerId} />
     </div>
   );
 };
-export default page;
+
+export default Page;

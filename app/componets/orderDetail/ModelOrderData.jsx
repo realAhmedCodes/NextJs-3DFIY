@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import useSWR from "swr";
 
-// Define the fetcher function for SWR
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ModelOrderData = ({ orderId }) => {
@@ -89,7 +88,7 @@ const ModelOrderData = ({ orderId }) => {
           </div>
         )}
 
-        {/* Reason input for decline action */}
+      
         {isDeclining && (
           <div className="mt-4">
             <textarea

@@ -59,7 +59,16 @@ const Page = () => {
     (state) => state.user
   );
 
-  setPrinterOwnerId(sellerId)
+useEffect(()=>{
+  if(sellerId){
+    setPrinterOwnerId(sellerId);
+  }
+},[sellerId])
+
+
+ 
+
+  
   useEffect(() => {
     if (printerType) {
       setMaterials(printerOptions[printerType]?.materials || []);

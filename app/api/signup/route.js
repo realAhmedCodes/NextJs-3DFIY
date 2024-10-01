@@ -489,6 +489,9 @@ export async function POST(req) {
 }
 */
 
+
+/*
+
 import bcrypt from "bcrypt";
 import pool from "../../lib/db";
 import multer from "multer";
@@ -497,15 +500,8 @@ import fs from "fs";
 import { NextResponse } from "next/server";
 
 const upload = multer({ storage: multer.memoryStorage() });
-/*const saveFileLocally = (buffer, filename) => {
-  const uploadsDir = path.join(process.cwd(), "uploads");
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
-  const filePath = path.join(uploadsDir, filename);
-  fs.writeFileSync(filePath, buffer);
-  return filePath;
-};*/
+
+
 const saveFileLocally = (buffer, filename) => {
   const uploadsDir = path.join(process.cwd(), "public", "uploads"); // Updated path
   if (!fs.existsSync(uploadsDir)) {
@@ -676,6 +672,156 @@ export async function POST(req) {
     } finally {
       client.release();
     }
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+*/
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { NextResponse } from "next/server";
+
+const prisma = new PrismaClient(); // Initialize Prisma client
+const upload = multer({ storage: multer.memoryStorage() });
+
+const saveFileLocally = (buffer, filename) => {
+  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  const filePath = path.join(uploadsDir, filename);
+  fs.writeFileSync(filePath, buffer);
+  return filePath;
+};
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export async function POST(req) {
+  try {
+    const data = await req.formData();
+    const files = {};
+    data.forEach((value, key) => {
+      if (value instanceof File) {
+        files[key] = value;
+      }
+    });
+
+    const {
+      name,
+      username,
+      email,
+      password,
+      location,
+      phoneNo,
+      cnic_number,
+      sellerType,
+      bio,
+      profile_pic,
+    } = Object.fromEntries(data.entries());
+
+    if (
+      !name ||
+      !username ||
+      !email ||
+      !password ||
+      !location ||
+      !phoneNo ||
+      !sellerType
+    ) {
+      return NextResponse.json(
+        { error: "All fields are required except bio and cnic_pic" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      (sellerType === "Designer" || sellerType === "Printer Owner") &&
+      !files.profile_pic
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Profile picture and CNIC picture are required for Designer and Printer Owner.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const currentTimestamp = new Date();
+
+    // Prisma: Create user
+    const newUser = await prisma.users.create({
+      data: {
+        name,
+        username,
+        email,
+        password: hashedPassword,
+        location,
+        phoneNo,
+        sellerType,
+        createdAt: currentTimestamp,
+        updatedAt: currentTimestamp,
+      },
+    });
+
+    let profile_pic_path = null;
+    if (files.profile_pic) {
+      profile_pic_path = saveFileLocally(
+        Buffer.from(await files.profile_pic.arrayBuffer()),
+        `profile_${newUser.user_id}.jpg`
+      );
+
+      // Update user with profile picture path
+      await prisma.users.update({
+        where: { user_id: newUser.user_id },
+        data: { profile_pic: profile_pic_path, updatedAt: currentTimestamp },
+      });
+    }
+
+    // Insert into Designer or Printer_Owners based on sellerType
+    if (sellerType === "Designer") {
+      await prisma.designers.create({
+        data: {
+          user_id: newUser.user_id,
+          cnic_number,
+          bio,
+          createdAt: currentTimestamp,
+          updatedAt: currentTimestamp,
+        },
+      });
+    } else if (sellerType === "Printer Owner") {
+      await prisma.printer_Owners.create({
+        data: {
+          user_id: newUser.user_id,
+          cnic_number,
+          bio,
+          createdAt: currentTimestamp,
+          updatedAt: currentTimestamp,
+        },
+      });
+    }
+
+    return NextResponse.json(
+      {
+        message: "User and Seller created successfully",
+        data: { user_id: newUser.user_id, sellerType },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error processing the request:", error);
     return NextResponse.json(

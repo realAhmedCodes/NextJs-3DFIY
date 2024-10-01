@@ -56,38 +56,42 @@ export default ChatList;
 
 
 
-
-
-
-
-
-
-
 import { useState, useEffect } from "react";
 import axios from "axios";
+import io from "socket.io-client"; // Add socket.io-client
+import useSWR from "swr"; // Add SWR for data fetching
+
+const fetcher = (url) => axios.get(url).then((res) => res.data);
 
 const ChatList = ({ currentUser, onSelectChat }) => {
-  const [chatRooms, setChatRooms] = useState([]);
+  const [socket, setSocket] = useState(null);
 
+  // Fetch chat list using SWR
+  const { data: chatRooms, mutate } = useSWR(
+    currentUser ? `/api/socketIo/${currentUser}/chatList` : null,
+    fetcher
+  );
+
+  // Set up socket connection
   useEffect(() => {
-    const fetchChatRooms = async () => {
-      try {
-        const response = await axios.get(
-          `/api/socketIo/${currentUser}/chatList`
-        );
-        setChatRooms(response.data);
-      } catch (error) {
-        console.error("Error fetching chat rooms:", error);
-      }
+    const newSocket = io("http://localhost:3001");
+    setSocket(newSocket);
+
+    // Listen for chat list updates
+    newSocket.on("update_chat_list", () => {
+      mutate(); // Re-fetch the chat list when the event is received
+    });
+
+    return () => {
+      newSocket.disconnect();
     };
+  }, [mutate]);
 
-    fetchChatRooms();
-  }, [currentUser]);
+  const selectChat = (roomId, otherUserId) => {
+    onSelectChat(roomId, otherUserId); // Pass roomId and otherUserId to the parent component
+  };
 
-const selectChat = (roomId, otherUserId) => {
-  onSelectChat(roomId, otherUserId); // Pass roomId and otherUserId to the parent component
-};
-
+  if (!chatRooms) return <div>Loading...</div>;
 
   return (
     <div className="w-1/4 bg-gray-200">

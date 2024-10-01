@@ -32,7 +32,11 @@ const page = () => {
     const { userId, email, sellerType, isVerified, sellerId } = useSelector(
       (state) => state.user
     );
-    setDesigner_Id(sellerId)
+    useEffect(() => {
+      if (sellerId) {
+        setDesigner_Id(sellerId);
+      }
+    }, [sellerId]); 
 
   useEffect(() => {
     const fetchData = async () => {

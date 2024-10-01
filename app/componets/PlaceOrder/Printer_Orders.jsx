@@ -76,7 +76,7 @@ const printerOrder = ({ printerId }) => {
     fetchOwnerId();
   }, [printerId]);
 
-  console.log("ownersid",printerOwnerId);
+  console.log("ownersid",printerOwnerId, "printerId", printerId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

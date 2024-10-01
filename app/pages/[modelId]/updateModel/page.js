@@ -208,6 +208,27 @@ const UpdateModelPage = () => {
     setTags(updatedTags);
   };
 
+
+  console.log(
+    name,
+  description,
+  price,
+  isFree,
+  image,
+  tags, 
+  tagsInput,
+  modelFile, 
+  designerId, 
+  categoryId, 
+  userId, 
+  checkToken,
+  categories, 
+  selectedCategory,
+  subcategories, 
+  selectedSubCategory, 
+  subSubcategories,
+  selectedSubSubCategory, 
+  )
   return (
     <div className="main_div">
       <div className="form_div">

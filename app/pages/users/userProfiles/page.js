@@ -1,38 +1,17 @@
-"use client"
-import React,{useState, useEffect} from 'react'
-import { useRouter } from "next/navigation"; 
-const page = () => {
-  const [users, setUsers] = useState([]);
+"use client";
+import React from "react";
+import useSWR from "swr";
+import { useRouter } from "next/navigation";
+// New fetching logic
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const Page = () => {
+  const { data: users, error } = useSWR("/api/users/getUsers", fetcher);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/users/getUsers");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const Data = await response.json();
-      
-        // Ensure modelsData is an array
-        if (Array.isArray(Data)) {
-          setUsers(Data);
-        } else if (Data) {
-          // Wrap the single object in an array
-          setUsers([Data]);
-        } else {
-          console.log("Fetched data is not an array or an object");
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    };
+  if (error) return <div>Error loading users</div>;
+  if (!users) return <div>Loading...</div>;
 
-    fetchData();
-  }, []);
-  //const profilePicFilename = users.profile_pic.split("\\").pop();
-  //const profilePicPath = `/uploads/${profilePicFilename}`;
   return (
     <div>
       <h1 className="text-xl font-bold mb-2">Latest Users</h1>
@@ -40,14 +19,11 @@ const page = () => {
         {users.map((user) => (
           <div
             key={user.user_id}
-            /// onClick={() => router.push(`/pages/ModelDetail/${model.model_id}`)}
-            //onClick={() => router.push(`/pages/model`)}onClick={() => router.push(`/model/${model.model_id}`)}
             onClick={() => router.push(`/pages/users/${user.user_id}/profile`)}
             className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
           >
             <p>{user.name}</p>
             <p>{user.location}</p>
-           
           </div>
         ))}
       </div>
@@ -55,5 +31,4 @@ const page = () => {
   );
 };
 
-
-export default page
+export default Page;

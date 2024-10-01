@@ -132,10 +132,7 @@ const Page = () => {
 
         {showChat && currentUser && (
           <div className="mt-6">
-            <ChatList
-              currentUser={currentUser}
-              onSelectChat={handleSelectChat}
-            />
+           
             <ChatComponent
               currentUser={currentUser}
               roomId={generatedRoomId}
@@ -149,6 +146,12 @@ const Page = () => {
 };
 
 export default Page;
+
+
+/* <ChatList
+              currentUser={currentUser}
+              onSelectChat={handleSelectChat}
+            /> */
 
 /*
 "use client";

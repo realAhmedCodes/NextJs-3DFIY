@@ -27,7 +27,7 @@ const PrinterOrderData = ({ orderId }) => {
     }
 
     try {
-      const response = await fetch(`/api/orders/status`, {
+      const response = await fetch(`/api/orders/status/printerOrderStatus`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

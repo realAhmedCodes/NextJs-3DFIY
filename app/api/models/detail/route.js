@@ -1,4 +1,6 @@
 // app/api/models/detail/route.js
+
+// Not using this api
 import pool from "@/app/lib/db";
 
 export async function GET({ params }) {
