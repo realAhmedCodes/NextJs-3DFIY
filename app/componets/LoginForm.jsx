@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
 import { useRouter } from "next/navigation";
 import { EyeOff, Eye } from "lucide-react";
+import Navbar from "./Navbar";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,84 +64,87 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Sign In</h2>
-          <p className="mt-2 text-gray-600">
-            Enter your email and password to sign in
-          </p>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <p>{error}</p>
-            </Alert>
-          )}
-          <form className="space-y-6" onSubmit={submitBtn}>
-            {/* Email */}
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+    <div>
+      <Navbar></Navbar>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900">Sign In</h2>
+            <p className="mt-2 text-gray-600">
+              Enter your email and password to sign in
+            </p>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <p>{error}</p>
+              </Alert>
+            )}
+            <form className="space-y-6" onSubmit={submitBtn}>
+              {/* Email */}
+              <div>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="password"
-                  type={passwordShown ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
-                  onClick={togglePasswordVisibility}
-                >
-                  {passwordShown ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            <Button type="submit" className="w-full">
-              Sign In
-            </Button>
+              {/* Password */}
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={passwordShown ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {passwordShown ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
 
-            <div className="flex items-center justify-between mt-4">
-              <a
-                href="#"
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Forgot password?
-              </a>
-              <p className="text-sm text-gray-600">
-                Not registered?{" "}
+              <Button type="submit" className="w-full">
+                Sign In
+              </Button>
+
+              <div className="flex items-center justify-between mt-4">
                 <a
-                  href="/register"
-                  className="font-medium text-indigo-600 hover:text-indigo-500"
+                  href="#"
+                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                 >
-                  Create account
+                  Forgot password?
                 </a>
-              </p>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                <p className="text-sm text-gray-600">
+                  Not registered?{" "}
+                  <a
+                    href="/register"
+                    className="font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    Create account
+                  </a>
+                </p>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

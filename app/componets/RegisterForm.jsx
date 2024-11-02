@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
+import Navbar from "./Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -216,237 +216,240 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Sign up to get started
-          </h2>
-        </CardHeader>
-        <CardContent>
-          {nextComp ? (
-            <form className="space-y-6" onSubmit={SubmitBtn}>
-              {/* Name */}
-              <div>
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter Name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                />
-                {!validName && (
-                  <p className="text-red-500 text-sm">Name is required.</p>
-                )}
-              </div>
-
-              {/* Username */}
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  required
-                />
-                {!validUsername && (
-                  <p className="text-red-500 text-sm">
-                    Username must be 4-24 characters, start with a letter.
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-                {!validEmail && (
-                  <p className="text-red-500 text-sm">
-                    Enter a valid email address.
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div>
-                <Label htmlFor="pwd">Password</Label>
-                <Input
-                  id="pwd"
-                  type="password"
-                  placeholder="********"
-                  value={formData.pwd}
-                  onChange={handleInputChange}
-                  required
-                />
-                {!validPwd && (
-                  <p className="text-red-500 text-sm">
-                    Password must be 8-24 characters, include uppercase and
-                    lowercase letters, a number, and a special character.
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <Label htmlFor="matchPwd">Confirm Password</Label>
-                <Input
-                  id="matchPwd"
-                  type="password"
-                  placeholder="********"
-                  value={formData.matchPwd}
-                  onChange={handleInputChange}
-                  required
-                />
-                {!validMatch && (
-                  <p className="text-red-500 text-sm">
-                    Passwords do not match.
-                  </p>
-                )}
-              </div>
-
-              {/* Location */}
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  type="text"
-                  placeholder="Enter Location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <Label htmlFor="phoneNo">Phone Number</Label>
-                <Input
-                  id="phoneNo"
-                  type="tel"
-                  placeholder="Enter Phone Number"
-                  value={formData.phoneNo}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {/* Seller Type Selection */}
-              <div className="flex items-center space-x-4">
-                <p className="text-gray-700">Become a Seller:</p>
-                <Button variant="outline" onClick={nextCompAsDesigner}>
-                  As Model Designer
-                </Button>
-                <Button variant="outline" onClick={nextCompAsPrinterOwner}>
-                  As Printer Owner
-                </Button>
-              </div>
-
-              {/* Submit Button */}
-              <Button type="submit" className="w-full">
-                Submit
-              </Button>
-
-              {/* Login Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
-                Already have an account?
-                <a
-                  href="/pages/login"
-                  className="font-semibold text-indigo-600 hover:text-indigo-500"
-                >
-                  {" "}
-                  Log In
-                </a>
-              </p>
-            </form>
-          ) : (
-            <form className="space-y-6" onSubmit={SubmitBtn}>
-              {/* Profile Picture */}
-              <div>
-                <Label htmlFor="profile_pic">Profile Picture</Label>
-                <Input
-                  id="profile_pic"
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Write your bio here"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                ></Textarea>
-              </div>
-
-              {/* CNIC Number */}
-              <div>
-                <Label htmlFor="cnic_number">CNIC Number</Label>
-                <Input
-                  id="cnic_number"
-                  type="text"
-                  placeholder="Enter CNIC"
-                  value={formData.cnic_number}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <Button type="submit" className="w-full">
-                Submit
-              </Button>
-            </form>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* OTP Verification Dialog */}
-      <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>OTP Verification</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleOtpSubmit}>
-            <div className="space-y-4">
-              <Label htmlFor="otp">
-                Enter the 6-digit OTP sent to your email
-              </Label>
-              <div className="mt-4 flex justify-center space-x-2">
-                {otpValues.map((value, index) => (
+    <div>
+      <Navbar></Navbar>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Sign up to get started
+            </h2>
+          </CardHeader>
+          <CardContent>
+            {nextComp ? (
+              <form className="space-y-6" onSubmit={SubmitBtn}>
+                {/* Name */}
+                <div>
+                  <Label htmlFor="name">Name</Label>
                   <Input
-                    key={index}
-                    id={`otp-${index}`}
+                    id="name"
                     type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    className="w-12 h-12 text-center text-xl"
-                    value={value}
-                    onChange={(e) => handleOtpChange(e, index)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    placeholder="Enter Name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                   />
-                ))}
+                  {!validName && (
+                    <p className="text-red-500 text-sm">Name is required.</p>
+                  )}
+                </div>
+
+                {/* Username */}
+                <div>
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="Username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {!validUsername && (
+                    <p className="text-red-500 text-sm">
+                      Username must be 4-24 characters, start with a letter.
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter Email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {!validEmail && (
+                    <p className="text-red-500 text-sm">
+                      Enter a valid email address.
+                    </p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div>
+                  <Label htmlFor="pwd">Password</Label>
+                  <Input
+                    id="pwd"
+                    type="password"
+                    placeholder="********"
+                    value={formData.pwd}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {!validPwd && (
+                    <p className="text-red-500 text-sm">
+                      Password must be 8-24 characters, include uppercase and
+                      lowercase letters, a number, and a special character.
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <Label htmlFor="matchPwd">Confirm Password</Label>
+                  <Input
+                    id="matchPwd"
+                    type="password"
+                    placeholder="********"
+                    value={formData.matchPwd}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {!validMatch && (
+                    <p className="text-red-500 text-sm">
+                      Passwords do not match.
+                    </p>
+                  )}
+                </div>
+
+                {/* Location */}
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    type="text"
+                    placeholder="Enter Location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <Label htmlFor="phoneNo">Phone Number</Label>
+                  <Input
+                    id="phoneNo"
+                    type="tel"
+                    placeholder="Enter Phone Number"
+                    value={formData.phoneNo}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* Seller Type Selection */}
+                <div className="flex items-center space-x-4">
+                  <p className="text-gray-700">Become a Seller:</p>
+                  <Button variant="outline" onClick={nextCompAsDesigner}>
+                    As Model Designer
+                  </Button>
+                  <Button variant="outline" onClick={nextCompAsPrinterOwner}>
+                    As Printer Owner
+                  </Button>
+                </div>
+
+                {/* Submit Button */}
+                <Button type="submit" className="w-full">
+                  Submit
+                </Button>
+
+                {/* Login Link */}
+                <p className="mt-6 text-center text-sm text-gray-600">
+                  Already have an account?
+                  <a
+                    href="/pages/login"
+                    className="font-semibold text-indigo-600 hover:text-indigo-500"
+                  >
+                    {" "}
+                    Log In
+                  </a>
+                </p>
+              </form>
+            ) : (
+              <form className="space-y-6" onSubmit={SubmitBtn}>
+                {/* Profile Picture */}
+                <div>
+                  <Label htmlFor="profile_pic">Profile Picture</Label>
+                  <Input
+                    id="profile_pic"
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {/* Bio */}
+                <div>
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    placeholder="Write your bio here"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                  ></Textarea>
+                </div>
+
+                {/* CNIC Number */}
+                <div>
+                  <Label htmlFor="cnic_number">CNIC Number</Label>
+                  <Input
+                    id="cnic_number"
+                    type="text"
+                    placeholder="Enter CNIC"
+                    value={formData.cnic_number}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <Button type="submit" className="w-full">
+                  Submit
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* OTP Verification Dialog */}
+        <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>OTP Verification</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleOtpSubmit}>
+              <div className="space-y-4">
+                <Label htmlFor="otp">
+                  Enter the 6-digit OTP sent to your email
+                </Label>
+                <div className="mt-4 flex justify-center space-x-2">
+                  {otpValues.map((value, index) => (
+                    <Input
+                      key={index}
+                      id={`otp-${index}`}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      className="w-12 h-12 text-center text-xl"
+                      value={value}
+                      onChange={(e) => handleOtpChange(e, index)}
+                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-            <DialogFooter className="mt-4">
-              <Button type="submit" className="w-full">
-                Verify
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+              <DialogFooter className="mt-4">
+                <Button type="submit" className="w-full">
+                  Verify
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };
