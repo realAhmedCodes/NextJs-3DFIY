@@ -1,141 +1,114 @@
-"use client"
+// components/ModelUploadPage.jsx
+"use client";
 
-import { useEffect, useState } from "react";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCookies } from "react-cookie";
-//import { jwtDecode, InvalidTokenError } from "jwt-decode";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
-const page = () => {
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Alert } from "@/components/ui/alert";
+import { Plus, X } from "lucide-react";
+
+const ModelUploadPage = () => {
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [customCategory, setCustomCategory] = useState("");
-  const [subcategories, setSubCategories] = useState([]);
-  const [selectedSubCategory, setSelectedSubCategory] = useState("");
-  const [customSubCategory, setCustomSubCategory] = useState("");
-  const [subSubcategories, setSubSubCategories] = useState([]);
-  const [selectedSubSubCategory, setSelectedSubSubCategory] = useState("");
-  const [customSubSubCategory, setCustomSubSubCategory] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [isFree, setIsFree] = useState(false);
   const [image, setImage] = useState(null);
   const [tags, setTags] = useState([]);
-  const [tagsInput, setTagsInput] = useState("");
+  const [tagInput, setTagInput] = useState("");
   const [modelFile, setModelFile] = useState(null);
-  const [designer_id, setDesigner_Id] = useState(null);
-  const [category_id, setCategory_Id] = useState(null);
-  const [checkToken, setCheckToken] = useState("");
+  const [designerId, setDesignerId] = useState(null);
+  const [error, setError] = useState("");
 
-    const { userId, email, sellerType, isVerified, sellerId } = useSelector(
-      (state) => state.user
-    );
-    useEffect(() => {
-      if (sellerId) {
-        setDesigner_Id(sellerId);
-      }
-    }, [sellerId]); 
+  const router = useRouter();
+
+  const { sellerId } = useSelector((state) => state.user);
 
   useEffect(() => {
-    const fetchData = async () => {
+    if (sellerId) {
+      setDesignerId(sellerId);
+    }
+  }, [sellerId]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "/api/category"
-        );
+        const response = await fetch("/api/categories");
         const categoryData = await response.json();
         setCategories(categoryData);
       } catch (err) {
         console.log(err);
       }
     };
-    fetchData();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
-    if (selectedCategory && selectedCategory !== "other") {
-      const fetchSubCategories = async () => {
+    if (selectedCategoryId) {
+      const fetchSubcategories = async () => {
         try {
           const response = await fetch(
-            `/api/subcategories/${selectedCategory}`
+            `/api/subcategories/${selectedCategoryId}`
           );
-          const subCategoryData = await response.json();
-          setSubCategories(subCategoryData);
+          const subcategoryData = await response.json();
+          setSubcategories(subcategoryData);
         } catch (err) {
           console.log(err);
         }
       };
-      fetchSubCategories();
+      fetchSubcategories();
     } else {
-      setSubCategories([]);
+      setSubcategories([]);
     }
-  }, [selectedCategory]);
+  }, [selectedCategoryId]);
 
-  useEffect(() => {
-    if (selectedSubCategory && selectedSubCategory !== "other") {
-      const fetchSubSubCategories = async () => {
-        try {
-          const response = await fetch(
-            `/api/subcategories/${selectedCategory}`
-          );
-          const subSubCategoryData = await response.json();
-          setSubSubCategories(subSubCategoryData);
-        } catch (err) {
-          console.log(err);
-        }
-      };
-      fetchSubSubCategories();
-    } else {
-      setSubSubCategories([]);
-    }
-  }, [selectedSubCategory]);
-
-  
-  
-  
-  /*const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("category_id", category_id);
-    formData.append("designer_id", designer_id);
-    formData.append("name", name);
-    formData.append("description", description);
-    
-    formData.append("price", price);
-    formData.append("is_free", isFree);
-    formData.append("image", image);
-    formData.append("tags", tags);
-    formData.append("modelFile", modelFile);
-    console.log(modelFile);
-    try {
-      const response = await fetch(
-        "/api/models/modelUpload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await response.json();
-      if (data.error) {
-        console.log(data.error);
+  const handleTagAdd = () => {
+    if (tagInput.trim() !== "" && !tags.includes(tagInput)) {
+      if (tags.length < 5) {
+        setTags([...tags, tagInput.trim()]);
+        setTagInput("");
       } else {
-        console.log("Model uploaded successfully:", data);
+        alert("You can only add up to 5 tags.");
       }
-    } catch (error) {
-      console.error(error);
-      console.log("Server Error");
     }
-  };*/
+  };
+
+  const handleTagDelete = (tagToDelete) => {
+    const updatedTags = tags.filter((tag) => tag !== tagToDelete);
+    setTags(updatedTags);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !description || !modelFile || !image || !selectedCategoryId) {
+      setError("Please fill out all required fields.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("category_id", category_id);
-    formData.append("designer_id", designer_id);
+    formData.append("category_id", selectedSubcategoryId || selectedCategoryId);
+    formData.append("designer_id", designerId);
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("price", price);
+    formData.append("price", isFree ? "0" : price);
     formData.append("is_free", isFree);
     formData.append("image", image);
     formData.append("tags", JSON.stringify(tags));
@@ -149,293 +122,194 @@ const page = () => {
 
       const data = await response.json();
       if (data.error) {
-        console.log(data.error);
+        setError(data.error);
       } else {
         console.log("Model uploaded successfully:", data);
+        router.push("/models"); // Redirect to models page or success page
       }
     } catch (error) {
       console.error(error);
-      console.log("Server Error");
+      setError("Server Error. Please try again later.");
     }
   };
 
-  console.log(
-    "category_id", category_id,
-    "designer_id", designer_id,
-    "name", name,
-    "description", description,
-    
-    "price", price,
-    "is_free", isFree,
-    "image", image,
-    "tags", tags,
-    "modelFile", modelFile,
-  )
-  const handleFileChange = (e) => {
-    setModelFile(e.target.files[0]);
-  };
-
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
-  };
-
-  const Chip = ({ label, onDelete }) => (
-    <div className="inline-block font-semibold py-2 pl-3 capitalize w-fit text-white px-2 rounded-full bg-blue-400">
-      <span>{label}</span>
-      <button
-        className="ml-2 text-gray-100 rounded-full text-center font-bold"
-        onClick={onDelete}
-      >
-        <FontAwesomeIcon className="w-3 text-red-600" icon={faXmark} />
-      </button>
-    </div>
-  );
-
-  const handleAddTags = (e) => {
-    e.preventDefault();
-    if (tagsInput.trim() !== "" && !tags.includes(tagsInput)) {
-      if (tags.length < 5) {
-        setTags([...tags, tagsInput]);
-        setTagsInput("");
-      } else {
-        alert("You can only add up to 5 skills.");
-      }
-    }
-  };
-
-  const handleDeleteTags = (tagsToDelete) => {
-    const updatedTags = tags.filter((tag) => tag !== tagsToDelete);
-    setTags(updatedTags);
-  };
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-    setCategory_Id(e.target.value);
-    setSelectedSubCategory(""); // Reset subcategory
-    setSelectedSubSubCategory(""); // Reset sub-subcategory
-  };
-
-  const handleSubCategoryChange = (e) => {
-    setSelectedSubCategory(e.target.value);
-    setCategory_Id(e.target.value);
-    setSelectedSubSubCategory(""); // Reset sub-subcategory
-  };
-
-  const handleSubSubCategoryChange = (e) => {
-    setSelectedSubSubCategory(e.target.value);
-    setCategory_Id(e.target.value);
-  };
-
-  const handleIsFreeChange = (e) => {
-    setIsFree(e.target.value === "true");
-  };
   return (
-    <div className="main_div">
-      <div className="form_div">
-        <form action="">
-          <div>
-            <label htmlFor="name">Enter Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          <div>
-            <select
-              value={selectedCategory === "other" ? "other" : selectedCategory}
-              onChange={handleCategoryChange}
-              className="mb-4 p-2 border border-gray-300 rounded w-full"
-            >
-              <option value="">Select Category</option>
-              {Array.isArray(categories) &&
-                categories.map((category) => (
-                  <option
-                    key={category.category_id}
-                    value={category.category_id}
-                  >
-                    {category.name}
-                  </option>
-                ))}
-              <option value="other">Other</option>
-            </select>
-            {selectedCategory === "other" && (
-              <>
-                <label htmlFor="customCategory">Type Category</label>
-                <input
-                  type="text"
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                />
-              </>
-            )}
-            <div>
-              {selectedCategory && selectedCategory !== "other" && (
-                <>
-                  <select
-                    value={
-                      selectedSubCategory === "other"
-                        ? "other"
-                        : selectedSubCategory
-                    }
-                    onChange={handleSubCategoryChange}
-                    className="mb-4 p-2 border border-gray-300 rounded w-full"
-                  >
-                    <option value="">Select Sub Category</option>
-                    {Array.isArray(subcategories) &&
-                      subcategories.map((subCategory) => (
-                        <option
-                          key={subCategory.category_id}
-                          value={subCategory.category_id}
-                        >
-                          {subCategory.name}
-                        </option>
-                      ))}
-                    <option value="other">Other</option>
-                  </select>
-                </>
-              )}
-            </div>
-            {selectedSubCategory === "other" && (
-              <>
-                <label htmlFor="customSubCategory">Type Sub Category</label>
-                <input
-                  type="text"
-                  value={customSubCategory}
-                  onChange={(e) => setCustomSubCategory(e.target.value)}
-                />
-              </>
-            )}
-            <div>
-              {selectedSubCategory && selectedSubCategory !== "other" && (
-                <>
-                  <select
-                    value={
-                      selectedSubSubCategory === "other"
-                        ? "other"
-                        : selectedSubSubCategory
-                    }
-                    onChange={handleSubSubCategoryChange}
-                    className="mb-4 p-2 border border-gray-300 rounded w-full"
-                  >
-                    <option value="">Select Sub Sub Category</option>
-                    {Array.isArray(subSubcategories) &&
-                      subSubcategories.map((subSubCategory) => (
-                        <option
-                          key={subSubCategory.category_id}
-                          value={subSubCategory.category_id}
-                        >
-                          {subSubCategory.name}
-                        </option>
-                      ))}
-                    <option value="other">Other</option>
-                  </select>
-                </>
-              )}
-            </div>
-            {selectedSubSubCategory === "other" && (
-              <>
-                <label htmlFor="customSubSubCategory">
-                  Type Sub Sub Category
-                </label>
-                <input
-                  type="text"
-                  value={customSubSubCategory}
-                  onChange={(e) => setCustomSubSubCategory(e.target.value)}
-                />
-              </>
-            )}
-          </div>
-          <div>
-            <label htmlFor="description">Enter Description</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <label htmlFor="is_free">Is It Paid?</label>
-          <input
-            type="radio"
-            value={false}
-            checked={!isFree}
-            onChange={handleIsFreeChange}
-          />
-          <span className="ml-2">No</span>
-          <input
-            type="radio"
-            value={true}
-            checked={isFree}
-            onChange={handleIsFreeChange}
-          />
-          <span className="ml-2">Yes</span>
-          {isFree === true ? (
-            <>
-              <div>
-                <label htmlFor="price">Enter Price</label>
-                <input
-                  type="text"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            ""
+    <div className="flex justify-center py-8 px-4">
+      <Card className="w-full max-w-3xl">
+        <CardHeader>
+          <h2 className="text-xl font-semibold">Upload Your 3D Model</h2>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              {error}
+            </Alert>
           )}
-          <div>
-            <label htmlFor="tags">Enter Tags</label>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <input
-                  type="text"
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  placeholder="Enter skill..."
-                  className="border border-gray-300 px-3 py-2 rounded-md w-64 focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  onClick={handleAddTags}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-                >
-                  Add Tags
-                </button>
-              </div>
-              <div className="space-x-2">
-                {tags.map((tag, index) => (
-                  <Chip
-                    key={index}
-                    label={tag}
-                    onDelete={() => handleDeleteTags(tag)}
-                  />
-                ))}
-              </div>
-            </div>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Model Name */}
             <div>
-              <label htmlFor="modelFile">Upload Your 3D Model</label>
-              <input
-                onChange={handleFileChange}
-                type="file"
-                accept=".stl,.obj"
-                name="modelFile"
-                id=""
+              <Label htmlFor="name">Model Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter model name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
-          </div>
-        </form>
-        <div>
-          <div>
-            <label htmlFor="image">Upload Image</label>
-            <input
-              accept="image/jpeg,image/png"
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-            />
-          </div>
-        </div>
-        <button onClick={handleSubmit}>Upload Model</button>
-      </div>
+
+            {/* Description */}
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Enter model description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Category Selection */}
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select onValueChange={setSelectedCategoryId}>
+                <SelectTrigger id="category">
+                  <span>
+                    {selectedCategoryId
+                      ? categories.find(
+                          (cat) => cat.category_id === selectedCategoryId
+                        )?.name
+                      : "Select a category"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.category_id}
+                      value={category.category_id}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Subcategory Selection */}
+            {subcategories.length > 0 && (
+              <div>
+                <Label htmlFor="subcategory">Subcategory</Label>
+                <Select onValueChange={setSelectedSubcategoryId}>
+                  <SelectTrigger id="subcategory">
+                    <span>
+                      {selectedSubcategoryId
+                        ? subcategories.find(
+                            (sub) => sub.category_id === selectedSubcategoryId
+                          )?.name
+                        : "Select a subcategory"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subcategories.map((subcategory) => (
+                      <SelectItem
+                        key={subcategory.category_id}
+                        value={subcategory.category_id}
+                      >
+                        {subcategory.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Price and Is Free */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isFree"
+                  checked={isFree}
+                  onCheckedChange={(checked) => setIsFree(checked)}
+                />
+                <Label htmlFor="isFree">Is Free</Label>
+              </div>
+              {!isFree && (
+                <div>
+                  <Label htmlFor="price">Price</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="Enter price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required={!isFree}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Tags */}
+            <div>
+              <Label>Tags</Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Add a tag"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                />
+                <Button type="button" onClick={handleTagAdd}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary">
+                    {tag}
+                    <X
+                      className="ml-1 h-3 w-3 cursor-pointer"
+                      onClick={() => handleTagDelete(tag)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Model File Upload */}
+            <div>
+              <Label htmlFor="modelFile">Upload 3D Model (.stl, .obj)</Label>
+              <Input
+                id="modelFile"
+                type="file"
+                accept=".stl,.obj"
+                onChange={(e) => setModelFile(e.target.files[0])}
+                required
+              />
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <Label htmlFor="image">Upload Image</Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={(e) => setImage(e.target.files[0])}
+                required
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button type="submit" className="w-full">
+              Upload Model
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
-export default page;
+
+export default ModelUploadPage;
