@@ -146,12 +146,15 @@ export async function POST(req) {
   return NextResponse.json({ message: "OTP sent to your email" });
 }
 */
-import nodemailer from "nodemailer";
-import { NextResponse } from "next/server";
-import { generateOTP, storeOTP } from "@/app/utlits/otpstore";
+
+// app/api/otp/generate/route.js
+
+import nodemailer from 'nodemailer';
+import { NextResponse } from 'next/server';
+import { generateOTP, storeOTP } from '@/app/utlits/otpstore';
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -162,16 +165,16 @@ async function sendOTPEmail(email, otp) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Your OTP Code",
+    subject: 'Your OTP Code',
     text: `Your OTP code is ${otp}`,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully");
+    console.log('Email sent successfully');
   } catch (error) {
-    console.error("Error sending email:", error);
-    throw new Error("Error sending OTP email");
+    console.error('Error sending email:', error);
+    throw new Error('Error sending OTP email');
   }
 }
 
@@ -179,26 +182,26 @@ export async function POST(req) {
   try {
     const { email } = await req.json();
 
-    // Step 1: Generate OTP only once
+    // Step 1: Generate OTP
     const otp = generateOTP();
     console.log(`[DEBUG] Generated OTP for ${email}: ${otp}`);
 
-    // Step 2: Store the OTP in the database immediately after generation
+    // Step 2: Store the OTP in the database
     const expiry = Date.now() + 5 * 60 * 1000; // 5 minutes expiry
     await storeOTP(email, otp, expiry);
     console.log(`[DEBUG] Stored OTP for ${email}: ${otp}`);
 
-    // Step 3: Send the OTP email after storing it
+    // Step 3: Send the OTP email
     await sendOTPEmail(email, otp);
     console.log(`[DEBUG] Sent OTP email to ${email}: ${otp}`);
 
     // Step 4: Return a success response
     return NextResponse.json(
-      { message: "OTP sent to your email" },
+      { message: 'OTP sent to your email' },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error during OTP generation or sending:", error);
-    return NextResponse.json({ error: "Failed to send OTP." }, { status: 500 });
+    console.error('Error during OTP generation or sending:', error);
+    return NextResponse.json({ error: 'Failed to send OTP.' }, { status: 500 });
   }
 }

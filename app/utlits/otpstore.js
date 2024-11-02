@@ -15,49 +15,63 @@ export function deleteOTP(email) {
   delete otpStore[email];
 }
 */
+// app/utils/otpstore.js
 
-import pool from "../lib/db";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-digit OTP
 }
 
 export async function storeOTP(email, otp, expiry) {
   try {
-    await pool.query(
-      `INSERT INTO otp (email, otp, expiry)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (email) 
-       DO UPDATE SET otp = EXCLUDED.otp, expiry = EXCLUDED.expiry`,
-      [email, otp, new Date(expiry)]
-    );
+    await prisma.otp.upsert({
+      where: { email },
+      update: {
+        otp,
+        expiry: new Date(expiry),
+      },
+      create: {
+        email,
+        otp,
+        expiry: new Date(expiry),
+      },
+    });
     console.log(`[DEBUG] Stored OTP in database for ${email}: ${otp}`);
   } catch (error) {
-    console.error("Error storing OTP:", error);
-    throw new Error("Error storing OTP");
+    console.error('Error storing OTP:', error);
+    throw new Error('Error storing OTP');
   }
 }
 
 export async function retrieveOTP(email) {
   try {
-    const result = await pool.query(
-      `SELECT otp, expiry FROM otp WHERE email = $1`,
-      [email]
-    );
-    console.log(`[DEBUG] Retrieved OTP for ${email}: ${result.rows[0].otp}`);
-    return result.rows[0];
+    const result = await prisma.otp.findUnique({
+      where: { email },
+    });
+    if (result) {
+      console.log(`[DEBUG] Retrieved OTP for ${email}: ${result.otp}`);
+      return result;
+    } else {
+      console.log(`[DEBUG] No OTP found for ${email}`);
+      return null;
+    }
   } catch (error) {
-    console.error("Error retrieving OTP:", error);
-    throw new Error("Error retrieving OTP");
+    console.error('Error retrieving OTP:', error);
+    throw new Error('Error retrieving OTP');
   }
 }
 
 export async function deleteOTP(email) {
   try {
-    await pool.query(`DELETE FROM otp WHERE email = $1`, [email]);
+    await prisma.otp.delete({
+      where: { email },
+    });
     console.log(`[DEBUG] Deleted OTP for ${email}`);
   } catch (error) {
-    console.error("Error deleting OTP:", error);
-    throw new Error("Error deleting OTP");
+    console.error('Error deleting OTP:', error);
+    throw new Error('Error deleting OTP');
   }
 }
