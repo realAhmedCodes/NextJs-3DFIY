@@ -1,36 +1,33 @@
+// components/ModelPage.jsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-//import { jwtDecode } from "jwt-decode"; // Import jwtDecode correctly
+import React, { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
-import { useParams } from "next/navigation";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
-const page = () => {
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
+import { Alert } from "@/components/ui/alert";
+import Navbar from "@/app/componets/Navbar";
+
+
+const ModelPage = () => {
   const { modelId } = useParams();
   const [model, setModel] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [checkToken, setCheckToken] = useState("");
-
+  const [error, setError] = useState();
   const [isLiked, setIsLiked] = useState(null);
   const [isSaved, setIsSaved] = useState(null);
 
+  const router = useRouter();
 
-
-  const nav= useRouter()
-
-
-  const { userId, email, sellerType, isVerified, sellerId } = useSelector(
-    (state) => state.user
-  );
-
-  console.log(userId, sellerType);
+  const { userId, sellerType, sellerId } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchModelDetail = async () => {
-      console.log(modelId, "seen");
       try {
         const response = await fetch(`/api/models/${modelId}/modelDetail`);
         if (!response.ok) {
@@ -38,9 +35,9 @@ const page = () => {
         }
         const data = await response.json();
         setModel(data);
-        setLoading(false);
       } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
@@ -48,240 +45,207 @@ const page = () => {
     fetchModelDetail();
   }, [modelId]);
 
-  /*
   useEffect(() => {
-    const fetchModelSavedStatus = async () => {
-      if (userId !== null) {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/saveModelsApi/saveCheck/${modelId}/${userId}`
-          );
-          if (!response.ok) {
-            throw new Error("Failed to fetch save details");
-          }
-          const data = await response.json();
-          setIsSaved(data.saved);
-          setLoading(false);
-        } catch (err) {
-          setError(err.message);
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchModelSavedStatus();
-  }, [modelId, userId]);
-useEffect(() => {
-  const fetchModelLike = async () => {
-    if (userId !== null) {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/likeApi/likeCheck/${modelId}/${userId}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch like details");
-        }
-        const data = await response.json();
-        setIsLiked(data.liked);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    }
-  };
-
-  fetchModelLike();
-}, [modelId, userId]);
-*/
-  const updateModelBtn = () => {
-    nav.push(`/pages/${modelId}/updateModel`);
-  };
-
-  const delModelBtn = async () => {
-    try {
-      // Replace with actual user ID or a variable containing it
-
-      const payload = { user_id: userId, modelId: modelId };
-
-         await axios.delete(
-           `/api/models/delete?user_id=${userId}&model_id=${modelId}`
-         );
-
-    } catch (err) {
-      console.error("Failed to update like status", err);
-    }
-  };
-  /*
-const likeBtn = async () => {
-  try {
-    if (isLiked) {
-      await axios.post(
-        `/api/models/${modelId}/modelLike`
-      );
-    } else {
-      await axios.post(`/api/models/${modelId}/modelLike`);
-    }
-    setIsLiked(!isLiked);
-  } catch (err) {
-    console.error("Failed to update like status", err);
-  }
-};*/
-  useEffect(() => {
-    if (userId !== null) {
-      // Ensure userId is not null
-      console.log(userId, "Check userId in fetchLikeStatus");
-      async function fetchLikeStatus() {
+    if (userId) {
+      const fetchLikeStatus = async () => {
         try {
           const response = await fetch(
             `/api/models/${modelId}/modelLike?user_id=${userId}`
           );
           if (!response.ok) {
-            throw new Error("Network response was not ok");
+            throw new Error("Failed to fetch like status");
           }
           const data = await response.json();
           setIsLiked(data.liked);
         } catch (error) {
-          setError(error);
-        } finally {
-          setLoading(false);
+          setError(error.message);
         }
-      }
+      };
       fetchLikeStatus();
     }
-  }, [modelId, userId]); // Ensure userId is in the dependency array
-  console.log(isLiked);
+  }, [modelId, userId]);
 
   useEffect(() => {
-    if (userId !== null) {
-      // Ensure userId is not null
-      console.log(userId, "Check userId in fetchSavedStatus");
-      async function fetchSavedStatus() {
+    if (userId) {
+      const fetchSavedStatus = async () => {
         try {
           const response = await fetch(
             `/api/models/${modelId}/saveModel?user_id=${userId}`
           );
           if (!response.ok) {
-            throw new Error("Network response was not ok");
+            throw new Error("Failed to fetch saved status");
           }
           const data = await response.json();
           setIsSaved(data.saved);
         } catch (error) {
-          setError(error);
-        } finally {
-          setLoading(false);
+          setError(error.message);
         }
-      }
+      };
       fetchSavedStatus();
     }
-  }, [modelId, userId]); // Ensure userId is in the dependency array
-  console.log(isLiked);
+  }, [modelId, userId]);
 
   const likeBtn = async () => {
     try {
-      // Replace with actual user ID or a variable containing it
-
-      const payload = { user_id: userId };
-
       if (isLiked) {
         await axios.delete(
           `/api/models/${modelId}/modelUnlike?user_id=${userId}`
         );
       } else {
-        await axios.post(`/api/models/${modelId}/modelLike`, payload);
+        await axios.post(`/api/models/${modelId}/modelLike`, {
+          user_id: userId,
+        });
       }
-
       setIsLiked(!isLiked);
     } catch (err) {
       console.error("Failed to update like status", err);
     }
   };
+
   const saveBtn = async () => {
     try {
-      // Replace with actual user ID or a variable containing it
-
-      const payload = { user_id: userId };
-
       if (isSaved) {
         await axios.delete(
           `/api/models/${modelId}/unsaveModel?user_id=${userId}`
         );
       } else {
-        await axios.post(`/api/models/${modelId}/saveModel`, payload);
+        await axios.post(`/api/models/${modelId}/saveModel`, {
+          user_id: userId,
+        });
       }
-
       setIsSaved(!isSaved);
     } catch (err) {
-      console.error("Failed to update like status", err);
+      console.error("Failed to update save status", err);
+    }
+  };
+
+  const updateModelBtn = () => {
+    router.push(`/models/${modelId}/updateModel`);
+  };
+
+  const delModelBtn = async () => {
+    try {
+      await axios.delete(
+        `/api/models/delete?user_id=${userId}&model_id=${modelId}`
+      );
+      // Redirect after deletion
+      router.push("/models");
+    } catch (err) {
+      console.error("Failed to delete model", err);
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Alert variant="destructive">{error}</Alert>
+      </div>
+    );
   }
 
   if (!model) {
-    return <div>No model found</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>No model found</p>
+      </div>
+    );
   }
-  const profilePicFilename = model.profile_pic.split("\\").pop();
-  const profilePicPath = `/uploads/${profilePicFilename}`;
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">{model.user_name}</h1>
-            <div className="flex items-center">
-              {model.profile_pic && (
-                <img
-                  src={profilePicPath}
-                  alt={model.user_name}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-              )}
-              <h2 className="text-lg">{model.user_location}</h2>
-            </div>
-          </div>
-          
-          <p className="text-gray-700 mb-4">{model.description}</p>
-          <div className="mb-4">
-            {model.image && (
-              <img
+    <div>
+     <Navbar></Navbar>
+      <div className="container mx-auto p-8">
+        <Card className="max-w-4xl mx-auto">
+          {model.image && (
+            <div className="relative h-96 w-full">
+              <Image
                 src={`/uploads/${model.image}`}
                 alt={model.name}
-                className="w-full h-auto"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-t-lg"
               />
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            {!model.isFree && (
-              <h3 className="text-xl font-bold">{model.price}</h3>
-            )}
-            <div>
-              <button onClick={saveBtn}>
-                {isSaved ? "Unsave Model" : "Save Model"}
-              </button>
             </div>
-            {sellerType === "Designer" && (
+          )}
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <h1 className="text-3xl font-bold">{model.name}</h1>
+              <div className="flex items-center">
+                {model.profile_pic && (
+                  <Avatar className="mr-2">
+                    <Image
+                      src={`/uploads/${model.profile_pic}`}
+                      alt={model.user_name}
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </Avatar>
+                )}
+                <div>
+                  <p className="text-lg font-semibold">{model.user_name}</p>
+                  <p className="text-sm text-gray-500">{model.user_location}</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-4">{model.description}</p>
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-4">
+                <Button variant="ghost" onClick={likeBtn}>
+                  {isLiked ? (
+                    <>
+                      <span className="ml-1">Unlike</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="ml-1">Like</span>
+                    </>
+                  )}
+                </Button>
+                <Button variant="ghost" onClick={saveBtn}>
+                  {isSaved ? (
+                    <>
+                      <span className="ml-1">Unsave</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="ml-1">Save</span>
+                    </>
+                  )}
+                </Button>
+              </div>
               <div>
-                <button onClick={updateModelBtn}>Update Model</button>
-                <button onClick={delModelBtn}>Delete Model</button>
+                {model.is_free ? (
+                  <p className="text-xl font-bold text-green-500">Free</p>
+                ) : (
+                  <p className="text-xl font-bold">${model.price}</p>
+                )}
+              </div>
+            </div>
+            {sellerType === "Designer" && model.designer_id === sellerId && (
+              <div className="mt-4 flex space-x-2">
+                <Button variant="outline" onClick={updateModelBtn}>
+                  <Edit className="h-5 w-5 mr-1" />
+                  Update Model
+                </Button>
+                <Button variant="destructive" onClick={delModelBtn}>
+                  <Trash className="h-5 w-5 mr-1" />
+                  Delete Model
+                </Button>
               </div>
             )}
-            <div>
-              <button onClick={likeBtn}>
-                {isLiked ? "Remove Like" : "Like"}
-              </button>
-            </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
 };
-export default page;
+
+export default ModelPage;
