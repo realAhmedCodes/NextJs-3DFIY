@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import Navbar from "@/app/componets/Navbar";
+
 
 
 const UpdateModelPage = () => {
@@ -261,7 +261,7 @@ const UpdateModelPage = () => {
 
   return (
     <div>
-      <Navbar></Navbar>
+     
       <div className="flex justify-center py-8 px-4">
         <Card className="w-full max-w-3xl">
           <CardHeader>

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Alert } from "@/components/ui/alert";
-import Navbar from "@/app/componets/Navbar";
+
 
 
 const ModelPage = () => {
@@ -161,7 +161,7 @@ const ModelPage = () => {
 
   return (
     <div>
-     <Navbar></Navbar>
+    
       <div className="container mx-auto p-8">
         <Card className="max-w-4xl mx-auto">
           {model.image && (

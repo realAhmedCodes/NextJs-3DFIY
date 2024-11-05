@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
 import { useRouter } from "next/navigation";
 import { EyeOff, Eye } from "lucide-react";
-import Navbar from "./Navbar";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +65,7 @@ const LoginForm = () => {
 
   return (
     <div>
-      <Navbar></Navbar>
+    
       <div className="flex min-h-screen items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
