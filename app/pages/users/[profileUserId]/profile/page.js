@@ -1,32 +1,47 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import useSWR from "swr"; // Import useSWR
+import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
-import ChatList from "@/app/componets/ChatList";
-import PendingOrder from "@/app/componets/PlaceOrder/PendingOrder";
-import ActiveOrder from "@/app/componets/PlaceOrder/ActiveOrder";
+import PendingOrder from "@/app/componets/PlaceOrder/SellerOrders/PendingOrder";
+import ActiveOrder from "@/app/componets/PlaceOrder/SellerOrders/ActiveOrder";
 import ModelOrder from "@/app/componets/PlaceOrder/Model_Order";
 import { useSelector } from "react-redux";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-// Fetcher function for SWR
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const Page = () => {
-  const { roomId, profileUserId } = useParams();
+const ProfilePage = () => {
+  const { profileUserId } = useParams();
   const [currentUser, setCurrentUser] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [otherUser, setOtherUser] = useState(profileUserId || null);
-  const [activeRoomId, setActiveRoomId] = useState(roomId || null);
   const [ModelOrderShow, setModelOrderShow] = useState(false);
 
-  const { userId, email, isVerified } = useSelector((state) => state.user);
+  const { userId } = useSelector((state) => state.user);
 
   useEffect(() => {
     setCurrentUser(userId);
   }, [userId]);
 
-  // Use SWR to fetch user data
   const {
     data: userDetail,
     error,
@@ -36,117 +51,136 @@ const Page = () => {
     fetcher
   );
 
-  if (isLoading) return <p className="text-center">Loading...</p>;
-  if (error) return <p className="text-center">Failed to load user details.</p>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
+      </div>
+    );
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500">Failed to load user details.</p>
+      </div>
+    );
 
   const generatedRoomId = [currentUser, otherUser].sort().join("-");
 
-  const handleSelectChat = (roomId, otherUser) => {
-    setActiveRoomId(roomId);
-    setOtherUser(otherUser);
-  };
-
-  const showChatBtn = () => {
-    setShowChat(!showChat);
-  };
-
-  const ModelOrderShowFunc = () => {
-    setModelOrderShow(!ModelOrderShow);
-  };
-
-  const profilePicFilename = userDetail?.profile_pic?.split("\\").pop();
-  const profilePicPath = profilePicFilename
-    ? `/uploads/${profilePicFilename}`
+  const profilePicPath = userDetail?.profile_pic
+    ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
     : "";
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6 bg-gray-50">
-      <div className="w-full md:w-1/3 bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-semibold mb-4">{userDetail?.name}</h1>
-        <h2 className="text-xl text-gray-600 mb-2">{userDetail?.location}</h2>
-        <p className="text-lg text-gray-700 mb-4">{userDetail?.bio}</p>
-        <p className="text-lg font-bold text-blue-500 mb-4">
-          Rating: {userDetail?.ratings}
-        </p>
-        <p className="text-lg mb-4">Seller Type: {userDetail?.sellerType}</p>
-        {userDetail?.profile_pic && (
-          <img
-            src={profilePicPath}
-            alt={userDetail?.name}
-            className="w-24 h-24 rounded-full object-cover mb-4"
-          />
-        )}
-
-        {userDetail?.sellerType === "Designer" && (
-          <div>
-            <h2 className="text-xl font-semibold mt-6">Uploaded Models</h2>
-            {userDetail?.models?.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 mt-4">
-                {userDetail.models.map((model) => (
-                  <div
-                    key={model.model_id}
-                    className="bg-gray-100 rounded-lg p-4 shadow"
-                  >
-                    <p className="font-bold">Name: {model.name}</p>
-                    <p>Description: {model.description}</p>
-                    <p>Price: {model.price}</p>
-                    <img
-                      src={`/uploads/${model.image}`}
-                      alt={model.name}
-                      className="w-full h-auto rounded-md mt-2"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No models uploaded yet.</p>
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* User Profile Card */}
+        <Card className="w-full md:w-1/3">
+          <CardHeader className="flex flex-col items-center">
+            {userDetail?.profile_pic && (
+              <Avatar className="w-24 h-24 mb-4">
+                <AvatarImage src={profilePicPath} alt={userDetail?.name} />
+                <AvatarFallback>
+                  {userDetail?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
             )}
+            <CardTitle className="text-3xl">{userDetail?.name}</CardTitle>
+            <CardDescription className="text-xl text-gray-600">
+              {userDetail?.location}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 mb-4">{userDetail?.bio}</p>
+            <p className="text-lg font-bold text-blue-500 mb-2">
+              Rating: {userDetail?.ratings}
+            </p>
+            <p className="text-lg mb-2">
+              Seller Type: {userDetail?.sellerType}
+            </p>
+            {userDetail?.sellerType === "Designer" && (
+              <div>
+                <h2 className="text-xl font-semibold mt-6">Uploaded Models</h2>
+                {userDetail?.models?.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-4 mt-4">
+                    {userDetail.models.map((model) => (
+                      <Card key={model.model_id} className="shadow">
+                        <CardHeader>
+                          <CardTitle>{model.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{model.description}</p>
+                          <p className="font-bold mt-2">
+                            Price: ${model.price}
+                          </p>
+                          <img
+                            src={`/uploads/${model.image}`}
+                            alt={model.name}
+                            className="w-full h-auto rounded-md mt-2"
+                          />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No models uploaded yet.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Orders and Chat Section */}
+        <div className="flex-grow">
+          <Tabs defaultValue="pending">
+            <TabsList className="mb-4">
+              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+              <TabsTrigger value="active">Active Orders</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="pending">
+              <PendingOrder profileUserId={profileUserId} />
+            </TabsContent>
+            <TabsContent value="active">
+              <ActiveOrder profileUserId={profileUserId} />
+            </TabsContent>
+          </Tabs>
+
+          <div className="mt-6 flex space-x-4">
+            {userDetail?.sellerType === "Designer" && (
+              <Dialog open={ModelOrderShow} onOpenChange={setModelOrderShow}>
+                <DialogTrigger asChild>
+                  <Button>Place Order</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Place an Order</DialogTitle>
+                  </DialogHeader>
+                  <ModelOrder
+                    sellerId={userDetail?.sellerId}
+                    userId={currentUser}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
+            <Button onClick={() => setShowChat(!showChat)}>Message</Button>
           </div>
-        )}
-      </div>
 
-      <div className="flex-grow bg-white rounded-lg shadow-lg p-6">
-        <PendingOrder profileUserId={profileUserId} />
-        <ActiveOrder profileUserId={profileUserId} />
-
-        <div className="mt-6 flex justify-between items-center">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-            onClick={ModelOrderShowFunc}
-          >
-            Place Order
-          </button>
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-            onClick={showChatBtn}
-          >
-            Message
-          </button>
+          {showChat && currentUser && (
+            <div className="mt-6">
+              <ChatComponent
+                currentUser={currentUser}
+                roomId={generatedRoomId}
+                otherUser={otherUser}
+              />
+            </div>
+          )}
         </div>
-
-        {ModelOrderShow && userDetail?.sellerType === "Designer" && (
-          <div className="mt-6">
-            <ModelOrder sellerId={userDetail?.sellerId} userId={currentUser} />
-          </div>
-        )}
-
-        {showChat && currentUser && (
-          <div className="mt-6">
-           
-            <ChatComponent
-              currentUser={currentUser}
-              roomId={generatedRoomId}
-              otherUser={otherUser}
-            />
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default Page;
-
+export default ProfilePage;
 
 /* <ChatList
               currentUser={currentUser}

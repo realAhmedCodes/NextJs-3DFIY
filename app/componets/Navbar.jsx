@@ -1,4 +1,3 @@
-// components/Navbar.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -14,78 +13,140 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-
-const profileMenuItems = [
-  { label: "My Profile", href: "/profile" },
-  { label: "Edit Profile", href: "/profile/edit" },
-  { label: "Inbox", href: "/inbox" },
-  { label: "Sign Out", href: "/logout", color: "text-red-500" },
-];
-
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
-  const { userId } = useSelector((state) => state.user);
+  const { userId, email, profile_pic, sellerType } = useSelector(
+    (state) => state.user
+  );
+
+  const logout = () => {
+    window.localStorage.clear("token");
+    router.push("/pages/Login");
+  };
+
+  const navigationLinks = [
+    { label: "Home", href: "/" },
+    {
+      label: "Hire Designers",
+      href: "/pages/users/userProfiles/designers",
+    },
+    { label: "3D Printers", href: "/pages/printers/ViewPrinter" },
+    { label: "Buy 3D Models", href: "/pages/ViewModels" },
+  ];
+
+  // Determine the profile URL based on sellerType
+  const profileUrl =
+    sellerType === "Regular"
+      ? `/pages/users/${userId}/UserProfile`
+      : `/pages/users/${userId}/profile`;
+
+  const profileMenuItems = [
+    { label: "My Profile", href: profileUrl },
+    { label: "Edit Profile", href: `/pages/users/${userId}/editProfile` },
+    { label: "Inbox", href: `/pages/users/${userId}/inbox` },
+  ];
+
+  // Additional items based on sellerType
+  if (sellerType === "Designer") {
+    profileMenuItems.push({
+      label: "Upload Model",
+      href: `/pages/Model_Upload`,
+    });
+  } else if (sellerType === "Printer Owner") {
+    profileMenuItems.push({
+      label: "Upload Printer",
+      href: `/pages/printers/UploadPrinter`,
+    });
+  }
+
+  profileMenuItems.push({
+    label: "Sign Out",
+    onClick: logout,
+    color: "text-red-500",
+  });
 
   return (
-    <nav className="bg-white shadow-lg fixed w-full z-50">
+    <nav className="bg-white shadow-md fixed w-full z-50 border-b border-gray-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
+            <Link
+              href="/"
+              className="text-2xl font-bold text-blue-600 hover:opacity-80 transition-opacity"
+            >
               3Dify
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="text-gray-700 hover:text-blue-600">
-              Home
-            </Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600">
-              About
-            </Link>
-            <Link
-              href="/services"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Services
-            </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-blue-600">
-              Contact
-            </Link>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigationLinks.map(({ label, href }, index) => (
+              <Link
+                key={index}
+                href={href}
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out font-medium text-lg"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
 
-          {/* Right Side */}
+          {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
             {userId ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center space-x-2 focus:outline-none">
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src="/path/to/user/avatar.jpg" // Replace with dynamic avatar if available
-                      alt="User Avatar"
-                    />
-                    <ChevronDown className="h-4 w-4 text-gray-600" />
+                    <Avatar className="h-10 w-10 rounded-full shadow-lg">
+                      {profile_pic ? (
+                        <AvatarImage
+                          src={`/uploads/${profile_pic}`}
+                          alt="User Avatar"
+                        />
+                      ) : (
+                        <AvatarFallback className="text-white bg-blue-500">
+                          {email ? email.charAt(0).toUpperCase() : "U"}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <ChevronDown className="h-5 w-5 text-gray-600" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {profileMenuItems.map(({ label, href, color }, index) => (
-                    <DropdownMenuItem
-                      key={index}
-                      className={color || "text-gray-700"}
-                      onClick={() => router.push(href)}
-                    >
-                      {label}
-                    </DropdownMenuItem>
-                  ))}
+                <DropdownMenuContent
+                  align="end"
+                  className="rounded-md shadow-lg mt-2 bg-white"
+                >
+                  {profileMenuItems.map(
+                    ({ label, href, onClick, color }, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        className={`${
+                          color || "text-gray-700"
+                        } hover:bg-gray-100 rounded-md transition-colors duration-200 ease-in-out px-4 py-2`}
+                        onClick={() => {
+                          if (onClick) {
+                            onClick();
+                          } else {
+                            router.push(href);
+                          }
+                        }}
+                      >
+                        {label}
+                      </DropdownMenuItem>
+                    )
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="outline" onClick={() => router.push("/login")}>
+              <Button
+                variant="outline"
+                className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200 ease-in-out font-medium"
+                onClick={() => router.push("/pages/Login")}
+              >
                 Login
               </Button>
             )}
@@ -109,68 +170,72 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link
-              href="/"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-            >
-              Home
-            </Link>
-            <Link
-              href="/about"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-            >
-              About
-            </Link>
-            <Link
-              href="/services"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-            >
-              Services
-            </Link>
-            <Link
-              href="/contact"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-            >
-              Contact
-            </Link>
+        <div className="md:hidden bg-white shadow-lg rounded-b-lg">
+          <div className="px-4 pt-2 pb-3 space-y-1 sm:px-3">
+            {navigationLinks.map(({ label, href }, index) => (
+              <Link
+                key={index}
+                href={href}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200 ease-in-out"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
           <div className="px-5 py-4 border-t border-gray-200">
             {userId ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center space-x-2 w-full focus:outline-none">
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src="/path/to/user/avatar.jpg"
-                      alt="User Avatar"
-                    />
+                    <Avatar className="h-8 w-8 rounded-full shadow">
+                      {profile_pic ? (
+                        <AvatarImage
+                          src={`/uploads/${profile_pic}`}
+                          alt="User Avatar"
+                        />
+                      ) : (
+                        <AvatarFallback>
+                          {email ? email.charAt(0).toUpperCase() : "U"}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
                     <ChevronDown className="h-4 w-4 text-gray-600" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {profileMenuItems.map(({ label, href, color }, index) => (
-                    <DropdownMenuItem
-                      key={index}
-                      className={color || "text-gray-700"}
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        router.push(href);
-                      }}
-                    >
-                      {label}
-                    </DropdownMenuItem>
-                  ))}
+                <DropdownMenuContent
+                  align="start"
+                  className="rounded-md shadow-lg"
+                >
+                  {profileMenuItems.map(
+                    ({ label, href, onClick, color }, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        className={`${
+                          color || "text-gray-700"
+                        } hover:bg-gray-100 rounded-md transition-colors duration-200 ease-in-out`}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          if (onClick) {
+                            onClick();
+                          } else {
+                            router.push(href);
+                          }
+                        }}
+                      >
+                        {label}
+                      </DropdownMenuItem>
+                    )
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button
                 variant="outline"
-                className="w-full mt-3"
+                className="w-full mt-3 border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200 ease-in-out"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  router.push("/login");
+                  router.push("/pages/login");
                 }}
               >
                 Login

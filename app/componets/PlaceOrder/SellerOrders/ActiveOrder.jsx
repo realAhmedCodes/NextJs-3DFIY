@@ -1,45 +1,46 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import PrinterOrderData from "../orderDetail/PrinterOrderData";
-import ModelOrderData from "../orderDetail/ModelOrderData";
+import PrinterOrderData from "../../orderDetail/PrinterOrderData";
+import ModelOrderData from "../../orderDetail/ModelOrderData";
 import { useSelector } from "react-redux";
 import useSWR from "swr";
 
 // Fetcher function for SWR
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export const PendingOrder = ({ profileUserId }) => {
+export const ActiveOrder = ({ profileUserId }) => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const router = useRouter();
 
   // Get user info from Redux
   const { userId, sellerType, sellerId } = useSelector((state) => state.user);
 
-  // Fetch pending orders conditionally based on sellerType
+  // Fetch orders conditionally based on sellerType
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
-    sellerType === "Regular" ?
-     `/api/orders/userId/${userId}` : null,
+    sellerType === "Regular"
+      ? `/api/orders/userId/${userId}/printerActiveOrders`
+      : null,
     fetcher
   );
 
   const { data: usersModelOrders, error: usersModelError } = useSWR(
     sellerType === "Regular"
-      ? ` /api/orders/userPendingOrders/${userId}`
+      ? `/api/orders/userId/${userId}/designerActiveOrders`
       : null,
     fetcher
   );
 
   const { data: ownersPrinterOrders, error: ownersPrinterError } = useSWR(
     sellerType === "Printer Owner"
-      ? `/api/orders/printerOwners/${sellerId}`
+      ? `/api/orders/printerActiveOrders/${sellerId}`
       : null,
     fetcher
   );
 
   const { data: ownersModelOrders, error: ownersModelError } = useSWR(
     sellerType === "Designer"
-      ? `/api/orders/designerPendingOrders/${sellerId}`
+      ? `/api/orders/desingerActiveOrders/${sellerId}`
       : null,
     fetcher
   );
@@ -63,18 +64,18 @@ export const PendingOrder = ({ profileUserId }) => {
   ) {
     return <div>Loading...</div>;
   }
-console.log("id check",selectedOrderId);
+
   return (
     <div>
       {Number(userId) === Number(profileUserId) ? (
         <>
-          <h1 className="text-xl font-bold mb-2">Your Pending Orders</h1>
+          <h1 className="text-xl font-bold mb-2">Your Active Orders</h1>
 
           {/* For Printer Owners */}
           {sellerType === "Printer Owner" &&
             ownersPrinterOrders?.length > 0 && (
               <div>
-                <h2>Printer Owner Pending Orders</h2>
+                <h2>Printer Owner Active Orders</h2>
                 {ownersPrinterOrders.map((printerOrder) => (
                   <div
                     key={printerOrder.pending_order_id}
@@ -90,8 +91,7 @@ console.log("id check",selectedOrderId);
                       <strong>Client Name:</strong> {printerOrder.user_name}
                     </p>
                     <p>{printerOrder.created_at}</p>
-                    {Number(selectedOrderId) ===
-                      Number(printerOrder.pending_order_id) && (
+                    {selectedOrderId === printerOrder.pending_order_id && (
                       <PrinterOrderData
                         orderId={printerOrder.pending_order_id}
                       />
@@ -104,11 +104,13 @@ console.log("id check",selectedOrderId);
           {/* For Designers */}
           {sellerType === "Designer" && ownersModelOrders?.length > 0 && (
             <div>
-              <h2>Designer Pending Orders</h2>
+              <h2>Designer Active Orders</h2>
               {ownersModelOrders.map((modelOrder) => (
                 <div
                   key={modelOrder.order_id}
-                  onClick={() => setSelectedOrderId(modelOrder.order_id)}
+                  onClick={() =>
+                    setSelectedOrderId(modelOrder.order_id)
+                  }
                   className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
                 >
                   <p>
@@ -118,9 +120,7 @@ console.log("id check",selectedOrderId);
                     <strong>Client Name:</strong> {modelOrder.user_name}
                   </p>
                   <p>{modelOrder.created_at}</p>
-                  <p>{modelOrder.order_id}</p>
-                  {Number(selectedOrderId) ===
-                    Number(modelOrder.order_id) && (
+                  {selectedOrderId === modelOrder.order_id && (
                     <ModelOrderData orderId={modelOrder.order_id} />
                   )}
                 </div>
@@ -133,7 +133,7 @@ console.log("id check",selectedOrderId);
             <>
               {usersPrinterOrders?.length > 0 && (
                 <div>
-                  <h2>User Printer Pending Orders</h2>
+                  <h2>User Printer Active Orders</h2>
                   {usersPrinterOrders.map((order) => (
                     <div
                       key={order.pending_order_id}
@@ -153,7 +153,7 @@ console.log("id check",selectedOrderId);
 
               {usersModelOrders?.length > 0 && (
                 <div>
-                  <h2>User Model Pending Orders</h2>
+                  <h2>User Model Active Orders</h2>
                   {usersModelOrders.map((order) => (
                     <div
                       key={order.pending_order_id}
@@ -179,4 +179,4 @@ console.log("id check",selectedOrderId);
   );
 };
 
-export default PendingOrder;
+export default ActiveOrder;
