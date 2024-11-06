@@ -126,11 +126,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react"; // Ensure X is imported
+import { cn } from "@/lib/utils"; // If you have a utility for classNames
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const ChatComponent = ({ currentUser, roomId, otherUser }) => {
+const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
@@ -206,67 +207,80 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
   };
 
   return (
-    <div className="flex w-full">
-      <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
-      <Card className="flex-grow ml-4">
-        <CardHeader>
-          <CardTitle>Live Chat</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col h-[500px]">
-          <ScrollArea className="flex-1 mb-4">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-gray-500">
-                No messages yet
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      msg.sender_id === currentUser
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
+    <div className="fixed top-24 right-4 w-[600px] z-50 bg-white shadow-lg rounded-lg border border-gray-200 p-4">
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 text-gray-800 hover:text-gray-900"
+        aria-label="Close chat"
+      >
+        <X className="w-6 h-6 " />
+      </button>
+
+      <div className="flex w-full">
+        <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
+        <Card className="w-full flex-grow ml-4">
+          <CardHeader>
+            <CardTitle>Live Chat</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col h-[500px] p-4">
+            <ScrollArea className="flex-1 mb-4">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  No messages yet
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {messages.map((msg, index) => (
                     <div
-                      className={`px-4 py-2 rounded-lg ${
+                      key={index}
+                      className={`flex ${
                         msg.sender_id === currentUser
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-gray-800"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
-                      <p className="text-sm">{msg.message}</p>
-                      <div className="flex justify-between mt-1 text-xs opacity-70">
-                        <p>
-                          {new Date(msg.createdat).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                        <p>{msg.sender_id === currentUser ? "You" : "Other"}</p>
+                      <div
+                        className={`px-4 py-2 rounded-lg ${
+                          msg.sender_id === currentUser
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-gray-800"
+                        }`}
+                      >
+                        <p className="text-sm">{msg.message}</p>
+                        <div className="flex justify-between mt-1 text-xs opacity-70">
+                          <p>
+                            {new Date(msg.createdat).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                          <p>
+                            {msg.sender_id === currentUser ? "You" : "Other"}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-          <div className="flex items-center">
-            <Input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Type your message here..."
-              className="mr-2"
-            />
-            <Button onClick={sendMessage} variant="default">
-              Send
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+            <div className="flex items-center">
+              <Input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                placeholder="Type your message here..."
+                className="mr-2 flex-grow"
+              />
+              <Button onClick={sendMessage} variant="default">
+                Send
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

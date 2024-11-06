@@ -53,8 +53,6 @@ export default ChatList;
 
 */
 
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -110,7 +108,7 @@ const ChatList = ({ currentUser, onSelectChat }) => {
     );
 
   return (
-    <Card className="w-64">
+    <Card className="w-72">
       <CardHeader>
         <CardTitle className="text-center">Chats</CardTitle>
       </CardHeader>
