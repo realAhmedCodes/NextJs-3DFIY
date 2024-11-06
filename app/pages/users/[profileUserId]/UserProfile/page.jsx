@@ -4,9 +4,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
-import ChatComponent from "@/app/componets/Chat";
-import PendingOrder from "@/app/componets/PlaceOrder/PendingOrder";
-import ActiveOrder from "@/app/componets/PlaceOrder/ActiveOrder";
+import ChatComponent from "@/app/componets/Chat"; // Corrected path
+import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
+import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react"; // Removed unused X import
 import { Input } from "@/components/ui/input";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -25,8 +25,8 @@ const ProfilePage = () => {
   const [showChat, setShowChat] = useState(false);
   const [loading, setLoading] = useState(true);
   const [models, setModels] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0); // For carousel pagination
-  const designersPerPage = 3; // Number of designers to display at once
+  const [currentPage, setCurrentPage] = useState(0);
+  const designersPerPage = 3;
   const { userId, name } = useSelector((state) => state.user);
   const router = useRouter();
 
@@ -77,7 +77,7 @@ const ProfilePage = () => {
     : "";
 
   const handleNext = () => {
-    if (currentPage < Math.ceil(users.length / designersPerPage) - 1) {
+    if (users && currentPage < Math.ceil(users.length / designersPerPage) - 1) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -88,21 +88,46 @@ const ProfilePage = () => {
     }
   };
 
-  const displayedUsers = users?.slice(
-    currentPage * designersPerPage,
-    currentPage * designersPerPage + designersPerPage
-  );
+  const displayedUsers = Array.isArray(users)
+    ? users.slice(
+        currentPage * designersPerPage,
+        currentPage * designersPerPage + designersPerPage
+      )
+    : [];
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen pt-24">
-      {/* Top bar with greeting */}
-      <div className="mb-8">
+      {/* Top bar with greeting and message button */}
+      <div className="mb-8 flex justify-between items-center">
         <h1 className="text-4xl font-semibold text-gray-800">
           Hi, {userDetail?.name || name}!
         </h1>
+        <Button
+          onClick={() => setShowChat(true)}
+          className="bg-black text-white"
+        >
+          Message
+        </Button>
       </div>
 
-     
+      {/* Orders Section */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Your Orders</h2>
+        <Tabs defaultValue="pending">
+          <TabsList className="mb-4 space-x-4">
+            <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+            <TabsTrigger value="active">Active Orders</TabsTrigger>
+          </TabsList>
+          <TabsContent value="pending">
+            <UserPendingOrder profileUserId={profileUserId} />
+          </TabsContent>
+          <TabsContent value="active">
+            <UserActiveOrder profileUserId={profileUserId} />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* 3D Models Section */}
       <h2 className="text-2xl font-semibold mb-4">3D Models For You</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {loading
@@ -158,7 +183,7 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent>
               <p className="text-gray-700 text-sm mb-4">
-                Invite Talent to sign up using your link and earn rewards when
+                Invite talent to sign up using your link and earn rewards when
                 they start earning.
               </p>
               <div className="relative">
@@ -203,100 +228,74 @@ const ProfilePage = () => {
         </div>
 
         {/* Top Talent Section */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 relative">
           <h2 className="text-2xl font-semibold mb-4">
             Get Inspired by Top Talent
           </h2>
-          <div className="relative">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedUsers?.map((user) => (
-                <Card
-                  key={user.user_id}
-                  className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center text-center hover:shadow-lg transition-shadow duration-300"
+          {/* Left Pagination Button */}
+          <Button
+            variant="outline"
+            onClick={handlePrev}
+            disabled={currentPage === 0}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10"
+          >
+            ←
+          </Button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedUsers?.map((user) => (
+              <Card
+                key={user.user_id}
+                className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center text-center hover:shadow-lg transition-shadow duration-300"
+              >
+                <Avatar className="w-16 h-16 mb-3 shadow">
+                  {user.profile_pic ? (
+                    <AvatarImage
+                      src={`/uploads/${user.profile_pic}`}
+                      alt={user.name}
+                    />
+                  ) : (
+                    <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                  )}
+                </Avatar>
+                <h3 className="text-lg font-semibold">{user.name}</h3>
+                <p className="text-gray-500">{user.location}</p>
+                <p className="text-gray-700 mt-2">
+                  Verified: {user.is_verified ? "Yes" : "No"}
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() =>
+                    router.push(`/pages/users/${user.user_id}/profile`)
+                  }
                 >
-                  <Avatar className="w-16 h-16 mb-3 shadow">
-                    {user.profile_pic ? (
-                      <AvatarImage
-                        src={`/uploads/${user.profile_pic}`}
-                        alt={user.name}
-                      />
-                    ) : (
-                      <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
-                    )}
-                  </Avatar>
-                  <h3 className="text-lg font-semibold">{user.name}</h3>
-                  <p className="text-gray-500">{user.location}</p>
-                  <p className="text-gray-700 mt-2">
-                    Verified: {user.is_verified ? "Yes" : "No"}
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-4 w-full"
-                    onClick={() =>
-                      router.push(`/pages/users/${user.user_id}/profile`)
-                    }
-                  >
-                    Get to know me
-                  </Button>
-                </Card>
-              ))}
-            </div>
-
-            {/* Carousel Controls */}
-            <div className="flex justify-between items-center mt-4">
-              <Button
-                variant="outline"
-                onClick={handlePrev}
-                disabled={currentPage === 0}
-              >
-                ←
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleNext}
-                disabled={
-                  currentPage >= Math.ceil(users.length / designersPerPage) - 1
-                }
-              >
-                →
-              </Button>
-            </div>
+                  Get to know me
+                </Button>
+              </Card>
+            ))}
           </div>
+          {/* Right Pagination Button */}
+          <Button
+            variant="outline"
+            onClick={handleNext}
+            disabled={
+              users
+                ? currentPage >= Math.ceil(users.length / designersPerPage) - 1
+                : true
+            }
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10"
+          >
+            →
+          </Button>
         </div>
-      </div>
-
-      {/* Orders Section */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Your Orders</h2>
-        <Tabs defaultValue="pending">
-          <TabsList className="mb-4 space-x-4">
-            <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-            <TabsTrigger value="active">Active Orders</TabsTrigger>
-          </TabsList>
-          <TabsContent value="pending">
-            <PendingOrder profileUserId={profileUserId} />
-          </TabsContent>
-          <TabsContent value="active">
-            <ActiveOrder profileUserId={profileUserId} />
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Message Button */}
-      <div className="mt-6">
-        <Button
-          onClick={() => setShowChat(!showChat)}
-          className="bg-black text-white"
-        >
-          Message
-        </Button>
       </div>
 
       {/* Chat Component */}
       {showChat && currentUser && (
-        <div className="mt-6">
-          <ChatComponent currentUser={currentUser} />
-        </div>
+        <ChatComponent
+          currentUser={currentUser}
+          onClose={() => setShowChat(false)}
+        />
       )}
     </div>
   );

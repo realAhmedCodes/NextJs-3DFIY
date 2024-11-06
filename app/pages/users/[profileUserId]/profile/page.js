@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
-import PendingOrder from "@/app/componets/PlaceOrder/PendingOrder";
-import ActiveOrder from "@/app/componets/PlaceOrder/ActiveOrder";
+import PendingOrder from "@/app/componets/PlaceOrder/SellerOrders/PendingOrder";
+import ActiveOrder from "@/app/componets/PlaceOrder/SellerOrders/ActiveOrder";
 import ModelOrder from "@/app/componets/PlaceOrder/Model_Order";
 import { useSelector } from "react-redux";
 import {
