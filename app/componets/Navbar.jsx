@@ -14,23 +14,19 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
-  // Extract user data from Redux state
   const { userId, email, profile_pic, sellerType } = useSelector(
     (state) => state.user
   );
 
-  // Logout function
   const logout = () => {
     window.localStorage.clear("token");
     router.push("/pages/Login");
   };
 
-  // Main navigation links
   const navigationLinks = [
     { label: "Home", href: "/" },
     {
@@ -41,14 +37,19 @@ const Navbar = () => {
     { label: "Buy 3D Models", href: "/pages/ViewModels" },
   ];
 
-  // Profile menu items
+  // Determine the profile URL based on sellerType
+  const profileUrl =
+    sellerType === "Regular"
+      ? `/pages/users/${userId}/UserProfile`
+      : `/pages/users/${userId}/profile`;
+
   const profileMenuItems = [
-    { label: "My Profile", href: `/pages/users/${userId}/profile` },
+    { label: "My Profile", href: profileUrl },
     { label: "Edit Profile", href: `/pages/users/${userId}/editProfile` },
     { label: "Inbox", href: `/pages/users/${userId}/inbox` },
   ];
 
-  // Conditionally add "Upload Model" or "Upload Printer" based on sellerType
+  // Additional items based on sellerType
   if (sellerType === "Designer") {
     profileMenuItems.push({
       label: "Upload Model",
@@ -61,7 +62,6 @@ const Navbar = () => {
     });
   }
 
-  // Add the "Sign Out" option
   profileMenuItems.push({
     label: "Sign Out",
     onClick: logout,

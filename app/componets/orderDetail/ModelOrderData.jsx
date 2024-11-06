@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
@@ -60,6 +59,8 @@ const ModelOrderData = ({ orderId }) => {
       </div>
     );
 
+  console.log(orderData);
+
   return (
     <Card className="mt-4">
       <CardHeader>
@@ -79,6 +80,9 @@ const ModelOrderData = ({ orderId }) => {
             <strong>User Name:</strong> {orderData.user_name}
           </p>
           <p>
+            <strong>Model Name:</strong> {orderData.model_name}
+          </p>
+          <p>
             <strong>Order Date:</strong>{" "}
             {new Date(orderData.created_at).toLocaleDateString()}
           </p>
@@ -86,13 +90,19 @@ const ModelOrderData = ({ orderId }) => {
             <strong>Description:</strong> {orderData.description}
           </p>
           <p>
-            <strong>Model Type:</strong> {orderData.model_type}
+            <strong>Model Type:</strong> {orderData.file_format}
           </p>
           <p>
-            <strong>Resolution:</strong> {orderData.resolution}
-          </p>
-          <p>
-            <strong>Complexity:</strong> {orderData.complexity}
+            <strong>Dimensions: </strong>
+            {orderData.dimensions ? (
+              <span>
+                Width: {orderData.dimensions.width}, Height:{" "}
+                {orderData.dimensions.height}, Length:{" "}
+                {orderData.dimensions.length}
+              </span>
+            ) : (
+              "Not available"
+            )}
           </p>
         </div>
 
