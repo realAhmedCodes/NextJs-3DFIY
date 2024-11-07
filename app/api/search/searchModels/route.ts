@@ -1,3 +1,5 @@
+// pages/api/search/searchModels.ts
+
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
@@ -14,59 +16,76 @@ export async function GET(request: Request) {
   const tags = url.searchParams.get('tags') || null;
   const sortBy = url.searchParams.get('sortBy') || null;
 
+  // Pagination parameters
+  const page = parseInt(url.searchParams.get('page') || '1', 10);
+  const limit = parseInt(url.searchParams.get('limit') || '9', 10);
+  const skip = (page - 1) * limit;
+
   try {
     // Construct the query dynamically based on available parameters
+    const whereClause: any = {
+      AND: [
+        // Keyword filter
+        keyword
+          ? {
+              OR: [
+                { name: { contains: keyword, mode: 'insensitive' } },
+                { description: { contains: keyword, mode: 'insensitive' } },
+              ],
+            }
+          : {},
+        // Category filter
+        category
+          ? {
+              Category: {
+                name: { equals: category, mode: 'insensitive' },
+              },
+            }
+          : {},
+        // Price range filter
+        minPrice
+          ? {
+              price: {
+                gte: parseFloat(minPrice),
+              },
+            }
+          : {},
+        maxPrice
+          ? {
+              price: {
+                lte: parseFloat(maxPrice),
+              },
+            }
+          : {},
+        // Tags filter
+        tags
+          ? {
+              tags: {
+                hasSome: tags.split(',').map(tag => tag.trim()),
+              },
+            }
+          : {},
+      ],
+    };
+
+    // Get total count of models matching the filters
+    const total = await prisma.models.count({
+      where: whereClause,
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / limit);
+
+    // Fetch models with pagination
     const models = await prisma.models.findMany({
-      where: {
-        AND: [
-          // Keyword filter
-          keyword
-            ? {
-                OR: [
-                  { name: { contains: keyword, mode: 'insensitive' } },
-                  { description: { contains: keyword, mode: 'insensitive' } },
-                ],
-              }
-            : {},
-          // Category filter
-          category
-            ? {
-                Category: {
-                  name: { equals: category, mode: 'insensitive' },
-                },
-              }
-            : {},
-          // Price range filter
-          minPrice
-            ? {
-                price: {
-                  gte: parseFloat(minPrice).toString(),
-                },
-              }
-            : {},
-          maxPrice
-            ? {
-                price: {
-                  lte: parseFloat(maxPrice).toString(),
-                },
-              }
-            : {},
-          // Tags filter
-          tags
-            ? {
-                tags: {
-                  hasSome: tags.split(','),
-                },
-              }
-            : {},
-        ],
-      },
-      // Sorting logic
+      where: whereClause,
       orderBy: sortBy
         ? {
             [sortBy]: 'asc',
           }
-        : undefined, // Only apply sorting if the `sortBy` parameter is provided
+        : undefined,
+      skip,
+      take: limit,
       include: {
         Category: true,
         Designers: {
@@ -82,8 +101,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ message: 'No models found' }, { status: 404 });
     }
 
-    // Return the fetched models with a 200 status
-    return NextResponse.json(models, { status: 200 });
+    // Return the fetched models along with pagination info
+    return NextResponse.json(
+      {
+        models,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages,
+        },
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error fetching models:', error);
     return NextResponse.json({ error: 'Failed to fetch models' }, { status: 500 });
