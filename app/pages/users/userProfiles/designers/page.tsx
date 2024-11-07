@@ -118,9 +118,9 @@ const DesignersPage: React.FC = () => {
     fetchDesigners();
   }, [searchParams]);
 
-  // Handle page change
+ 
   const handlePageChange = (newPage: number) => {
-    // Keep the same filters and change the page
+  
     const queryParams = new URLSearchParams();
 
     if (initialFilters.name) queryParams.append("name", initialFilters.name);
@@ -129,20 +129,19 @@ const DesignersPage: React.FC = () => {
     if (pagination.limit)
       queryParams.append("limit", pagination.limit.toString());
 
-    // Set the new page
+   
     queryParams.append("page", newPage.toString());
 
-    // Optional: Preserve sortBy if implemented
-    // queryParams.append("sortBy", currentSortBy);
-
-    // Update the URL with new query parameters
-    router.push(`/designers?${queryParams.toString()}`);
+   
+    router.push(
+      `/pages/users/userProfiles/designers?${queryParams.toString()}`
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="container mx-auto">
-        {/* Filter Form */}
+      <div className="container mx-autom m-20">
+       
         <DesignerFilterForm initialFilters={initialFilters} />
 
         <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">

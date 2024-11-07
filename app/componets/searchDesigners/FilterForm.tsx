@@ -43,7 +43,7 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/designers?${queryString}`);
+    router.push(`/pages/users/userProfiles/designers?${queryString}`);
   };
 
   return (
