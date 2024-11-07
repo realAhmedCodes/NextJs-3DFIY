@@ -30,7 +30,7 @@ model Models {
   designer_id    Int
   name           String   @db.VarChar(50)
   description    String   @db.VarChar(50)
-  price          String?  @db.VarChar(255)
+  price          Float?  
   is_free        Boolean  @default(false)
   image          String   @db.VarChar
  model_file      String   @db.VarChar(255) 

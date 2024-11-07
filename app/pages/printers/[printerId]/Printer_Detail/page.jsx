@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import PrinterOrder from "@/app/componets/PlaceOrder/Printer_Orders";
+import PrinterOrder from "@/app/componets/PlaceOrder/SellerOrders/Printer_Orders";
 
 import {
   Card,

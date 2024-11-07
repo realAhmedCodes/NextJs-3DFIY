@@ -1,4 +1,5 @@
 // components/ModelUploadPage.jsx
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -26,9 +27,12 @@ const ModelUploadPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
+  const [subSubcategories, setSubSubcategories] = useState([]);
+  const [selectedSubSubcategoryId, setSelectedSubSubcategoryId] = useState("");
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  const [price, setPrice] = useState(null);
   const [isFree, setIsFree] = useState(false);
   const [image, setImage] = useState(null);
   const [tags, setTags] = useState([]);
@@ -47,10 +51,11 @@ const ModelUploadPage = () => {
     }
   }, [sellerId]);
 
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/categories");
+        const response = await fetch("/api/category"); // Ensure endpoint consistency
         const categoryData = await response.json();
         setCategories(categoryData);
       } catch (err) {
@@ -60,6 +65,7 @@ const ModelUploadPage = () => {
     fetchCategories();
   }, []);
 
+  // Fetch subcategories when a category is selected
   useEffect(() => {
     if (selectedCategoryId) {
       const fetchSubcategories = async () => {
@@ -74,10 +80,38 @@ const ModelUploadPage = () => {
         }
       };
       fetchSubcategories();
+      setSelectedSubcategoryId("");
+      setSubSubcategories([]);
+      setSelectedSubSubcategoryId("");
     } else {
       setSubcategories([]);
+      setSubSubcategories([]);
+      setSelectedSubcategoryId("");
+      setSelectedSubSubcategoryId("");
     }
   }, [selectedCategoryId]);
+
+  // Fetch sub-subcategories when a subcategory is selected
+  useEffect(() => {
+    if (selectedSubcategoryId) {
+      const fetchSubSubcategories = async () => {
+        try {
+          const response = await fetch(
+            `/api/subcategories/${selectedSubcategoryId}`
+          );
+          const subSubcategoryData = await response.json();
+          setSubSubcategories(subSubcategoryData);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      fetchSubSubcategories();
+      setSelectedSubSubcategoryId("");
+    } else {
+      setSubSubcategories([]);
+      setSelectedSubSubcategoryId("");
+    }
+  }, [selectedSubcategoryId]);
 
   const handleTagAdd = () => {
     if (tagInput.trim() !== "" && !tags.includes(tagInput)) {
@@ -104,11 +138,14 @@ const ModelUploadPage = () => {
     }
 
     const formData = new FormData();
-    formData.append("category_id", selectedSubcategoryId || selectedCategoryId);
+    formData.append(
+      "category_id",
+      selectedSubSubcategoryId || selectedSubcategoryId || selectedCategoryId
+    );
     formData.append("designer_id", designerId);
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("price", isFree ? "0" : price);
+    formData.append("price", isFree ? 0 : price);
     formData.append("is_free", isFree);
     formData.append("image", image);
     formData.append("tags", JSON.stringify(tags));
@@ -125,7 +162,7 @@ const ModelUploadPage = () => {
         setError(data.error);
       } else {
         console.log("Model uploaded successfully:", data);
-        router.push("/models"); // Redirect to models page or success page
+        
       }
     } catch (error) {
       console.error(error);
@@ -174,7 +211,10 @@ const ModelUploadPage = () => {
             {/* Category Selection */}
             <div>
               <Label htmlFor="category">Category</Label>
-              <Select onValueChange={setSelectedCategoryId}>
+              <Select
+                onValueChange={setSelectedCategoryId}
+                value={selectedCategoryId}
+              >
                 <SelectTrigger id="category">
                   <span>
                     {selectedCategoryId
@@ -201,7 +241,10 @@ const ModelUploadPage = () => {
             {subcategories.length > 0 && (
               <div>
                 <Label htmlFor="subcategory">Subcategory</Label>
-                <Select onValueChange={setSelectedSubcategoryId}>
+                <Select
+                  onValueChange={setSelectedSubcategoryId}
+                  value={selectedSubcategoryId}
+                >
                   <SelectTrigger id="subcategory">
                     <span>
                       {selectedSubcategoryId
@@ -218,6 +261,38 @@ const ModelUploadPage = () => {
                         value={subcategory.category_id}
                       >
                         {subcategory.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Sub-subcategory Selection */}
+            {subSubcategories.length > 0 && (
+              <div>
+                <Label htmlFor="subsubcategory">Sub-subcategory</Label>
+                <Select
+                  onValueChange={setSelectedSubSubcategoryId}
+                  value={selectedSubSubcategoryId}
+                >
+                  <SelectTrigger id="subsubcategory">
+                    <span>
+                      {selectedSubSubcategoryId
+                        ? subSubcategories.find(
+                            (subsub) =>
+                              subsub.category_id === selectedSubSubcategoryId
+                          )?.name
+                        : "Select a sub-subcategory"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subSubcategories.map((subsubcategory) => (
+                      <SelectItem
+                        key={subsubcategory.category_id}
+                        value={subsubcategory.category_id}
+                      >
+                        {subsubcategory.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
