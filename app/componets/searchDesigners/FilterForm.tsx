@@ -1,4 +1,4 @@
-// components/search/DesignerFilterForm.tsx
+// components/searchDesigners/DesignerFilterForm.tsx
 
 "use client";
 
@@ -7,6 +7,14 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronDownIcon } from "@heroicons/react/24/solid"; // Ensure you have Heroicons installed
 
 interface FilterFormProps {
   initialFilters: {
@@ -16,13 +24,24 @@ interface FilterFormProps {
 }
 
 const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
-  const [inputFilters, setInputFilters] = useState(initialFilters);
+  const [inputFilters, setInputFilters] = useState({
+    ...initialFilters,
+    sortBy: "", // Initialize sortBy
+  });
   const router = useRouter();
 
-  const handleInputFilterChange = (name: string, value: any) => {
-    setInputFilters((prevFilters) => ({
-      ...prevFilters,
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInputFilters((prev) => ({
+      ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleSortChange = (value: string) => {
+    setInputFilters((prev) => ({
+      ...prev,
+      sortBy: value,
     }));
   };
 
@@ -37,6 +56,9 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     if (inputFilters.location) {
       queryParams.location = inputFilters.location;
     }
+    if (inputFilters.sortBy) {
+      queryParams.sortBy = inputFilters.sortBy;
+    }
 
     queryParams.page = "1"; // Reset to first page on new search
     queryParams.limit = "6"; // Set limit for designers
@@ -47,57 +69,74 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-md mb-16">
+    <div className="bg-white p-8 rounded-xl shadow-lg mb-10">
       <form
         onSubmit={handleSearch}
-        className="grid grid-cols-1 md:grid-cols-8 gap-6"
+        className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
         {/* Name Input */}
-        <div className="md:col-span-4">
+        <div className="flex flex-col">
           <Label
             htmlFor="name"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-2 text-lg font-medium text-gray-700"
           >
-            Name
+            Designer Name
           </Label>
           <Input
             id="name"
+            name="name"
             type="text"
             placeholder="e.g., Bilal"
             value={inputFilters.name}
-            onChange={(e) => handleInputFilterChange("name", e.target.value)}
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            onChange={handleInputChange}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Location Input */}
-        <div className="md:col-span-4">
+        <div className="flex flex-col">
           <Label
             htmlFor="location"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-2 text-lg font-medium text-gray-700"
           >
             Location
           </Label>
           <Input
             id="location"
+            name="location"
             type="text"
             placeholder="e.g., Lahore"
             value={inputFilters.location}
-            onChange={(e) =>
-              handleInputFilterChange("location", e.target.value)
-            }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            onChange={handleInputChange}
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {/* Search Button */}
-        <div className="md:col-span-8 flex justify-end">
-          <Button
-            type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md"
+        {/* Sort By Select */}
+        <div className="flex flex-col">
+          <Label
+            htmlFor="sortBy"
+            className="mb-2 text-lg font-medium text-gray-700"
           >
-            Search
-          </Button>
+            Sort By
+          </Label>
+          <Select onValueChange={handleSortChange} defaultValue="">
+            <SelectTrigger className="w-full border border-gray-300 rounded-lg">
+              <SelectValue placeholder="Select Option" />
+            </SelectTrigger>
+            <SelectContent>
+              {/* Removed the SelectItem with value="" */}
+              <SelectItem value="ratings">Ratings</SelectItem>
+              <SelectItem value="name_asc">Name (A-Z)</SelectItem>
+              <SelectItem value="name_desc">Name (Z-A)</SelectItem>
+              <SelectItem value="location">Location</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Search Button */}
+        <div className="flex flex-col justify-end">
+          <Button type="submit">Search</Button>
         </div>
       </form>
     </div>

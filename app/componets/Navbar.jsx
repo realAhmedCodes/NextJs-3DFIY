@@ -4,8 +4,38 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { Menu, X, ChevronDown } from "lucide-react";
+<<<<<<< Updated upstream
+import {
+  Bars3Icon,
+  XMarkIcon,
+  UserCircleIcon,
+  Cog6ToothIcon,
+  InboxArrowDownIcon,
+  ArrowRightOnRectangleIcon,
+} from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
+const profileMenuItems = [
+  { label: "My Profile", icon: UserCircleIcon },
+  { label: "Edit Profile", icon: Cog6ToothIcon },
+  { label: "Inbox", icon: InboxArrowDownIcon },
+  { label: "Sign Out", icon: ArrowRightOnRectangleIcon, color: "text-red-500" },
+];
+
+const NavItem = ({ label, href }) => (
+  <a
+    href={href}
+    className="text-gray-900 hover:text-blue-500 font-medium px-3 py-2"
+  >
+    {label}
+  </a>
+);
+
+const ProfileMenu = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+=======
+import { Menu, X, ChevronDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,8 +44,10 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+>>>>>>> Stashed changes
   const router = useRouter();
 
   const { userId, email, profile_pic, sellerType } = useSelector(
@@ -87,8 +119,72 @@ const Navbar = () => {
             {navigationLinks.map(({ label, href }, index) => (
               <Link
                 key={index}
+                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
+              >
+                <Icon className={`h-5 w-5 ${color || "text-gray-700"}`} />
+                <span
+                  className={`text-sm font-medium ${color || "text-gray-700"}`}
+                >
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 960) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+<<<<<<< Updated upstream
+    <nav className="bg-white shadow-lg fixed w-full z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <a href="/" className="text-2xl font-bold text-blue-600">
+              Logo
+            </a>
+            <div className="hidden md:flex ml-10 space-x-4">
+              <NavItem label="Home" href="/" />
+              <NavItem label="About" href="/about" />
+              <NavItem label="Services" href="/services" />
+              <NavItem label="Contact" href="/contact" />
+            </div>
+          </div>
+
+=======
+    <nav className="bg-white shadow-md w-full border-b border-gray-300">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center justify-center">
+              <Printer className="h-6 w-6 text-primary" />
+              <span className="ml-2 text-2xl font-bold text-primary">3Dify</span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigationLinks.map(({ label, href }, index) => (
+              <Link
+                key={index}
                 href={href}
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out font-medium text-lg"
+                className="text-sm font-medium hover:underline underline-offset-4 text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out"
               >
                 {label}
               </Link>
@@ -96,6 +192,7 @@ const Navbar = () => {
           </div>
 
           {/* User Menu */}
+>>>>>>> Stashed changes
           <div className="hidden md:flex items-center space-x-4">
             {userId ? (
               <DropdownMenu>
@@ -184,6 +281,12 @@ const Navbar = () => {
             ))}
           </div>
           <div className="px-5 py-4 border-t border-gray-200">
+<<<<<<< Updated upstream
+            <ProfileMenu />
+            <button className="w-full bg-blue-600 text-white mt-3 py-2 rounded-lg">
+              Login
+            </button>
+=======
             {userId ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -232,15 +335,15 @@ const Navbar = () => {
             ) : (
               <Button
                 variant="outline"
-                className="w-full mt-3 border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200 ease-in-out"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  router.push("/pages/login");
+                  router.push("/pages/Login");
                 }}
               >
                 Login
               </Button>
             )}
+>>>>>>> Stashed changes
           </div>
         </div>
       )}

@@ -81,11 +81,11 @@ const Pagination: React.FC<PaginationProps> = ({
           return (
             <Button
               key={index}
-              variant={page === currentPage ? "solid" : "outline"}
+              variant={page === currentPage ? "secondary" : "outline"}
               onClick={() => onPageChange(page)}
               className={`px-3 py-2 ${
                 page === currentPage
-                  ? "bg-green-600 text-white"
+                  ? "bg-primary text-white hover:bg-primary/90 cursor-auto" 
                   : "bg-white text-gray-700 hover:bg-green-600 hover:text-white"
               }`}
             >

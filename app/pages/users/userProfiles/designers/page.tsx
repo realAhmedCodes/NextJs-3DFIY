@@ -118,9 +118,7 @@ const DesignersPage: React.FC = () => {
     fetchDesigners();
   }, [searchParams]);
 
- 
   const handlePageChange = (newPage: number) => {
-  
     const queryParams = new URLSearchParams();
 
     if (initialFilters.name) queryParams.append("name", initialFilters.name);
@@ -128,57 +126,53 @@ const DesignersPage: React.FC = () => {
       queryParams.append("location", initialFilters.location);
     if (pagination.limit)
       queryParams.append("limit", pagination.limit.toString());
+    if (pagination.page) queryParams.append("page", newPage.toString());
 
-   
-    queryParams.append("page", newPage.toString());
-
-   
-    router.push(
-      `/pages/users/userProfiles/designers?${queryParams.toString()}`
-    );
+    router.push(`/designers?${queryParams.toString()}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="container mx-autom m-20">
-       
+      <div className="container mx-auto">
+        {/* Filter Section */}
         <DesignerFilterForm initialFilters={initialFilters} />
 
-        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
-          Designers
+        {/* Page Title */}
+        <h1 className="text-5xl mt-4 font-extrabold text-center text-gray-800 mb-10">
+          Find Top Designers
         </h1>
 
         {/* Error Message */}
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-6">
             {error}
           </Alert>
         )}
 
         {/* Loading State */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="h-64 w-full" />
+              <Skeleton key={index} className="h-80 w-full rounded-xl" />
             ))}
           </div>
         ) : designers.length > 0 ? (
           <>
             {/* Designers Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {designers.map((designer) => {
                 const { Users, cnic_number, bio, ratings } = designer;
                 const profilePicPath = Users.profile_pic
-                  ? `/uploads/${Users.profile_pic}`
+                  ? `${Users.profile_pic}`
                   : null;
 
                 return (
                   <Card
                     key={designer.designer_id}
-                    className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
+                    className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col"
                   >
                     {/* Profile Picture */}
-                    <div className="flex justify-center mt-4">
+                    <div className="flex justify-center mt-6">
                       {profilePicPath ? (
                         <div className="w-24 h-24 relative">
                           <Image
@@ -190,43 +184,63 @@ const DesignersPage: React.FC = () => {
                         </div>
                       ) : (
                         <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                          <span className="text-gray-500">No Image</span>
+                          <span className="text-gray-600">No Image</span>
                         </div>
                       )}
                     </div>
 
                     {/* Designer Info */}
-                    <div className="p-4 text-center">
-                      <h2 className="text-xl font-semibold text-gray-800">
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h2 className="text-2xl font-semibold text-gray-800 text-center capitalize">
                         {Users.name}
                       </h2>
-                      <p className="text-gray-600">@{Users.username}</p>
-                      <p className="text-gray-700 mt-2">
-                        Location: {Users.location}
+                      <p className="text-gray-500 text-sm text-center">
+                        @{Users.username}
                       </p>
-                      <p className="text-gray-700 mt-2">
-                        Phone: {Users.phoneNo}
+                      <p className="text-gray-700 mt-2 font-semibold text-center capitalize">
+                        {Users.location}
                       </p>
-                      <p className="text-gray-600 mt-2">{bio}</p>
-                      {ratings !== null && (
-                        <p className="text-yellow-500 mt-2">
-                          ⭐ {ratings} Ratings
-                        </p>
-                      )}
+                      <p className="text-gray-600 mt-2 text-center text-sm flex-1">
+                        {bio.length > 100 ? `${bio.substring(0, 100)}...` : bio}
+                      </p>
                     </div>
 
-                    {/* View Profile Button */}
-                    <div className="bg-gray-100 p-4 rounded-b-xl">
-                      <Link
-                        href={`/designers/${designer.designer_id}/profile`}
-                        passHref
-                      >
-                        <Button
-                          variant="outline"
-                          className="bg-blue-500 text-white py-2 px-4 rounded-full shadow-sm hover:bg-blue-600 transition"
-                        >
-                          View Profile
-                        </Button>
+                    {ratings !== null && (
+                      <div className="flex items-center justify-center -mt-4 mb-8">
+                        {[...Array(ratings)].map((_, index) => (
+                          <svg
+                            key={`filled-${index}`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-yellow-600 mr-1"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.37-2.45a1 1 0 00-1.176 0l-3.37 2.45c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.611 9.397c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.97z" />
+                          </svg>
+                        ))}
+
+                        {[...Array(5 - ratings)].map((_, index) => (
+                          <svg
+                            key={`outlined-${index}`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-300 mr-1"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.37-2.45a1 1 0 00-1.176 0l-3.37 2.45c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.611 9.397c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.97z" />
+                          </svg>
+                        ))}
+
+                      </div>
+                    )}
+
+                    <div className="m-6 -mt-4 rounded-b-xl">
+                      <Link href={`/designers/${designer.designer_id}/profile`}>
+                        <Button className="w-full">View Profile</Button>
                       </Link>
                     </div>
                   </Card>
@@ -235,14 +249,16 @@ const DesignersPage: React.FC = () => {
             </div>
 
             {/* Pagination Component */}
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              onPageChange={handlePageChange}
-            />
+            <div className="mt-8 flex justify-center">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
           </>
         ) : (
-          <p className="text-center text-xl text-gray-600">
+          <p className="text-center text-2xl text-gray-600 mt-10">
             No designers found. Try adjusting your search criteria.
           </p>
         )}

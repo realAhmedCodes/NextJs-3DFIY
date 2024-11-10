@@ -1,5 +1,3 @@
-// components/searchPrinters/FilterForm.tsx
-
 "use client";
 
 import React, { useState } from "react";
@@ -7,8 +5,16 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // Import ShadCN Select components
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-interface FilterFormProps {
+interface FilterForm {
   initialFilters: {
     location: string;
     printer_type: string;
@@ -19,15 +25,20 @@ interface FilterFormProps {
   };
 }
 
-const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
+const FilterForm: React.FC<FilterForm> = ({ initialFilters }) => {
   const [inputFilters, setInputFilters] = useState(initialFilters);
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState(true); // For collapsible filters on small screens
 
   const handleInputFilterChange = (name: string, value: any) => {
     setInputFilters((prevFilters) => ({
       ...prevFilters,
       [name]: value,
     }));
+  };
+
+  const handleSortChange = (value: string) => {
+    handleInputFilterChange("sortBy", value);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -54,25 +65,44 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
       queryParams.sortBy = inputFilters.sortBy;
     }
 
-    queryParams.page = "1"; // Reset to first page on new search
-    queryParams.limit = "6"; // Set limit for printers
+    // Always reset to page 1 on new search
+    queryParams.page = "1";
+    queryParams.limit = "6"; // Ensure consistent limit
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/pages/printers/ViewPrinter?${queryString}`);
+    router.push(`/pages/printers/ViewPrinter?${queryString}`); // Updated path
   };
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-md mb-16">
+    <div className="bg-white p-10 rounded-2xl shadow-xl mb-20">
+      {/* Toggle Button for Mobile */}
+      <div className="mb-6 lg:hidden">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between w-full text-left text-2xl font-semibold text-gray-800 focus:outline-none"
+        >
+          <span>Filters</span>
+          {isOpen ? (
+            <ChevronUpIcon className="w-6 h-6" />
+          ) : (
+            <ChevronDownIcon className="w-6 h-6" />
+          )}
+        </button>
+      </div>
+
+      {/* Filter Form */}
       <form
         onSubmit={handleSearch}
-        className="grid grid-cols-1 md:grid-cols-8 gap-6"
+        className={`grid grid-cols-1 lg:grid-cols-8 gap-8 ${
+          isOpen ? "block" : "hidden"
+        } lg:block`}
       >
         {/* Location Input */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="location"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Location
           </Label>
@@ -84,15 +114,15 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
             onChange={(e) =>
               handleInputFilterChange("location", e.target.value)
             }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            className="px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
         {/* Printer Type Input */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="printer_type"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Printer Type
           </Label>
@@ -104,15 +134,15 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
             onChange={(e) =>
               handleInputFilterChange("printer_type", e.target.value)
             }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            className="px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
         {/* Min Price Input */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="minPrice"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Minimum Price
           </Label>
@@ -122,21 +152,18 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
             placeholder="e.g., 0"
             value={inputFilters.minPrice}
             onChange={(e) =>
-              handleInputFilterChange(
-                "minPrice",
-                parseFloat(e.target.value) || 0
-              )
+              handleInputFilterChange("minPrice", parseFloat(e.target.value) || 0)
             }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            className="px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
             min={0}
           />
         </div>
 
         {/* Max Price Input */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="maxPrice"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Maximum Price
           </Label>
@@ -146,21 +173,18 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
             placeholder="e.g., 1000"
             value={inputFilters.maxPrice}
             onChange={(e) =>
-              handleInputFilterChange(
-                "maxPrice",
-                parseFloat(e.target.value) || 0
-              )
+              handleInputFilterChange("maxPrice", parseFloat(e.target.value) || 0)
             }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            className="px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
             min={0}
           />
         </div>
 
         {/* Materials Input */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="materials"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Materials
           </Label>
@@ -172,37 +196,36 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
             onChange={(e) =>
               handleInputFilterChange("materials", e.target.value)
             }
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
+            className="px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
         {/* Sort By Select */}
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <Label
             htmlFor="sortBy"
-            className="block text-lg font-medium text-gray-700 mb-2"
+            className="mb-3 text-xl font-semibold text-gray-800"
           >
             Sort By
           </Label>
-          <select
-            id="sortBy"
-            value={inputFilters.sortBy}
-            onChange={(e) => handleInputFilterChange("sortBy", e.target.value)}
-            className="block w-full px-4 py-3 border border-gray-300 rounded-lg"
-          >
-            <option value="">Default</option>
-            <option value="price">Price</option>
-            <option value="created_at">Newest</option>
-            <option value="rating">Rating</option>
-            {/* Add more sorting options as needed */}
-          </select>
+          <Select onValueChange={handleSortChange} defaultValue="">
+            <SelectTrigger className="w-full border border-gray-300 rounded-xl">
+              <SelectValue placeholder="Select Option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default</SelectItem>
+              <SelectItem value="price">Price</SelectItem>
+              <SelectItem value="created_at">Newest</SelectItem>
+              <SelectItem value="rating">Rating</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Search Button */}
-        <div className="md:col-span-8 flex justify-end">
+        <div className="lg:col-span-8 flex justify-end">
           <Button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg shadow-md"
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg transition duration-300"
           >
             Search
           </Button>
@@ -213,33 +236,3 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 };
 
 export default FilterForm;
-
-/*
-
-// Printers model
-model Printers {
-  printer_id       Int      @id @default(autoincrement())
-  location         String   @db.VarChar(100)
-  description      String   @db.Text
-  name             String   @db.VarChar(50)
-  printer_type     String   @db.VarChar(50)
-  materials        String[] // Array of text values (automatically mapped to PostgreSQL `text[]`)
-  price            Int?
-  image            String   @db.VarChar(255)
-  printer_owner_id Int?
-  rating           Int?
-  created_at       DateTime @default(now()) @db.Timestamptz
-  updated_at       DateTime @updatedAt @db.Timestamptz
-  colors           String[] // Array of text values
-  services         String[] // Array of text values
-
-  // Foreign key relation to Printer_Owners
-  Printer_Owners   Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
-
-  // Relation with printer_orders
-  printer_orders   printer_orders[]
-
-  @@index([printer_id])
-  @@index([printer_owner_id])
-}
-*/

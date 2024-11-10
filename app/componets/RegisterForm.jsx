@@ -1,28 +1,11 @@
 // components/RegisterForm.jsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+<<<<<<< Updated upstream
+import { Button, Input, Typography } from "@material-tailwind/react";
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -39,8 +22,44 @@ const RegisterForm = () => {
     profile_pic: null,
   });
   const [nextComp, setNextComp] = useState(true);
+=======
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radio-group"; // Assuming you have a RadioGroup component
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+
+const RegisterForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    username: "",
+    email: "",
+    pwd: "",
+    matchPwd: "",
+    location: "",
+    phoneNo: "",
+    cnic_number: "",
+    bio: "",
+    sellerType: "Regular",
+    profile_pic: null,
+  });
+  const [currentStep, setCurrentStep] = useState(1);
   const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
   const [otpValues, setOtpValues] = useState(Array(6).fill(""));
+>>>>>>> Stashed changes
 
   const router = useRouter();
 
@@ -56,6 +75,7 @@ const RegisterForm = () => {
   const [validEmail, setValidEmail] = useState(false);
   const [validPwd, setValidPwd] = useState(false);
   const [validMatch, setValidMatch] = useState(false);
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     setValidName(formData.name.trim() !== "");
@@ -74,19 +94,23 @@ const RegisterForm = () => {
     setValidMatch(formData.pwd === formData.matchPwd);
   }, [formData.pwd, formData.matchPwd]);
 
-  const handleInputChange = (e) => {
-    const { id, value, files } = e.target;
-    if (id === "profile_pic") {
-      const file = files[0];
-      if (file && FILE_TYPES.includes(file.type)) {
-        setFormData({ ...formData, profile_pic: file });
-      } else {
-        setFormData({ ...formData, profile_pic: null });
-        alert("Invalid file type. Only JPEG and PNG are allowed.");
-      }
+  const handleFileChange = (e, setFile) => {
+    const file = e.target.files[0];
+    if (file && FILE_TYPES.includes(file.type)) {
+      setFile(file);
     } else {
-      setFormData({ ...formData, [id]: value });
+      setFile(null);
     }
+  };
+
+  const handleBlur = (e) => {
+    const { id } = e.target;
+    setTouched({ ...touched, [id]: true });
+  };
+
+  const handleBlur = (e) => {
+    const { id } = e.target;
+    setTouched({ ...touched, [id]: true });
   };
 
   const SubmitBtn = async (e) => {
@@ -155,56 +179,7 @@ const RegisterForm = () => {
     }
   };
 
-  // OTP Input Functions
-  const handleOtpChange = (e, index) => {
-    const val = e.target.value;
-    if (/^\d*$/.test(val)) {
-      const newOtpValues = [...otpValues];
-      newOtpValues[index] = val;
-      setOtpValues(newOtpValues);
-
-      // Move focus to next input
-      if (val && index < 5) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
-    }
-  };
-
-  const handleOtpKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !otpValues[index] && index > 0) {
-      document.getElementById(`otp-${index - 1}`).focus();
-    }
-  };
-
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-
-    const otp = otpValues.join("");
-
-    if (otp.length !== 6) {
-      alert("Please enter the 6-digit OTP code.");
-      return;
-    }
-
-    try {
-      const response = await axios.post("/api/otp/verify", {
-        email: formData.email,
-        otp,
-      });
-
-      if (response.status === 200) {
-        alert("OTP verified successfully!");
-        setIsOtpDialogOpen(false);
-        router.push("/"); // Redirect to a success page or dashboard
-      } else {
-        alert("OTP verification failed. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("OTP verification failed. Please try again.");
-    }
-  };
-
+<<<<<<< Updated upstream
   const nextCompAsDesigner = () => {
     setFormData({ ...formData, sellerType: "Designer" });
     setNextComp(false);
@@ -279,98 +254,407 @@ const RegisterForm = () => {
                   )}
                 </div>
 
-                {/* Password */}
-                <div>
-                  <Label htmlFor="pwd">Password</Label>
-                  <Input
-                    id="pwd"
-                    type="password"
-                    placeholder="********"
-                    value={formData.pwd}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  {!validPwd && (
-                    <p className="text-red-500 text-sm">
-                      Password must be 8-24 characters, include uppercase and
-                      lowercase letters, a number, and a special character.
-                    </p>
-                  )}
-                </div>
+              <div>
+                <label htmlFor="location">Location</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="text"
+                  id="location"
+                  name="location"
+                  placeholder="Enter Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
 
-                {/* Confirm Password */}
-                <div>
-                  <Label htmlFor="matchPwd">Confirm Password</Label>
-                  <Input
-                    id="matchPwd"
-                    type="password"
-                    placeholder="********"
-                    value={formData.matchPwd}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  {!validMatch && (
-                    <p className="text-red-500 text-sm">
-                      Passwords do not match.
-                    </p>
-                  )}
-                </div>
+              <div>
+                <label htmlFor="phoneNo">Phone Number</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="number"
+                  id="phoneNo"
+                  placeholder="Enter Phone Number"
+                  value={phoneNo}
+                  onChange={(e) => setPhoneNo(e.target.value)}
+                />
+              </div>
 
-                {/* Location */}
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    type="text"
-                    placeholder="Enter Location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                  />
-                </div>
+              <div>
+                <label htmlFor="email">Email</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="email"
+                  id="email"
+                  placeholder="Enter Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-                {/* Phone Number */}
-                <div>
-                  <Label htmlFor="phoneNo">Phone Number</Label>
-                  <Input
-                    id="phoneNo"
-                    type="tel"
-                    placeholder="Enter Phone Number"
-                    value={formData.phoneNo}
-                    onChange={handleInputChange}
-                  />
-                </div>
+              <div>
+                <label htmlFor="password">Password</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="password"
+                  placeholder="********"
+                  id="password"
+                  value={pwd}
+                  onChange={(e) => setPwd(e.target.value)}
+                  required
+                />
+              </div>
 
-                {/* Seller Type Selection */}
-                <div className="flex items-center space-x-4">
-                  <p className="text-gray-700">Become a Seller:</p>
-                  <Button variant="outline" onClick={nextCompAsDesigner}>
-                    As Model Designer
-                  </Button>
-                  <Button variant="outline" onClick={nextCompAsPrinterOwner}>
-                    As Printer Owner
-                  </Button>
-                </div>
+              <div>
+                <label htmlFor="confirm_pwd">Confirm Password</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="password"
+                  placeholder="********"
+                  id="confirm_pwd"
+                  value={matchPwd}
+                  onChange={(e) => setMatchPwd(e.target.value)}
+                  required
+                />
+              </div>
 
-                {/* Submit Button */}
-                <Button type="submit" className="w-full">
-                  Submit
+              <Button onClick={SubmitBtn}>Submit</Button>
+              <div>
+                <p>Become A Seller</p>
+                <Button onClick={nextCompAsPrinterOwner}>
+                  As Printer Owner
                 </Button>
+                <Button onClick={nextCompAsDesigner}>As Model Designer</Button>
+              </div>
 
-                {/* Login Link */}
-                <p className="mt-6 text-center text-sm text-gray-600">
-                  Already have an account?
-                  <a
-                    href="/pages/login"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    {" "}
-                    Log In
-                  </a>
-                </p>
-              </form>
-            ) : (
-              <form className="space-y-6" onSubmit={SubmitBtn}>
-                {/* Profile Picture */}
+              <p className="mt-10 text-center text-sm text-gray-500">
+                Already have an account?
+                <a
+                  href="/pages/Login"
+                  className="font-semibold text-indigo-600 hover:text-indigo-500"
+                >
+                  Log In
+                </a>
+              </p>
+            </form>
+          </>
+        ) : (
+          <>
+            <div>
+              <div>
+                <label htmlFor="bio">Bio</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="text"
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cnic_number">CNIC Number</label>
+                <Input
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
+                  size="lg"
+                  type="text"
+                  id="cnic_number"
+                  value={cnic_number}
+                  onChange={(e) => setCnic_number(e.target.value)}
+                  required
+                />
+              </div>
+
+              <Button onClick={SubmitBtn}>Submit</Button>
+              <Button onClick={() => setNextComp(!nextComp)}>Back</Button>
+            </div>
+          </>
+        )}
+      </div>
+=======
+  // OTP Input Functions
+  const handleOtpChange = (e, index) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      const newOtpValues = [...otpValues];
+      newOtpValues[index] = val;
+      setOtpValues(newOtpValues);
+
+      // Move focus to next input
+      if (val && index < 5) {
+        document.getElementById(`otp-${index + 1}`).focus();
+      }
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otpValues[index] && index > 0) {
+      document.getElementById(`otp-${index - 1}`).focus();
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+
+    const otp = otpValues.join("");
+
+    if (otp.length !== 6) {
+      alert("Please enter the 6-digit OTP code.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("/api/otp/verify", {
+        email: formData.email,
+        otp,
+      });
+
+      if (response.status === 200) {
+        alert("OTP verified successfully!");
+        setIsOtpDialogOpen(false);
+        router.push("/"); // Redirect to a success page or dashboard
+      } else {
+        alert("OTP verification failed. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("OTP verification failed. Please try again.");
+    }
+  };
+
+  const handleNext = () => {
+    // Validate Step 1 before moving to Step 2
+    if (
+      validName &&
+      validUsername &&
+      validEmail &&
+      validPwd &&
+      validMatch
+    ) {
+      setCurrentStep(2);
+    } else {
+      setTouched({
+        name: true,
+        username: true,
+        email: true,
+        pwd: true,
+        matchPwd: true,
+      });
+      alert("Please fill out the form correctly before proceeding.");
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(1);
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Sign Up to Get Started
+          </h2>
+        </CardHeader>
+        <CardContent>
+          {currentStep === 1 && (
+            <form className="space-y-6" onSubmit={handleNext}>
+              {/* Name */}
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Enter Name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="mt-1"
+                />
+                {touched.name && !validName && (
+                  <p className="text-red-500 text-sm">Name is required.</p>
+                )}
+              </div>
+
+              {/* Username */}
+              <div>
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="mt-1"
+                />
+                {touched.username && !validUsername && (
+                  <p className="text-red-500 text-sm">
+                    Username must be 4-24 characters, start with a letter, and can include letters, numbers, underscores, and hyphens.
+                  </p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="mt-1"
+                />
+                {touched.email && !validEmail && (
+                  <p className="text-red-500 text-sm">
+                    Enter a valid email address.
+                  </p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div>
+                <Label htmlFor="pwd">Password</Label>
+                <Input
+                  id="pwd"
+                  type="password"
+                  placeholder="********"
+                  value={formData.pwd}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="mt-1"
+                />
+                {touched.pwd && !validPwd && (
+                  <p className="text-red-500 text-sm">
+                    Password must be 8-24 characters, include uppercase and
+                    lowercase letters, a number, and a special character.
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <Label htmlFor="matchPwd">Confirm Password</Label>
+                <Input
+                  id="matchPwd"
+                  type="password"
+                  placeholder="********"
+                  value={formData.matchPwd}
+                  onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className="mt-1"
+                />
+                {touched.matchPwd && !validMatch && (
+                  <p className="text-red-500 text-sm">
+                    Passwords do not match.
+                  </p>
+                )}
+              </div>
+
+              {/* Location */}
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  type="text"
+                  placeholder="Enter Location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <Label htmlFor="phoneNo">Phone Number</Label>
+                <Input
+                  id="phoneNo"
+                  type="tel"
+                  placeholder="Enter Phone Number"
+                  value={formData.phoneNo}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Seller Type Selection */}
+              <div>
+                <Label>Become a Seller</Label>
+                <RadioGroup
+                  value={formData.sellerType}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, sellerType: value })
+                  }
+                  className="mt-2 flex gap-8"
+                >
+                  <div className="flex items-center space-x-4 mt-2">
+                    <RadioGroupItem value="Designer" id="designer" />
+                    <Label htmlFor="designer" className="cursor-pointer">
+                      Model Designer
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <RadioGroupItem value="Printer Owner" id="printerOwner" />
+                    <Label htmlFor="printerOwner" className="cursor-pointer">
+                      Printer Owner
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Next Button */}
+              <Button type="submit" className="w-full">
+                Next
+              </Button>
+
+              {/* Login Link */}
+              <p className="mt-6 text-center text-sm text-gray-600">
+                Already have an account?
+                <a
+                  href="/pages/login"
+                  className="font-semibold text-indigo-600 hover:text-indigo-500"
+                >
+                  {" "}
+                  Log In
+                </a>
+              </p>
+            </form>
+          )}
+
+          {currentStep === 2 && (
+            <form className="space-y-6" onSubmit={SubmitBtn}>
+              {/* Profile Picture */}
+              {(formData.sellerType === "Designer" ||
+                formData.sellerType === "Printer Owner") && (
                 <div>
                   <Label htmlFor="profile_pic">Profile Picture</Label>
                   <Input
@@ -378,83 +662,96 @@ const RegisterForm = () => {
                     type="file"
                     accept="image/jpeg,image/png"
                     onChange={handleInputChange}
-                    required
+                    className="mt-1"
                   />
+                  {!formData.profile_pic && (
+                    <p className="text-red-500 text-sm">
+                      Profile picture is required.
+                    </p>
+                  )}
                 </div>
+              )}
 
-                {/* Bio */}
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    placeholder="Write your bio here"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                  ></Textarea>
-                </div>
-
-                {/* CNIC Number */}
-                <div>
-                  <Label htmlFor="cnic_number">CNIC Number</Label>
-                  <Input
-                    id="cnic_number"
-                    type="text"
-                    placeholder="Enter CNIC"
-                    value={formData.cnic_number}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <Button type="submit" className="w-full">
-                  Submit
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* OTP Verification Dialog */}
-        <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>OTP Verification</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleOtpSubmit}>
-              <div className="space-y-4">
-                <Label htmlFor="otp">
-                  Enter the 6-digit OTP sent to your email
-                </Label>
-                <div className="mt-4 flex justify-center space-x-2">
-                  {otpValues.map((value, index) => (
-                    <Input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      className="w-12 h-12 text-center text-xl"
-                      value={value}
-                      onChange={(e) => handleOtpChange(e, index)}
-                      onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                    />
-                  ))}
-                </div>
+              {/* Bio */}
+              <div>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Write your bio here"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                ></Textarea>
               </div>
-              <DialogFooter className="mt-4">
-                <Button type="submit" className="w-full">
-                  Verify
+
+              {/* CNIC Number */}
+              <div>
+                <Label htmlFor="cnic_number">CNIC Number</Label>
+                <Input
+                  id="cnic_number"
+                  type="text"
+                  placeholder="Enter CNIC"
+                  value={formData.cnic_number}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Back and Submit Buttons */}
+              <div className="flex justify-between">
+                <Button type="button" variant="outline" onClick={handleBack}>
+                  Back
                 </Button>
-              </DialogFooter>
+                <Button type="submit">Submit</Button>
+              </div>
             </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* OTP Verification Dialog */}
+      <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>OTP Verification</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleOtpSubmit}>
+            <div className="space-y-4">
+              <Label htmlFor="otp">
+                Enter the 6-digit OTP sent to your email
+              </Label>
+              <div className="mt-4 flex justify-center space-x-2">
+                {otpValues.map((value, index) => (
+                  <Input
+                    key={index}
+                    id={`otp-${index}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    className="w-12 h-12 text-center text-xl"
+                    value={value}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                  />
+                ))}
+              </div>
+            </div>
+            <DialogFooter className="mt-4">
+              <Button type="submit" className="w-full">
+                Verify
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+>>>>>>> Stashed changes
     </div>
   );
 };
 
 export default RegisterForm;
+<<<<<<< Updated upstream
+*/
 
 /*
 "use client";
@@ -806,4 +1103,5 @@ router.push(`/pages/otp?email=${encodeURIComponent(email)}`);
 };
 
 export default RegisterForm;
-*/
+=======
+>>>>>>> Stashed changes

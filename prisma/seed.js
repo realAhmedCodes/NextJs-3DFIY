@@ -88,7 +88,7 @@ async function main() {
 
   await prisma.category.createMany({
     data: Category,
-    skipDuplicates: true, // Skip categories that already exist
+    skipDuplicates: true,
   });
 }
 
