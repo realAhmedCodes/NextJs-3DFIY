@@ -6,44 +6,13 @@ import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import Image from "next/image";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Alert } from "@/components/ui/alert";
-
-
-
-<<<<<<< Updated upstream
-const page = () => {
-  const { modelId } = useParams();
-  const [model, setModel] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
-  const [isLiked, setIsLiked] = useState(null);
-  const [isSaved, setIsSaved] = useState(null);
-=======
-import {
-  Button
-} from "@/components/ui/button";
-import {
-  Card
-} from "@/components/ui/card";
-import {
-  Avatar
-} from "@/components/ui/avatar";
-import {
-  Alert
-} from "@/components/ui/alert";
-import {
-  Tooltip
-} from "@/components/ui/tooltip";
-import {
-  Badge
-} from "@/components/ui/badge";
-import {
-  Textarea
-} from "@/components/ui/textarea";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 
 import {
   Edit,
@@ -52,7 +21,7 @@ import {
   HeartFilled,
   Save,
   SaveFilled,
-  Info
+  Info,
 } from "lucide-react";
 
 const ModelPage = () => {
@@ -63,12 +32,8 @@ const ModelPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
->>>>>>> Stashed changes
 
-
-
-  const nav= useRouter()
-
+  const nav = useRouter();
 
   const { userId, email, sellerType, isVerified, sellerId } = useSelector(
     (state) => state.user
@@ -80,16 +45,6 @@ const ModelPage = () => {
   useEffect(() => {
     const fetchModelDetail = async () => {
       try {
-<<<<<<< Updated upstream
-        const response = await fetch(`/api/models/${modelId}/modelDetail`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch model details");
-        }
-        const data = await response.json();
-        setModel(data);
-      } catch (err) {
-        setError(err.message);
-=======
         const response = await axios.get(`/api/models/${modelId}/modelDetail`);
         setModel(response.data);
       } catch (err) {
@@ -97,7 +52,6 @@ const ModelPage = () => {
           err.response?.data?.message || "Failed to fetch model details"
         );
       } finally {
->>>>>>> Stashed changes
         setLoading(false);
       }
     };
@@ -105,11 +59,7 @@ const ModelPage = () => {
     fetchModelDetail();
   }, [modelId]);
 
-<<<<<<< Updated upstream
-  /*
-=======
   // Fetch Like Status
->>>>>>> Stashed changes
   useEffect(() => {
     const fetchModelSavedStatus = async () => {
       if (userId !== null) {
@@ -132,29 +82,28 @@ const ModelPage = () => {
 
     fetchModelSavedStatus();
   }, [modelId, userId]);
-useEffect(() => {
-  const fetchModelLike = async () => {
-    if (userId !== null) {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/likeApi/likeCheck/${modelId}/${userId}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch like details");
+  useEffect(() => {
+    const fetchModelLike = async () => {
+      if (userId !== null) {
+        try {
+          const response = await fetch(
+            `http://localhost:8000/likeApi/likeCheck/${modelId}/${userId}`
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch like details");
+          }
+          const data = await response.json();
+          setIsLiked(data.liked);
+          setLoading(false);
+        } catch (err) {
+          setError(err.message);
+          setLoading(false);
         }
-        const data = await response.json();
-        setIsLiked(data.liked);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
       }
-    }
-  };
+    };
 
-  fetchModelLike();
-}, [modelId, userId]);
-*/
+    fetchModelLike();
+  }, [modelId, userId]);
   const updateModelBtn = () => {
     nav.push(`/pages/${modelId}/updateModel`);
   };
@@ -165,10 +114,9 @@ useEffect(() => {
 
       const payload = { user_id: userId, modelId: modelId };
 
-         await axios.delete(
-           `/api/models/delete?user_id=${userId}&model_id=${modelId}`
-         );
-
+      await axios.delete(
+        `/api/models/delete?user_id=${userId}&model_id=${modelId}`
+      );
     } catch (err) {
       console.error("Failed to update like status", err);
     }
@@ -197,23 +145,13 @@ const likeBtn = async () => {
           const response = await axios.get(
             `/api/models/${modelId}/modelLike?user_id=${userId}`
           );
-<<<<<<< Updated upstream
-          if (!response.ok) {
-            throw new Error("Failed to fetch like status");
-          }
-          const data = await response.json();
-          setIsLiked(data.liked);
-        } catch (error) {
-          setError(error);
-        } finally {
-          setLoading(false);
-=======
           setIsLiked(response.data.liked);
         } catch (err) {
-          setError(err.response?.data?.message || "Failed to fetch like status");
->>>>>>> Stashed changes
+          setError(
+            err.response?.data?.message || "Failed to fetch like status"
+          );
         }
-      };
+      }
       fetchLikeStatus();
     }
   }, [modelId, userId]);
@@ -226,21 +164,11 @@ const likeBtn = async () => {
           const response = await axios.get(
             `/api/models/${modelId}/saveModel?user_id=${userId}`
           );
-<<<<<<< Updated upstream
-          if (!response.ok) {
-            throw new Error("Failed to fetch saved status");
-          }
-          const data = await response.json();
-          setIsSaved(data.saved);
-        } catch (error) {
-          setError(error);
-        } finally {
-          setLoading(false);
-=======
           setIsSaved(response.data.saved);
         } catch (err) {
-          setError(err.response?.data?.message || "Failed to fetch saved status");
->>>>>>> Stashed changes
+          setError(
+            err.response?.data?.message || "Failed to fetch saved status"
+          );
         }
       };
       fetchSavedStatus();
@@ -255,11 +183,9 @@ const likeBtn = async () => {
           `/api/models/${modelId}/modelUnlike?user_id=${userId}`
         );
       } else {
-<<<<<<< Updated upstream
-        await axios.post(`/api/models/${modelId}/modelLike`, payload);
-=======
-        await axios.post(`/api/models/${modelId}/modelLike`, { user_id: userId });
->>>>>>> Stashed changes
+        await axios.post(`/api/models/${modelId}/modelLike`, {
+          user_id: userId,
+        });
       }
       setIsLiked(!isLiked);
     } catch (err) {
@@ -267,40 +193,21 @@ const likeBtn = async () => {
       setError("Unable to update like status. Please try again.");
     }
   };
-<<<<<<< Updated upstream
-  const saveBtn = async () => {
-=======
 
   // Handle Save/Unsave
   const handleSave = async () => {
->>>>>>> Stashed changes
     try {
       if (isSaved) {
         await axios.delete(
           `/api/models/${modelId}/unsaveModel?user_id=${userId}`
         );
       } else {
-<<<<<<< Updated upstream
-        await axios.post(`/api/models/${modelId}/saveModel`, payload);
-=======
-        await axios.post(`/api/models/${modelId}/saveModel`, { user_id: userId });
->>>>>>> Stashed changes
+        await axios.post(`/api/models/${modelId}/saveModel`, {
+          user_id: userId,
+        });
       }
       setIsSaved(!isSaved);
     } catch (err) {
-<<<<<<< Updated upstream
-      console.error("Failed to update like status", err);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-=======
       console.error("Failed to update save status", err);
       setError("Unable to update save status. Please try again.");
     }
@@ -332,8 +239,6 @@ const likeBtn = async () => {
     }
   };
 
->>>>>>> Stashed changes
-
   // Error State
   if (error) {
     return (
@@ -345,118 +250,16 @@ const likeBtn = async () => {
 
   // No Model Found
   if (!model) {
-<<<<<<< Updated upstream
-    return <div>No model found</div>;
-=======
     return (
       <div className="flex justify-center items-center h-screen">
         <Alert variant="warning">No model found.</Alert>
       </div>
     );
->>>>>>> Stashed changes
   }
   const profilePicFilename = model.profile_pic.split("\\").pop();
   const profilePicPath = `/uploads/${profilePicFilename}`;
 
   return (
-<<<<<<< Updated upstream
-    <div className="container mx-auto p-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">{model.user_name}</h1>
-            <div className="flex items-center">
-              {model.profile_pic && (
-                <img
-                  src={profilePicPath}
-                  alt={model.user_name}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-              )}
-              <h2 className="text-lg">{model.user_location}</h2>
-            </div>
-          </div>
-          
-          <p className="text-gray-700 mb-4">{model.description}</p>
-          <div className="mb-4">
-            {model.image && (
-              <img
-                src={`/uploads/${model.image}`}
-                alt={model.name}
-                layout="fill"
-                objectFit="cover"
-                className="rounded-t-lg"
-              />
-            </div>
-          )}
-          <div className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h1 className="text-3xl font-bold">{model.name}</h1>
-              <div className="flex items-center">
-                {model.profile_pic && (
-                  <Avatar className="mr-2">
-                    <Image
-                      src={`/uploads/${model.profile_pic}`}
-                      alt={model.user_name}
-                      layout="fill"
-                      objectFit="cover"
-                    />
-                  </Avatar>
-                )}
-                <div>
-                  <p className="text-lg font-semibold">{model.user_name}</p>
-                  <p className="text-sm text-gray-500">{model.user_location}</p>
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-700 mb-4">{model.description}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-4">
-                <Button variant="ghost" onClick={likeBtn}>
-                  {isLiked ? (
-                    <>
-                      <span className="ml-1">Unlike</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="ml-1">Like</span>
-                    </>
-                  )}
-                </Button>
-                <Button variant="ghost" onClick={saveBtn}>
-                  {isSaved ? (
-                    <>
-                      <span className="ml-1">Unsave</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="ml-1">Save</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-              <div>
-                {model.is_free ? (
-                  <p className="text-xl font-bold text-green-500">Free</p>
-                ) : (
-                  <p className="text-xl font-bold">${model.price}</p>
-                )}
-              </div>
-            </div>
-            {sellerType === "Designer" && model.designer_id === sellerId && (
-              <div className="mt-4 flex space-x-2">
-                <Button variant="outline" onClick={updateModelBtn}>
-                  <Edit className="h-5 w-5 mr-1" />
-                  Update Model
-                </Button>
-                <Button variant="destructive" onClick={delModelBtn}>
-                  <Trash className="h-5 w-5 mr-1" />
-                  Delete Model
-                </Button>
-              </div>
-            )}
-          </div>
-=======
     <div className="bg-gray-50 min-h-screen py-10">
       <div className="container mx-auto px-4">
         {/* Model Details Card */}
@@ -588,34 +391,35 @@ const likeBtn = async () => {
 
               {/* Actions */}
               <div className="mt-4">
-                {sellerType === "Designer" && model.designer_id === sellerId && (
-                  <div className="flex space-x-4">
-                    {/* Update Button */}
-                    <Tooltip content="Update Model">
-                      <Button
-                        variant="outline"
-                        onClick={handleUpdateModel}
-                        className="flex items-center"
-                      >
-                        <Edit className="w-5 h-5 mr-2" />
-                        Update Model
-                      </Button>
-                    </Tooltip>
+                {sellerType === "Designer" &&
+                  model.designer_id === sellerId && (
+                    <div className="flex space-x-4">
+                      {/* Update Button */}
+                      <Tooltip content="Update Model">
+                        <Button
+                          variant="outline"
+                          onClick={handleUpdateModel}
+                          className="flex items-center"
+                        >
+                          <Edit className="w-5 h-5 mr-2" />
+                          Update Model
+                        </Button>
+                      </Tooltip>
 
-                    {/* Delete Button */}
-                    <Tooltip content="Delete Model">
-                      <Button
-                        variant="destructive"
-                        onClick={handleDeleteModel}
-                        className="flex items-center"
-                        disabled={isDeleting}
-                      >
-                        <Trash className="w-5 h-5 mr-2" />
-                        {isDeleting ? "Deleting..." : "Delete Model"}
-                      </Button>
-                    </Tooltip>
-                  </div>
-                )}
+                      {/* Delete Button */}
+                      <Tooltip content="Delete Model">
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteModel}
+                          className="flex items-center"
+                          disabled={isDeleting}
+                        >
+                          <Trash className="w-5 h-5 mr-2" />
+                          {isDeleting ? "Deleting..." : "Delete Model"}
+                        </Button>
+                      </Tooltip>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
@@ -629,8 +433,8 @@ const likeBtn = async () => {
               Reviews
             </h2>
             <p className="text-gray-600">
-              Be the first to review this model. Share your experience and
-              help others make informed decisions.
+              Be the first to review this model. Share your experience and help
+              others make informed decisions.
             </p>
             <Button variant="primary" className="mt-4">
               Write a Review
@@ -698,10 +502,7 @@ const likeBtn = async () => {
             <Button variant="primary" disabled>
               Submit
             </Button>
-            {/* Note: The Textarea and Button are disabled as placeholders.
-                Implement the functionality as needed. */}
           </Card>
->>>>>>> Stashed changes
         </div>
       </div>
     </div>

@@ -1,40 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-<<<<<<< Updated upstream
-import {
-  Bars3Icon,
-  XMarkIcon,
-  UserCircleIcon,
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  ArrowRightOnRectangleIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
-
-const profileMenuItems = [
-  { label: "My Profile", icon: UserCircleIcon },
-  { label: "Edit Profile", icon: Cog6ToothIcon },
-  { label: "Inbox", icon: InboxArrowDownIcon },
-  { label: "Sign Out", icon: ArrowRightOnRectangleIcon, color: "text-red-500" },
-];
-
-const NavItem = ({ label, href }) => (
-  <a
-    href={href}
-    className="text-gray-900 hover:text-blue-500 font-medium px-3 py-2"
-  >
-    {label}
-  </a>
-);
-
-const ProfileMenu = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-=======
 import { Menu, X, ChevronDown, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +16,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
->>>>>>> Stashed changes
   const router = useRouter();
 
   const { userId, email, profile_pic, sellerType } = useSelector(
@@ -61,15 +29,11 @@ const Navbar = () => {
 
   const navigationLinks = [
     { label: "Home", href: "/" },
-    {
-      label: "Hire Designers",
-      href: "/pages/users/userProfiles/designers",
-    },
+    { label: "Hire Designers", href: "/pages/users/userProfiles/designers" },
     { label: "3D Printers", href: "/pages/printers/ViewPrinter" },
     { label: "Buy 3D Models", href: "/pages/ViewModels" },
   ];
 
-  // Determine the profile URL based on sellerType
   const profileUrl =
     sellerType === "Regular"
       ? `/pages/users/${userId}/UserProfile`
@@ -81,7 +45,6 @@ const Navbar = () => {
     { label: "Inbox", href: `/pages/users/${userId}/inbox` },
   ];
 
-  // Additional items based on sellerType
   if (sellerType === "Designer") {
     profileMenuItems.push({
       label: "Upload Model",
@@ -100,45 +63,6 @@ const Navbar = () => {
     color: "text-red-500",
   });
 
-  return (
-    <nav className="bg-white shadow-md fixed w-full z-50 border-b border-gray-300">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-blue-600 hover:opacity-80 transition-opacity"
-            >
-              3Dify
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigationLinks.map(({ label, href }, index) => (
-              <Link
-                key={index}
-                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
-              >
-                <Icon className={`h-5 w-5 ${color || "text-gray-700"}`} />
-                <span
-                  className={`text-sm font-medium ${color || "text-gray-700"}`}
-                >
-                  {label}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 960) {
@@ -150,31 +74,13 @@ const Navbar = () => {
   }, []);
 
   return (
-<<<<<<< Updated upstream
-    <nav className="bg-white shadow-lg fixed w-full z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <a href="/" className="text-2xl font-bold text-blue-600">
-              Logo
-            </a>
-            <div className="hidden md:flex ml-10 space-x-4">
-              <NavItem label="Home" href="/" />
-              <NavItem label="About" href="/about" />
-              <NavItem label="Services" href="/services" />
-              <NavItem label="Contact" href="/contact" />
-            </div>
-          </div>
-
-=======
-    <nav className="bg-white shadow-md w-full border-b border-gray-300">
+    <nav className="bg-white relative shadow-md w-full z-50 border-b border-gray-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center justify-center">
-              <Printer className="h-6 w-6 text-primary" />
-              <span className="ml-2 text-2xl font-bold text-primary">3Dify</span>
+            <Link href="/" className="text-2xl font-bold text-blue-600 hover:opacity-80 transition-opacity">
+              3Dify
             </Link>
           </div>
 
@@ -192,7 +98,6 @@ const Navbar = () => {
           </div>
 
           {/* User Menu */}
->>>>>>> Stashed changes
           <div className="hidden md:flex items-center space-x-4">
             {userId ? (
               <DropdownMenu>
@@ -281,12 +186,6 @@ const Navbar = () => {
             ))}
           </div>
           <div className="px-5 py-4 border-t border-gray-200">
-<<<<<<< Updated upstream
-            <ProfileMenu />
-            <button className="w-full bg-blue-600 text-white mt-3 py-2 rounded-lg">
-              Login
-            </button>
-=======
             {userId ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -343,7 +242,6 @@ const Navbar = () => {
                 Login
               </Button>
             )}
->>>>>>> Stashed changes
           </div>
         </div>
       )}

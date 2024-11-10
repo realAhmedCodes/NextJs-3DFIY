@@ -161,7 +161,7 @@ const ModelsListPage: React.FC = () => {
       <div className="container gap-12 mx-auto ">
         <FilterForm initialFilters={initialFilters} />
 
-        <h1 className="text-5xl font-extrabold text-center text-gray-800 mb-10">
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
           Explore Models
         </h1>
         {/* Filter Section */}

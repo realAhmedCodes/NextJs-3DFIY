@@ -79,23 +79,24 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   return (
     <div className="bg-white p-8 rounded-xl shadow-lg mb-10">
       {/* Toggle Button for Mobile */}
-      <div className="mb-4">
+      <div>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between w-full text-left text-lg font-medium text-gray-700 focus:outline-none"
+          className="flex items-center justify-between w-full text-left text-2xl font-semibold text-gray-800 focus:outline-none"
         >
           <span>Filters</span>
           {isOpen ? (
-            <ChevronUpIcon className="w-5 h-5" />
+            <ChevronUpIcon className="w-6 h-6" />
           ) : (
-            <ChevronDownIcon className="w-5 h-5" />
+            <ChevronDownIcon className="w-6 h-6" />
           )}
         </button>
       </div>
 
+
       {/* Filter Form */}
       {isOpen && (
-        <form onSubmit={handleSearch} className="flex flex-wrap ">
+        <form onSubmit={handleSearch} className="flex flex-wrap mt-4">
           {/* Keyword Input */}
           <div className="flex flex-col w-1/3 pr-2 mb-4">
             <Label

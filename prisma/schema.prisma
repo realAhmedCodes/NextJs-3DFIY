@@ -29,13 +29,8 @@ model Models {
   category_id    Int
   designer_id    Int
   name           String   @db.VarChar(50)
-<<<<<<< Updated upstream
-  description    String   @db.VarChar(50)
-  price          String?  @db.VarChar(255)
-=======
   description    String   @db.VarChar(500)
   price          Float?  
->>>>>>> Stashed changes
   is_free        Boolean  @default(false)
   image          String   @db.VarChar
  model_file      String   @db.VarChar(255) 

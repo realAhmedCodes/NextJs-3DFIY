@@ -1,62 +1,3 @@
-
-/*
-"use client";
-import React from "react";
-import useSWR from "swr";
-import { useRouter } from "next/navigation";
-
-const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const Page = () => {
-  const { data: printers, error } = useSWR(
-    "/api/printers/getPrinters",
-    fetcher
-  );
-  const router = useRouter();
-
-  if (error) return <div>Error loading printers</div>;
-  if (!printers) return <div>Loading...</div>;
-
-  return (
-    <div>
-      <h1 className="text-xl font-bold mb-2">Latest Printers</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {printers.map((printer) => (
-          <div
-            key={printer.printer_id}
-            onClick={() =>
-              router.push(
-                `/pages/printers/${printer.printer_id}/Printer_Detail`
-              )
-            }
-            className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
-          >
-            <p>{printer.name}</p>
-            <p>{printer.price}</p>
-            {printer.image && (
-              <img
-                src={`/uploads/${printer.image}`} // Ensure this path matches the actual path to the image in the public folder
-                alt={printer.name}
-                className="w-full h-auto"
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export default Page;
-
-
-
-*/
-
-
-
-// pages/printers/index.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -144,15 +85,20 @@ const PrintersListPage: React.FC = () => {
         const queryParams = new URLSearchParams();
 
         if (params.location) queryParams.append("location", params.location);
-        if (params.printer_type) queryParams.append("printer_type", params.printer_type);
-        if (params.minPrice > 0) queryParams.append("minPrice", params.minPrice.toString());
-        if (params.maxPrice > 0) queryParams.append("maxPrice", params.maxPrice.toString());
+        if (params.printer_type)
+          queryParams.append("printer_type", params.printer_type);
+        if (params.minPrice > 0)
+          queryParams.append("minPrice", params.minPrice.toString());
+        if (params.maxPrice > 0)
+          queryParams.append("maxPrice", params.maxPrice.toString());
         if (params.materials) queryParams.append("materials", params.materials);
         if (params.sortBy) queryParams.append("sortBy", params.sortBy);
         queryParams.append("page", params.page.toString());
         queryParams.append("limit", params.limit.toString());
 
-        const response = await fetch(`/api/search/searchPrinters?${queryParams.toString()}`);
+        const response = await fetch(
+          `/api/search/searchPrinters?${queryParams.toString()}`
+        );
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -194,12 +140,18 @@ const PrintersListPage: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     const queryParams = new URLSearchParams();
 
-    if (initialFilters.location) queryParams.append("location", initialFilters.location);
-    if (initialFilters.printer_type) queryParams.append("printer_type", initialFilters.printer_type);
-    if (initialFilters.minPrice > 0) queryParams.append("minPrice", initialFilters.minPrice.toString());
-    if (initialFilters.maxPrice > 0) queryParams.append("maxPrice", initialFilters.maxPrice.toString());
-    if (initialFilters.materials) queryParams.append("materials", initialFilters.materials);
-    if (initialFilters.sortBy) queryParams.append("sortBy", initialFilters.sortBy);
+    if (initialFilters.location)
+      queryParams.append("location", initialFilters.location);
+    if (initialFilters.printer_type)
+      queryParams.append("printer_type", initialFilters.printer_type);
+    if (initialFilters.minPrice > 0)
+      queryParams.append("minPrice", initialFilters.minPrice.toString());
+    if (initialFilters.maxPrice > 0)
+      queryParams.append("maxPrice", initialFilters.maxPrice.toString());
+    if (initialFilters.materials)
+      queryParams.append("materials", initialFilters.materials);
+    if (initialFilters.sortBy)
+      queryParams.append("sortBy", initialFilters.sortBy);
 
     // Set the new page and limit
     queryParams.append("page", newPage.toString());
@@ -210,8 +162,8 @@ const PrintersListPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="container mx-auto py-12 px-6">
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="container gap-12 mx-auto ">
         {/* Filter Form */}
         <FilterForm initialFilters={initialFilters} />
 
@@ -276,7 +228,10 @@ const PrintersListPage: React.FC = () => {
                       <span className="text-lg font-bold text-green-500">
                         ${printer.price}
                       </span>
-                      <Link href={`/pages/printers/${printer.printer_id}/Printer_Detail`} passHref>
+                      <Link
+                        href={`/pages/printers/${printer.printer_id}/Printer_Detail`}
+                        passHref
+                      >
                         <Button
                           variant="outline"
                           className="bg-gray-700 text-white hover:bg-green-700 transition-colors duration-300"
