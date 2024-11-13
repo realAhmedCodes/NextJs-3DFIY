@@ -2,6 +2,11 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+//import stripePromise from "@/lib/stripe"; 
+import PaymentModal from "../../customModelPayment/PaymentModal";
 import {
   Table,
   TableHeader,
@@ -25,10 +30,15 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const UserActiveOrder = ({ profileUserId }) => {
   const [expandedOrderId, setExpandedOrderId] = useState(null);
-
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [currentOrder, setCurrentOrder] = useState(null);
   // Get user info from Redux
-  const { userId, sellerType } = useSelector((state) => state.user);
 
+ const { userId, sellerType, sellerId, authToken } = useSelector(
+   (state) => state.user
+ );
+
+ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
   // Fetch orders for regular users
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
     sellerType === "Regular"
@@ -67,6 +77,16 @@ export const UserActiveOrder = ({ profileUserId }) => {
   const handleAccordionChange = (orderId) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
+
+   const handleBuy = (order) => {
+     if (!userId) {
+       router.push("/login");
+       return;
+     }
+
+     setCurrentOrder(order); // Set the current order
+     setIsModalOpen(true);
+   };
 
   return (
     <div>
@@ -134,6 +154,15 @@ export const UserActiveOrder = ({ profileUserId }) => {
                           </Badge>
                         </p>
                       </div>
+
+                      {order.order_file_status === "Submitted" ? (
+                        <Button
+                          onClick={() => handleBuy(order)} // Pass the specific order
+                          className="ml-4"
+                        >
+                          Get File
+                        </Button>
+                      ) : null}
                     </AccordionTrigger>
                     <AccordionContent>
                       <ModelOrderData orderId={order.order_id} />
@@ -145,6 +174,21 @@ export const UserActiveOrder = ({ profileUserId }) => {
           )}
         </>
       ) : null}
+
+      {isModalOpen && currentOrder && (
+        <Elements stripe={stripePromise}>
+          <PaymentModal
+            model={currentOrder} // Pass the specific order
+            userId={userId}
+            authToken={authToken}
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={() => {
+              // Optional: Refresh data or update state after successful payment
+              setIsModalOpen(false);
+            }}
+          />
+        </Elements>
+      )}
     </div>
   );
 };
