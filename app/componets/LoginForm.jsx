@@ -1,20 +1,21 @@
 // components/LoginForm.jsx
+
 "use client";
 
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
 import { useRouter } from "next/navigation";
-import { EyeOff, Eye } from "lucide-react";
-
-
+import { EyeIcon, EyeSlashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
+import Link from "next/link";
 
 const LoginForm = () => {
+  // State management for form inputs and UI states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordShown, setPasswordShown] = useState(false);
@@ -22,9 +23,11 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  // Toggle password visibility
   const togglePasswordVisibility = () => setPasswordShown(!passwordShown);
 
-  const submitBtn = async (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError(null); // Reset error state on each submission
@@ -55,7 +58,7 @@ const LoginForm = () => {
         );
 
         console.log("Login successful");
-        router.push(`/`);
+        router.push(`/`); // Redirect to home page upon successful login
       }
     } catch (error) {
       setError("Error during login, please try again.");
@@ -64,87 +67,108 @@ const LoginForm = () => {
   };
 
   return (
-    <div>
-    
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900">Sign In</h2>
-            <p className="mt-2 text-gray-600">
-              Enter your email and password to sign in
-            </p>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <p>{error}</p>
-              </Alert>
-            )}
-            <form className="space-y-6" onSubmit={submitBtn}>
-              {/* Email */}
-              <div>
-                <Label htmlFor="email">Email</Label>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>
+            Enter your email and password to sign in to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <p>{error}</p>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Input */}
+            <div>
+              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </Label>
+                <Link href="#" className="text-sm text-green-600 hover:text-green-700">
+                  Forgot your password?
+                </Link>
+              </div>
+              <div className="mt-1 relative">
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="password"
+                  name="password"
+                  type={passwordShown ? "text" : "password"}
+                  placeholder="********"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
                 />
-              </div>
-
-              {/* Password */}
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={passwordShown ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
-                    onClick={togglePasswordVisibility}
-                  >
-                    {passwordShown ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full">
-                Sign In
-              </Button>
-
-              <div className="flex items-center justify-between mt-4">
-                <a
-                  href="#"
-                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
+                  aria-label={passwordShown ? "Hide password" : "Show password"}
                 >
-                  Forgot password?
-                </a>
-                <p className="text-sm text-gray-600">
-                  Not registered?{" "}
-                  <a
-                    href="/register"
-                    className="font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    Create account
-                  </a>
-                </p>
+                  {passwordShown ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                </button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+
+            {/* Submit Button */}
+            <div>
+              <Button
+                type="submit"
+                className="w-full"
+              >
+                Login
+              </Button>
+            </div>
+
+            {/* Login with Google Button */}
+            <div>
+              <Button
+                variant="outline"
+                className="w-full py-3 px-6 rounded-lg shadow-lg transition duration-300"
+                disabled
+                onClick={() => {
+                  // Implement Google login functionality here
+                  console.log("Login with Google clicked");
+                }}
+              >
+                {/* You can add a Google icon here if desired */}
+                <span>Login with Google</span>
+              </Button>
+            </div>
+          </form>
+
+          {/* Register Link */}
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="#" className="font-medium text-green-600 hover:text-green-700">
+              Sign up
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

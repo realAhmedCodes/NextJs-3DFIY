@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,10 +6,39 @@ import useSWR from "swr";
 import ChatList from "./ChatList";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, X } from "lucide-react";
 
+// Utility function to check if two dates are on the same day
+const isSameDay = (date1, date2) => {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+};
+
+// Component to display the date divider
+const DateDivider = ({ date }) => {
+  const formattedDate = new Date(date).toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return (
+    <div className="flex justify-center my-6">
+      <Badge variant="secondary" className="text-gray-600 font-normal">
+        {formattedDate}
+      </Badge>
+    </div>
+  );
+};
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -37,7 +65,11 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
       setMessages([]); // Clear previous messages
 
       newSocket.on("previous_messages", (previousMessages) => {
-        setMessages(previousMessages);
+        // Sort messages by createdat in ascending order
+        const sortedMessages = previousMessages.sort(
+          (a, b) => new Date(a.createdat) - new Date(b.createdat)
+        );
+        setMessages(sortedMessages);
       });
 
       newSocket.on("receive_message", (message) => {
@@ -90,7 +122,7 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
   };
 
   return (
-    <div className="fixed top-24 right-4 w-[600px] z-50 bg-white shadow-lg rounded-lg border border-gray-200 p-4">
+    <div className="fixed top-24 right-4 w-[600px] z-50">
       {/* Close Button */}
       <button
         onClick={onClose}
@@ -102,11 +134,11 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
 
       <div className="flex w-full">
         <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
-        <Card className="w-full flex-grow ml-4">
+        <Card className="w-full flex-grow rounded-l-none">
           <CardHeader>
             <CardTitle>Live Chat</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col h-[500px] p-4">
+          <CardContent className="flex flex-col  h-[500px] p-4">
             <ScrollArea className="flex-1 mb-4">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-gray-500">
@@ -114,37 +146,48 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {messages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${
-                        msg.sender_id === currentUser
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`px-4 py-2 rounded-lg ${
-                          msg.sender_id === currentUser
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-200 text-gray-800"
-                        }`}
-                      >
-                        <p className="text-sm">{msg.message}</p>
-                        <div className="flex justify-between mt-1 text-xs opacity-70">
-                          <p>
-                            {new Date(msg.createdat).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                          <p>
-                            {msg.sender_id === currentUser ? "You" : "Other"}
-                          </p>
+                  {messages.map((msg, index) => {
+                    // Determine if a date divider should be shown before this message
+                    const showDateDivider =
+                      index === 0 ||
+                      !isSameDay(msg.createdat, messages[index - 1].createdat);
+
+                    return (
+                      <div key={index}>
+                        {showDateDivider && (
+                          <DateDivider date={msg.createdat} />
+                        )}
+                        <div
+                          className={`flex ${
+                            msg.sender_id === currentUser
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
+                        >
+                          <div
+                            className={`px-4 py-2 rounded-lg ${
+                              msg.sender_id === currentUser
+                                ? "bg-primary text-white"
+                                : "bg-secondary text-gray-800"
+                            }`}
+                          >
+                            <p className="text-sm">{msg.message}</p>
+                            <div className="flex justify-between mt-1 text-xs opacity-70">
+                              <p>
+                                {new Date(msg.createdat).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </ScrollArea>

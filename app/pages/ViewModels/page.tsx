@@ -14,6 +14,8 @@ import ImageSearchForm from "@/app/componets/searchModels/ImageSearchForm";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pagination from "@/app/componets/searchModels/Pagination";
+import StarIcon from "@heroicons/react/24/solid/StarIcon";
+import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 
 interface Model {
   model_id: number;
@@ -224,96 +226,126 @@ const ModelsListPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="container mx-auto py-12 px-6">
-        {/* Render both FilterForm and ImageSearchForm */}
+
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="container gap-12 mx-auto ">
+
         <FilterForm initialFilters={initialFilters} />
         <ImageSearchForm />
 
-        <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
-          Models
-        </h2>
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+          Explore Models
+        </h1>
+        {/* Filter Section */}
+        <div>
+          {/* Page Title */}
 
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            {error}
-          </Alert>
-        )}
+          {/* Error Message */}
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              {error}
+            </Alert>
+          )}
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="h-64 w-full" />
-            ))}
-          </div>
-        ) : models.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {models.map((model) => (
-                <Card
-                  key={model.model_id}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  {model.image ? (
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={`/uploads/${model.image}`}
-                        alt={model.name}
-                        fill
-                        className="object-cover rounded-t-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-48 w-full bg-gray-200 rounded-t-lg">
-                      <span className="text-gray-500">No Image Available</span>
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {model.name}
-                    </h3>
-                    <p className="text-gray-600 mt-1">{model.description}</p>
-                    <div className="flex items-center space-x-3 mb-3">
-                      {model.tags &&
-                        model.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary">
-                            {tag}
-                          </Badge>
-                        ))}
-                    </div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-lg font-bold text-green-500">
-                        {model.is_free ? "Free" : `$${model.price}`}
-                      </span>
-                      <Link href={`/pages/${model.model_id}`} passHref>
-                        <Button
-                          variant="outline"
-                          className="bg-gray-700 text-white hover:bg-green-700 transition-colors duration-300"
-                        >
-                          View Model
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </Card>
+          {/* Loading State */}
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 9 }).map((_, index) => (
+                <Skeleton key={index} className="h-80 w-full rounded-xl" />
+
               ))}
             </div>
+          ) : models.length > 0 ? (
+            <>
+              {/* Models Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {models.map((model) => (
+                  <Card
+                    key={model.model_id}
+                    className="bg-white  md:flex-row rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex lg:flex-col"
+                  >
+                    <div className="absolute z-10 m-6 mt-4 shadow-xl">
+                      <Badge className="text-sm">
+                        {model.is_free ? "FREE" : `$${model.price}`}
+                      </Badge>
+                    </div>
+                    {/* Model Image */}
+                    {model.image ? (
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={`/uploads/${model.image}`}
+                          alt={model.name}
+                          fill
+                          className="object-cover rounded-t-xl"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-48 w-full bg-gray-200 rounded-t-xl">
+                        <span className="text-gray-500">
+                          No Image Available
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      {/* Model Info */}
+                      <div className="px-6 flex flex-col">
+                        <div className="flex mt-4 justify-between items-center">
+                          <h2 className="lg:line-clamp-2  font-semibold text-gray-800 capitalize">
+                            {model.name}
+                          </h2>
+                        </div>
 
-            {/* Pagination Component */}
-            <Pagination
-              currentPage={pagination.page}
-              totalPages={pagination.totalPages}
-              onPageChange={handlePageChange}
-            />
-          </>
-        ) : (
-          <p className="text-center text-xl text-gray-600">
-            No models found. Try adjusting your search criteria.
-          </p>
-        )}
+                        <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                          {model.description}
+                        </p>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap mt-3 gap-2">
+                          {model.tags.map((tag, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs text-gray-600 font-medium capitalize"
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="m-6 mt-3 rounded-b-xl">
+                        <Link href={`/pages/${model.model_id}`}>
+                          <Button className="w-full">View Model</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination Component */}
+              <div className="mt-8 flex justify-center">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-2xl text-gray-600 mt-10">
+              No models found. Try adjusting your search criteria.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default ModelsListPage;
+
+
+
+
+

@@ -154,7 +154,7 @@ useEffect(() => {
   };
 
   const updateModelBtn = () => {
-    router.push(`/models/${modelId}/updateModel`);
+    router.push(`/pages/models/${modelId}/updateModel`);
   };
 
   const delModelBtn = async () => {
