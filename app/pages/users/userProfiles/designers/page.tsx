@@ -218,7 +218,7 @@ const DesignersPage: React.FC = () => {
                     {/* View Profile Button */}
                     <div className="bg-gray-100 p-4 rounded-b-xl">
                       <Link
-                        href={`/designers/${designer.designer_id}/profile`}
+                        href={`/pages/users/${designer.designer_id}/profile`}
                         passHref
                       >
                         <Button

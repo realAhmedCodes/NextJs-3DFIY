@@ -1,16 +1,21 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import PrinterOrderData from "../../orderDetail/PrinterOrderData";
 import ModelOrderData from "../../orderDetail/ModelOrderData";
+
 import { useSelector } from "react-redux";
 import useSWR from "swr";
+import UploadModelFileModal from "./UploadModelFile";
 
 // Fetcher function for SWR
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const ActiveOrder = ({ profileUserId }) => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const[openFileUploadModal, setOpenFileUploadModal ] = useState(false)
+   const [currentOrderId, setCurrentOrderId] = useState(null);
   const router = useRouter();
 
   // Get user info from Redux
@@ -19,7 +24,7 @@ export const ActiveOrder = ({ profileUserId }) => {
   // Fetch orders conditionally based on sellerType
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
     sellerType === "Regular"
-      ? `/api/orders/userId/${userId}/printerActiveOrders`
+      ?  `/api/orders/userId/${userId}/printerActiveOrders`
       : null,
     fetcher
   );
@@ -65,6 +70,18 @@ export const ActiveOrder = ({ profileUserId }) => {
     return <div>Loading...</div>;
   }
 
+
+
+  const openModelFileUpload = (orderId) => {
+    setCurrentOrderId(orderId);
+    setOpenFileUploadModal(true);
+  };
+
+  const closeModelFileUpload = () => {
+    setOpenFileUploadModal(false);
+    setCurrentOrderId(null);
+  };
+
   return (
     <div>
       {Number(userId) === Number(profileUserId) ? (
@@ -103,23 +120,38 @@ export const ActiveOrder = ({ profileUserId }) => {
 
           {/* For Designers */}
           {sellerType === "Designer" && ownersModelOrders?.length > 0 && (
-            <div>
-              <h2>Designer Active Orders</h2>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">
+                Designer Active Orders
+              </h2>
               {ownersModelOrders.map((modelOrder) => (
                 <div
                   key={modelOrder.order_id}
-                  onClick={() =>
-                    setSelectedOrderId(modelOrder.order_id)
-                  }
-                  className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
+                  className="border rounded-md p-4 mb-2 hover:bg-gray-100 transition"
                 >
-                  <p>
-                    <strong>Status:</strong> {modelOrder.status}
-                  </p>
-                  <p>
-                    <strong>Client Name:</strong> {modelOrder.user_name}
-                  </p>
-                  <p>{modelOrder.created_at}</p>
+                  <div className="flex justify-between items-center">
+                    <div
+                      onClick={() => setSelectedOrderId(modelOrder.order_id)}
+                      className="cursor-pointer"
+                    >
+                      <p>
+                        <strong>Status:</strong> {modelOrder.status}
+                      </p>
+                      <p>
+                        <strong>Client Name:</strong> {modelOrder.user_name}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(modelOrder.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => openModelFileUpload(modelOrder.order_id)}
+                    >
+                      Upload File
+                    </Button>
+                  </div>
                   {selectedOrderId === modelOrder.order_id && (
                     <ModelOrderData orderId={modelOrder.order_id} />
                   )}
@@ -174,6 +206,13 @@ export const ActiveOrder = ({ profileUserId }) => {
         </>
       ) : (
         ""
+      )}
+
+      {openFileUploadModal && currentOrderId && (
+        <UploadModelFileModal
+          orderId={currentOrderId}
+          onClose={closeModelFileUpload}
+        />
       )}
     </div>
   );

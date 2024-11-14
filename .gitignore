@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+fastApiserver/venv/
+fastApiserver/__pycache__/
+fastApiserver/*.py[cod]
+
+
+fastApiserver/.env
+fastApiserver/.DS_Store
