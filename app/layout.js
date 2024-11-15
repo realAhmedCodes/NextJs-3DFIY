@@ -3,7 +3,8 @@ import ThemeProviders from "./ThemeProviders";
 import Providers from "./Providers";
 import Navbar from "./componets/Navbar";
 import Footer from "./componets/Footer";
-
+import { CartProvider } from "@/context/CartContext";
+import Cart from "./componets/Cart/Cart";
 
 
 
@@ -18,8 +19,11 @@ export default function RootLayout({ children }) {
       <body className="flex flex-col min-h-screen">
         <Providers>
           <ThemeProviders>
-          <Navbar></Navbar>
-            <div className="flex-grow">{children}</div>
+            
+            <Navbar></Navbar>
+            <CartProvider>
+              <Cart></Cart>
+              {children}</CartProvider>
             <Footer></Footer>
           </ThemeProviders>
         </Providers>

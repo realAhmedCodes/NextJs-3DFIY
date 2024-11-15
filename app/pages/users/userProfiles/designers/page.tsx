@@ -129,7 +129,7 @@ const DesignersPage: React.FC = () => {
       queryParams.append("limit", pagination.limit.toString());
     if (pagination.page) queryParams.append("page", newPage.toString());
 
-    router.push(`/designers?${queryParams.toString()}`);
+    router.push(`/pages/designers?${queryParams.toString()}`);
   };
 
   if (loading)
@@ -170,9 +170,9 @@ const DesignersPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {designers.map((designer) => {
                 const { Users, cnic_number, bio, ratings } = designer;
-                const profilePicPath = Users.profile_pic
-                  ? `${Users.profile_pic}`
-                  : null;
+               const profilePicPath = Users.profile_pic
+                 ? `/uploads/${Users.profile_pic}` 
+                 : null;
 
                 return (
                   <Card

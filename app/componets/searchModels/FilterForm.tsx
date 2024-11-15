@@ -73,7 +73,7 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/models?${queryString}`); // Updated path
+    router.push(`/pages/ViewModels?${queryString}`); // Updated path
   };
 
   return (

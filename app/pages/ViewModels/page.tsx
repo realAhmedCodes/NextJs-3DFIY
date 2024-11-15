@@ -1,4 +1,4 @@
-// pages/models/index.tsx
+// pages/ViewModels/page.tsx
 
 "use client";
 
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import FilterForm from "@/app/componets/searchModels/FilterForm";
+import ImageSearchForm from "@/app/componets/searchModels/ImageSearchForm";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pagination from "@/app/componets/searchModels/Pagination";
@@ -20,7 +21,7 @@ interface Model {
   model_id: number;
   name: string;
   description: string;
-  price: number;
+  price: number | null;
   is_free: boolean;
   image: string;
   tags: string[];
@@ -63,6 +64,7 @@ const ModelsListPage: React.FC = () => {
       maxPrice: parseFloat(searchParams.get("maxPrice") || "0"),
       tags: searchParams.get("tags") || "",
       sortBy: searchParams.get("sortBy") || "",
+      modelIds: searchParams.get("modelIds") || null,
       page: parseInt(searchParams.get("page") || "1", 10),
       limit: parseInt(searchParams.get("limit") || "9", 10),
     };
@@ -77,42 +79,104 @@ const ModelsListPage: React.FC = () => {
 
     const fetchModels = async () => {
       setLoading(true);
+      setError("");
+
       try {
-        const queryParams = new URLSearchParams();
+        let fetchedModels: Model[] = [];
+        let total = 0;
+        let totalPages = 0;
 
-        if (params.keyword) queryParams.append("keyword", params.keyword);
-        if (params.category) queryParams.append("category", params.category);
-        if (params.minPrice > 0)
-          queryParams.append("minPrice", params.minPrice.toString());
-        if (params.maxPrice > 0)
-          queryParams.append("maxPrice", params.maxPrice.toString());
-        if (params.tags) queryParams.append("tags", params.tags);
-        if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-        queryParams.append("page", params.page.toString());
-        queryParams.append("limit", params.limit.toString());
+        if (params.modelIds) {
+          // Image-based search: Fetch models based on modelIds
+          const modelIdArray = params.modelIds
+            .split(",")
+            .map((id) => parseInt(id.trim(), 10));
+          const queryParams = new URLSearchParams({
+            modelIds: params.modelIds,
+            page: params.page.toString(),
+            limit: params.limit.toString(),
+          }).toString();
+          const response = await fetch(
+            `/api/search/searchModels?${queryParams}`,
+            {
+              method: "GET",
+            }
+          );
 
-        const response = await fetch(
-          `/api/search/searchModels?${queryParams.toString()}`
-        );
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            setModels([]);
-            setPagination({
-              total: 0,
-              page: params.page,
-              limit: params.limit,
-              totalPages: 0,
-            });
-          } else {
-            throw new Error("Failed to fetch models");
+          if (!response.ok) {
+            if (response.status === 404) {
+              setModels([]);
+              setPagination({
+                total: 0,
+                page: params.page,
+                limit: params.limit,
+                totalPages: 0,
+              });
+              setLoading(false);
+              return;
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to fetch models");
+            }
           }
-        } else {
+
           const data = await response.json();
-          setModels(data.models);
-          setPagination(data.pagination);
-          setError("");
+          fetchedModels = data.models;
+          total = data.pagination.total;
+          totalPages = data.pagination.totalPages;
+        } else {
+          // Filter-based search
+          const queryParams: Record<string, string> = {};
+
+          if (params.keyword) queryParams.keyword = params.keyword;
+          if (params.category) queryParams.category = params.category;
+          if (params.minPrice > 0)
+            queryParams.minPrice = params.minPrice.toString();
+          if (params.maxPrice > 0)
+            queryParams.maxPrice = params.maxPrice.toString();
+          if (params.tags) queryParams.tags = params.tags;
+          if (params.sortBy) queryParams.sortBy = params.sortBy;
+          queryParams.page = params.page.toString();
+          queryParams.limit = params.limit.toString();
+
+          const queryString = new URLSearchParams(queryParams).toString();
+          const response = await fetch(
+            `/api/search/searchModels?${queryString}`,
+            {
+              method: "GET",
+            }
+          );
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              setModels([]);
+              setPagination({
+                total: 0,
+                page: params.page,
+                limit: params.limit,
+                totalPages: 0,
+              });
+              setLoading(false);
+              return;
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to fetch models");
+            }
+          }
+
+          const data = await response.json();
+          fetchedModels = data.models;
+          total = data.pagination.total;
+          totalPages = data.pagination.totalPages;
         }
+
+        setModels(fetchedModels);
+        setPagination({
+          total,
+          page: params.page,
+          limit: params.limit,
+          totalPages,
+        });
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Failed to load models");
@@ -133,7 +197,6 @@ const ModelsListPage: React.FC = () => {
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
-    // Keep the same filters and change the page
     const queryParams = new URLSearchParams();
 
     if (initialFilters.keyword)
@@ -148,6 +211,12 @@ const ModelsListPage: React.FC = () => {
     if (initialFilters.sortBy)
       queryParams.append("sortBy", initialFilters.sortBy);
 
+    // Check if modelIds exist for image-based search
+    const modelIds = searchParams.get("modelIds");
+    if (modelIds) {
+      queryParams.append("modelIds", modelIds);
+    }
+
     // Set the new page and limit
     queryParams.append("page", newPage.toString());
     queryParams.append("limit", pagination.limit.toString());
@@ -157,9 +226,12 @@ const ModelsListPage: React.FC = () => {
   };
 
   return (
+
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="container gap-12 mx-auto ">
+
         <FilterForm initialFilters={initialFilters} />
+        <ImageSearchForm />
 
         <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
           Explore Models
@@ -180,6 +252,7 @@ const ModelsListPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.from({ length: 9 }).map((_, index) => (
                 <Skeleton key={index} className="h-80 w-full rounded-xl" />
+
               ))}
             </div>
           ) : models.length > 0 ? (
@@ -271,3 +344,8 @@ const ModelsListPage: React.FC = () => {
 };
 
 export default ModelsListPage;
+
+
+
+
+
