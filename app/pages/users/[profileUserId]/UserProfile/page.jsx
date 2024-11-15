@@ -8,26 +8,12 @@ import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
 import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 import { useSelector } from "react-redux";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Inbox, ArrowLeft, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,9 +81,7 @@ const ProfilePage = () => {
     return (
       <div className="flex justify-center items-center h-screen">
         <p className="text-red-500">
-          {userError
-            ? "Failed to load user details."
-            : "Failed to load users."}
+          {userError ? "Failed to load user details." : "Failed to load users."}
         </p>
       </div>
     );
@@ -107,10 +91,7 @@ const ProfilePage = () => {
     : "";
 
   const handleNext = () => {
-    if (
-      users &&
-      currentPage < Math.ceil(users.length / designersPerPage) - 1
-    ) {
+    if (users && currentPage < Math.ceil(users.length / designersPerPage) - 1) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -129,16 +110,23 @@ const ProfilePage = () => {
     : [];
 
   return (
-    <TooltipProvider> {/* Wrap the component with TooltipProvider */}
+    <TooltipProvider>
+      {" "}
+      {/* Wrap the component with TooltipProvider */}
       <div className="container mx-auto p-6 bg-gray-50 min-h-screen pt-24">
         {/* Header Section */}
         <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <div className="flex items-center space-x-4">
             <Avatar className="w-20 h-20">
               {profilePicPath ? (
-                <AvatarImage src={profilePicPath} alt={userDetail?.name || name} />
+                <AvatarImage
+                  src={profilePicPath}
+                  alt={userDetail?.name || name}
+                />
               ) : (
-                <AvatarFallback>{(userDetail?.name || name)?.charAt(0)}</AvatarFallback>
+                <AvatarFallback>
+                  {(userDetail?.name || name)?.charAt(0)}
+                </AvatarFallback>
               )}
             </Avatar>
             <div>
@@ -210,7 +198,9 @@ const ProfilePage = () => {
                       )}
                     </div>
                     <CardContent className="flex-1 flex flex-col">
-                      <h3 className="text-xl font-semibold mb-2">{model.name}</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        {model.name}
+                      </h3>
                       <p className="text-gray-600 mb-4 flex-1">
                         {model.description}
                       </p>
@@ -248,7 +238,8 @@ const ProfilePage = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 mb-6">
-                  Invite talented individuals to join our platform and earn rewards when they start earning.
+                  Invite talented individuals to join our platform and earn
+                  rewards when they start earning.
                 </p>
                 <div className="relative">
                   <Input

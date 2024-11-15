@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, Printer } from "lucide-react";
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,11 +31,15 @@ const Navbar = () => {
 
   const navigationLinks = [
     { label: "Home", href: "/" },
-    { label: "Hire Designers", href: "/pages/users/userProfiles/designers" },
+    {
+      label: "Hire Designers",
+      href: "/pages/users/userProfiles/designers",
+    },
     { label: "3D Printers", href: "/pages/printers/ViewPrinter" },
     { label: "Buy 3D Models", href: "/pages/ViewModels" },
   ];
 
+  // Determine the profile URL based on sellerType
   const profileUrl =
     sellerType === "Regular"
       ? `/pages/users/${userId}/UserProfile`
@@ -45,6 +51,7 @@ const Navbar = () => {
     { label: "Inbox", href: `/pages/users/${userId}/inbox` },
   ];
 
+  // Additional items based on sellerType
   if (sellerType === "Designer") {
     profileMenuItems.push({
       label: "Upload Model",
@@ -63,24 +70,14 @@ const Navbar = () => {
     color: "text-red-500",
   });
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 960) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
-    <nav className="bg-white relative shadow-md w-full z-50 border-b border-gray-300">
+    <nav className="bg-white shadow-md relative w-full z-50 border-b border-gray-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600 hover:opacity-80 transition-opacity">
-              3Dify
+            <Link href="/" className="flex items-center justify-center">
+              <img src="/3dify.png" className="w-44" alt="3Dify Logo" />
             </Link>
           </div>
 
@@ -234,6 +231,7 @@ const Navbar = () => {
             ) : (
               <Button
                 variant="outline"
+                className="w-full mt-3 border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200 ease-in-out"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   router.push("/pages/Login");

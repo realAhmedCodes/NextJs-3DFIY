@@ -7,13 +7,12 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Alert } from "@/components/ui/alert";
 import { Tooltip } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   Edit,
   Trash,
@@ -22,7 +21,17 @@ import {
   Save,
   SaveFilled,
   Info,
+  Bookmark,
+  BookMarked,
+  Loader2,
 } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const ModelPage = () => {
   const { modelId } = useParams();
@@ -63,19 +72,21 @@ const ModelPage = () => {
   useEffect(() => {
     const fetchModelSavedStatus = async () => {
       if (userId !== null) {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/saveModelsApi/saveCheck/${modelId}/${userId}`
-          );
-          if (!response.ok) {
-            throw new Error("Failed to fetch save details");
+        async function fetchSavedStatus() {
+          try {
+            const response = await fetch(
+              `/api/models/${modelId}/saveModel?user_id=${userId}`
+            );
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            setIsSaved(data.saved);
+          } catch (error) {
+            setError(error);
+          } finally {
+            setLoading(false);
           }
-          const data = await response.json();
-          setIsSaved(data.saved);
-          setLoading(false);
-        } catch (err) {
-          setError(err.message);
-          setLoading(false);
         }
       }
     };
@@ -87,7 +98,7 @@ const ModelPage = () => {
       if (userId !== null) {
         try {
           const response = await fetch(
-            `http://localhost:8000/likeApi/likeCheck/${modelId}/${userId}`
+            `/api/models/${modelId}/modelLike?user_id=${userId}`
           );
           if (!response.ok) {
             throw new Error("Failed to fetch like details");
@@ -159,18 +170,22 @@ const likeBtn = async () => {
   // Fetch Saved Status
   useEffect(() => {
     if (userId) {
-      const fetchSavedStatus = async () => {
+      async function fetchSavedStatus() {
         try {
-          const response = await axios.get(
+          const response = await fetch(
             `/api/models/${modelId}/saveModel?user_id=${userId}`
           );
-          setIsSaved(response.data.saved);
-        } catch (err) {
-          setError(
-            err.response?.data?.message || "Failed to fetch saved status"
-          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          setIsSaved(data.saved);
+        } catch (error) {
+          setError(error);
+        } finally {
+          setLoading(false);
         }
-      };
+      }
       fetchSavedStatus();
     }
   }, [modelId, userId]);
@@ -247,7 +262,12 @@ const likeBtn = async () => {
       </div>
     );
   }
-
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
+      </div>
+    );
   // No Model Found
   if (!model) {
     return (
@@ -259,6 +279,8 @@ const likeBtn = async () => {
   const profilePicFilename = model.profile_pic.split("\\").pop();
   const profilePicPath = `/uploads/${profilePicFilename}`;
 
+  
+
   return (
     <div className="bg-gray-50 min-h-screen py-10">
       <div className="container mx-auto px-4">
@@ -266,87 +288,96 @@ const likeBtn = async () => {
         <Card className="shadow-lg">
           <div className="flex flex-col md:flex-row">
             {/* Image Section */}
-            <div className="md:w-1/2 relative h-80 md:h-full">
-              {model.image ? (
-                <Image
-                  src={`/uploads/${model.image}`}
-                  alt={model.name}
-                  layout="fill"
-                  objectFit="cover"
-                  className="rounded-t-lg md:rounded-l-lg md:rounded-tr-none"
-                />
-              ) : (
-                <div className="flex justify-center items-center bg-gray-200 h-full">
-                  <Info className="w-16 h-16 text-gray-500" />
-                </div>
+            <div className="md:w-1/2 self-center md:h-full ">
+              {model.image && (
+                <>
+                  <Carousel>
+                    <CarouselContent>
+                      {model.image && (
+                        <CarouselItem>
+                          <div className="p-1">
+                            <Image
+                              src={`/uploads/${model.image}`}
+                              alt={model.name}
+                              width={0}
+                              height={0}
+                              sizes="100vw"
+                              style={{ width: "100%", height: "auto" }}
+                              className="rounded-lg aspect-[4/3] object-fill"
+                            />
+                          </div>
+                        </CarouselItem>
+                      )}
+                    </CarouselContent>
+                    <CarouselPrevious className="absolute top-1/2 left-4 transform -translate-y-1/2" />
+                    <CarouselNext className="absolute top-1/2 right-4 transform -translate-y-1/2" />
+                  </Carousel>
+                </>
               )}
             </div>
 
             {/* Details Section */}
-            <div className="md:w-1/2 p-6 flex flex-col justify-between">
-              <div>
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h1 className="text-3xl font-bold text-gray-800">
-                    {model.name}
-                  </h1>
-                  <div className="flex items-center space-x-2">
-                    {/* Like Button */}
-                    <Tooltip content={isLiked ? "Unlike" : "Like"}>
+            <div className="md:w-1/2 flex flex-col justify-between">
+              <div className="m-4">
+                {/* Author Info */}
+                <div className="flex justify-between">
+                  <div className="flex items-center mb-4">
+                    <Avatar className="mr-3">
+                      {model.profile_pic ? (
+                        <Image
+                          src={model.profile_pic}
+                          alt={model.user_name}
+                          layout="fill"
+                          objectFit="cover"
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <Info className="w-6 h-6 text-gray-500" />
+                      )}
+                    </Avatar>
+                    <div>
+                      <p className="text-lg font-semibold text-gray-700">
+                        {model.user_name}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {model.user_location || "Location Unknown"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <h1 className="text-3xl font-bold text-gray-800">
+                      {model.name}
+                    </h1>
+                    <div className="flex items-center space-x-2">
+                      {/* Like Button */}
                       <Button
-                        variant="ghost"
+                        variant={isLiked ? "secondary" : "ghost"}
                         onClick={handleLike}
                         aria-label={isLiked ? "Unlike" : "Like"}
                         className="p-2"
                       >
                         {isLiked ? (
-                          <HeartFilled className="text-red-500 w-6 h-6" />
+                          <Heart className="text-red-500 fill-red-500 w-6 h-6" />
                         ) : (
                           <Heart className="w-6 h-6" />
                         )}
                       </Button>
-                    </Tooltip>
 
-                    {/* Save Button */}
-                    <Tooltip content={isSaved ? "Unsave" : "Save"}>
+                      {/* Save Button */}
                       <Button
-                        variant="ghost"
+                        variant={isSaved ? "secondary" : "ghost"}
                         onClick={handleSave}
                         aria-label={isSaved ? "Unsave" : "Save"}
                         className="p-2"
                       >
                         {isSaved ? (
-                          <SaveFilled className="text-blue-500 w-6 h-6" />
+                          <Bookmark className="text-primary fill-primary w-6 h-6" />
                         ) : (
-                          <Save className="w-6 h-6" />
+                          <Bookmark className="w-6 h-6" />
                         )}
                       </Button>
-                    </Tooltip>
-                  </div>
-                </div>
-
-                {/* Author Info */}
-                <div className="flex items-center mb-4">
-                  <Avatar className="mr-3">
-                    {model.profile_pic ? (
-                      <Image
-                        src={model.profile_pic}
-                        alt={model.user_name}
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <Info className="w-6 h-6 text-gray-500" />
-                    )}
-                  </Avatar>
-                  <div>
-                    <p className="text-lg font-semibold text-gray-700">
-                      {model.user_name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {model.user_location || "Location Unknown"}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -374,13 +405,32 @@ const likeBtn = async () => {
                   </ul>
                 </div>
 
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                    Tags
+                  </h2>
+                  {model.tags &&
+                    model.tags.length > 0 &&
+                    model.tags.map((tag, index) => (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="mr-2 font-medium text-gray-800"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                </div>
+
                 {/* Pricing */}
                 <div className="mb-4">
                   <h2 className="text-xl font-semibold text-gray-700 mb-2">
                     Pricing
                   </h2>
-                  {model.is_free ? (
-                    <Badge variant="success">Free</Badge>
+                  {model.is_Free == true ? (
+                    <Badge className="font-bold text-white text-lg px-4 cursor-auto">
+                      Free
+                    </Badge>
                   ) : (
                     <p className="text-2xl font-bold text-gray-800">
                       ${model.price}
@@ -395,29 +445,25 @@ const likeBtn = async () => {
                   model.designer_id === sellerId && (
                     <div className="flex space-x-4">
                       {/* Update Button */}
-                      <Tooltip content="Update Model">
-                        <Button
-                          variant="outline"
-                          onClick={handleUpdateModel}
-                          className="flex items-center"
-                        >
-                          <Edit className="w-5 h-5 mr-2" />
-                          Update Model
-                        </Button>
-                      </Tooltip>
+                      <Button
+                        variant="outline"
+                        onClick={handleUpdateModel}
+                        className="flex items-center"
+                      >
+                        {/* <Edit className="w-5 h-5 mr-2" /> */}
+                        Update Model
+                      </Button>
 
                       {/* Delete Button */}
-                      <Tooltip content="Delete Model">
-                        <Button
-                          variant="destructive"
-                          onClick={handleDeleteModel}
-                          className="flex items-center"
-                          disabled={isDeleting}
-                        >
-                          <Trash className="w-5 h-5 mr-2" />
-                          {isDeleting ? "Deleting..." : "Delete Model"}
-                        </Button>
-                      </Tooltip>
+                      <Button
+                        variant="destructive"
+                        onClick={handleDeleteModel}
+                        className="flex items-center"
+                        disabled={isDeleting}
+                      >
+                        {/* <Trash className="w-5 h-5 mr-2" /> */}
+                        {isDeleting ? "Deleting..." : "Delete Model"}
+                      </Button>
                     </div>
                   )}
               </div>
@@ -451,7 +497,7 @@ const likeBtn = async () => {
               <div className="flex items-center space-x-4">
                 <div className="relative w-16 h-16">
                   <Image
-                    src="/uploads/sample-model.jpg"
+                    src={""}
                     alt="Related Model"
                     layout="fill"
                     objectFit="cover"
@@ -470,7 +516,7 @@ const likeBtn = async () => {
               <div className="flex items-center space-x-4">
                 <div className="relative w-16 h-16">
                   <Image
-                    src="/uploads/sample-model2.jpg"
+                    src=""
                     alt="Related Model"
                     layout="fill"
                     objectFit="cover"
