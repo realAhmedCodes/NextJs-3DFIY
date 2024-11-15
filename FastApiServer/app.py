@@ -1,5 +1,5 @@
 # app.py
-
+'''
 import torch
 import clip
 from PIL import Image
@@ -167,4 +167,4 @@ async def search_image(
         return SearchResponse(matches=formatted_matches)
     except Exception as e:
         logger.error(f"Error searching image: {e}")
-        raise HTTPException(status_code=500, detail="Failed to search image")
+        raise HTTPException(status_code=500, detail="Failed to search image")'''
