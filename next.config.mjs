@@ -18,7 +18,20 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ["localhost"], // Adjust the domain if your images are hosted elsewhere
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.free3d.com",
+      },
+      {
+        protocol: "https",
+        hostname: "preview.free3d.com",
+      },
+      {
+        protocol: "https",
+        hostname: "localhost",
+      },
+    ],
   },
 };
 
