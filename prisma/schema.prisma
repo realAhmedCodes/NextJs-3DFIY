@@ -7,47 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Category model
 model Category {
-  category_id        Int      @id @default(autoincrement())
+  category_id        Int        @id @default(autoincrement())
   parent_category_id Int?
-  name               String   @db.VarChar(50)
-  createdAt          DateTime @default(now()) @db.Timestamptz
-  updatedAt          DateTime @updatedAt @db.Timestamptz
-
-  // Self-referencing relation for parent-child categories
-  parentCategory  Category?  @relation("CategoryParent", fields: [parent_category_id], references: [category_id])
-  childCategories Category[] @relation("CategoryParent")
-
-  // Relationship with Models
-  models Models[]
+  name               String     @db.VarChar(50)
+  createdAt          DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime   @updatedAt @db.Timestamptz(6)
+  parentCategory     Category?  @relation("CategoryParent", fields: [parent_category_id], references: [category_id])
+  childCategories    Category[] @relation("CategoryParent")
+  models             Models[]
 }
 
-// Models model
 model Models {
-  model_id       Int      @id @default(autoincrement())
-  category_id    Int
-  designer_id    Int
-  name           String   @db.VarChar(50)
-
-  description    String   @db.VarChar(500)
-  price          Float?
-
-  is_free        Boolean  @default(false)
-  image          String   @db.VarChar
-  model_file     String   @db.VarChar(255)
-  likes_count    Int      @default(0)
-  download_count Int?
-  createdAt      DateTime @default(now()) @db.Timestamptz
-  updatedAt      DateTime @updatedAt @db.Timestamptz
-  tags           String[] // Array of text values
-
-  // Foreign key relationships
-  Category  Category  @relation(fields: [category_id], references: [category_id])
-  Designers Designers @relation(fields: [designer_id], references: [designer_id])
-
-  // Relationships with Likes and SavedModels
+  model_id        Int              @id @default(autoincrement())
+  category_id     Int
+  designer_id     Int
+  name            String           @db.VarChar(50)
+  description     String           @db.VarChar(50)
+  is_free         Boolean          @default(false)
+  image           String           @db.VarChar
+  model_file      String           @db.VarChar(255)
+  likes_count     Int              @default(0)
+  download_count  Int?
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  tags            String[]
+  price           Float?
   likes           Likes[]
+  Category        Category         @relation(fields: [category_id], references: [category_id])
+  Designers       Designers        @relation(fields: [designer_id], references: [designer_id])
   savedModels     SavedModels[]
   model_purchases model_purchase[]
 
@@ -55,221 +43,182 @@ model Models {
   @@index([designer_id])
 }
 
-// Likes model
 model Likes {
   like_id   Int      @id @default(autoincrement())
   model_id  Int
   user_id   Int
   liked     Boolean  @default(false)
-  createdAt DateTime @default(now()) @db.Timestamptz
-  updatedAt DateTime @default(now()) @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @db.Timestamptz(6)
+  Models    Models   @relation(fields: [model_id], references: [model_id], onDelete: Cascade)
+  Users     Users    @relation(fields: [user_id], references: [user_id])
 
-  // Foreign key relationships
-  Models Models @relation(fields: [model_id], references: [model_id], onDelete: Cascade)
-  Users  Users  @relation(fields: [user_id], references: [user_id])
-
-  @@unique([model_id, user_id]) // Ensure uniqueness like the previous schema
+  @@unique([model_id, user_id])
   @@index([model_id])
   @@index([user_id])
 }
 
-// SavedModels model
 model SavedModels {
   saved_model_id Int      @id @default(autoincrement())
   model_id       Int
   user_id        Int
-  createdAt      DateTime @default(now()) @db.Timestamptz
-  updatedAt      DateTime @default(now()) @db.Timestamptz
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @db.Timestamptz(6)
   saved          Boolean  @default(false)
+  Models         Models   @relation(fields: [model_id], references: [model_id])
+  Users          Users    @relation(fields: [user_id], references: [user_id])
 
-  // Foreign key relationships
-  Models Models @relation(fields: [model_id], references: [model_id])
-  Users  Users  @relation(fields: [user_id], references: [user_id])
-
-  @@unique([model_id, user_id]) // Compound unique constraint
+  @@unique([model_id, user_id])
   @@index([model_id])
   @@index([user_id])
 }
 
-// Users model
 model Users {
-  user_id     Int      @id @default(autoincrement())
-  name        String   @db.VarChar(50)
-  username    String   @unique @db.VarChar(50)
-  location    String   @db.VarChar(255)
-  email       String   @unique @db.VarChar(100)
-  profile_pic String?  @db.VarChar
-  password    String   @db.VarChar(255)
-  phoneNo     String   @db.VarChar(255)
-  sellerType  String   @db.VarChar(50)
-  createdAt   DateTime @default(now()) @db.Timestamptz
-  updatedAt   DateTime @updatedAt @db.Timestamptz
-  is_verified Boolean  @default(false)
-
-  // Relationships
-  designers       Designers[]
-  printer_owners  Printer_Owners[]
-  model_purchases model_purchase[]
-  likes           Likes[]
-  savedModels     SavedModels[]
-  model_orders    model_orders[] // Opposite relation to model_orders
-  printer_orders  printer_orders[] // Opposite relation to printer_orders
-  ChatsReceived   Chats[]          @relation("ChatReceiver")
-  ChatsSent       Chats[]          @relation("ChatSender")
-
-  // Added reciprocal relation to printed_models
-  printed_models          printed_models[]          @relation("UserPrintedModels")
-  printed_model_purchases printed_model_purchases[]
+  user_id                 Int                       @id @default(autoincrement())
+  name                    String                    @db.VarChar(50)
+  username                String                    @unique @db.VarChar(50)
+  location                String                    @db.VarChar(255)
+  email                   String                    @unique @db.VarChar(100)
+  profile_pic             String?                   @db.VarChar
+  password                String                    @db.VarChar(255)
+  phoneNo                 String                    @db.VarChar(255)
+  sellerType              String                    @db.VarChar(50)
+  is_verified             Boolean                   @default(false)
+  createdAt               DateTime                  @default(now()) @db.Timestamptz(6)
+  updatedAt               DateTime                  @updatedAt @db.Timestamptz(6)
+  ChatsReceived           Chats[]                   @relation("ChatReceiver")
+  ChatsSent               Chats[]                   @relation("ChatSender")
+  designers               Designers[]
+  likes                   Likes[]
+  printer_owners          Printer_Owners[]
+  savedModels             SavedModels[]
   model_order_purchases   model_order_purchases[]
+  model_orders            model_orders[]
+  model_purchases         model_purchase[]
+  printed_model_purchases printed_model_purchases[]
+  printed_models          printed_models[]          @relation("UserPrintedModels")
+  printer_orders          printer_orders[]
 
   @@index([user_id])
 }
 
-// Designers model
 model Designers {
-  designer_id Int      @id @default(autoincrement())
-  user_id     Int
-  cnic_number String   @unique @db.VarChar(50)
-  bio         String   @db.VarChar(255)
-  ratings     Int?
-  balance     Float    @default(0.0)
-  createdAt   DateTime @default(now()) @db.Timestamptz
-  updatedAt   DateTime @updatedAt @db.Timestamptz
-
-  // Foreign key relation to Users
-  Users Users @relation(fields: [user_id], references: [user_id])
-
-  // Relationship with Models
-  models Models[]
-
-  // Opposite relation to model_orders
+  designer_id  Int            @id @default(autoincrement())
+  user_id      Int
+  cnic_number  String         @unique @db.VarChar(50)
+  bio          String         @db.VarChar(255)
+  ratings      Int?
+  createdAt    DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime       @updatedAt @db.Timestamptz(6)
+  balance      Float          @default(0.0)
+  Users        Users          @relation(fields: [user_id], references: [user_id])
+  models       Models[]
   model_orders model_orders[]
 
   @@index([user_id])
 }
 
-// Printer_Owners model
 model Printer_Owners {
-  printer_owner_id    Int      @id @default(autoincrement())
+  printer_owner_id    Int              @id @default(autoincrement())
   user_id             Int
-  cnic_number         String   @unique @db.VarChar(50)
-  bio                 String   @db.VarChar(255)
+  cnic_number         String           @unique @db.VarChar(50)
+  bio                 String           @db.VarChar(255)
   ratings             Int?
   quality_certificate Bytes?
-  createdAt           DateTime @default(now()) @db.Timestamptz
-  updatedAt           DateTime @updatedAt @db.Timestamptz
-
-  // Foreign key relation to Users
-  Users Users @relation(fields: [user_id], references: [user_id])
-
-  // Opposite relation to Printers and printer_orders
-  printers       Printers[]
-  printer_orders printer_orders[]
-
-  // Added reciprocal relation to printed_models
-  printed_models printed_models[] @relation("PrinterOwnerPrintedModels")
+  createdAt           DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime         @updatedAt @db.Timestamptz(6)
+  Users               Users            @relation(fields: [user_id], references: [user_id])
+  printers            Printers[]
+  printed_models      printed_models[] @relation("PrinterOwnerPrintedModels")
+  printer_orders      printer_orders[]
 
   @@index([user_id])
 }
 
-// Printers model
 model Printers {
-  printer_id       Int      @id @default(autoincrement())
-  location         String   @db.VarChar(100)
-  description      String   @db.Text
-  name             String   @db.VarChar(50)
-  printer_type     String   @db.VarChar(50)
-  materials        String[] // Array of text values (automatically mapped to PostgreSQL `text[]`)
+  printer_id       Int              @id @default(autoincrement())
+  location         String           @db.VarChar(100)
+  description      String
+  name             String           @db.VarChar(50)
+  printer_type     String           @db.VarChar(50)
+  materials        String[]
   price            Int?
-  image            String   @db.VarChar(255)
+  image            String           @db.VarChar(255)
   printer_owner_id Int?
   rating           Int?
-  created_at       DateTime @default(now()) @db.Timestamptz
-  updated_at       DateTime @updatedAt @db.Timestamptz
-  colors           String[] // Array of text values
-  services         String[] // Array of text values
-
-  // Foreign key relation to Printer_Owners
-  Printer_Owners Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
-
-  // Relation with printer_orders
-  printer_orders printer_orders[]
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime         @updatedAt @db.Timestamptz(6)
+  colors           String[]
+  services         String[]
+  Printer_Owners   Printer_Owners?  @relation(fields: [printer_owner_id], references: [printer_owner_id])
+  printer_orders   printer_orders[]
 
   @@index([printer_id])
   @@index([printer_owner_id])
 }
 
-// model_orders table
 model model_orders {
-  order_id          Int      @id @default(autoincrement())
-  user_id           Int
-  model_name        String   @db.VarChar(255)
-  description       String   @db.Text
-  dimensions        Json     @db.JsonB
-  file_format       String   @db.VarChar(50)
-  reference_file    String?  @db.VarChar(255)
-  additional_notes  String?  @db.Text
-  designer_id       Int
-  created_at        DateTime @default(now()) @db.Timestamptz
-  updated_at        DateTime @updatedAt @db.Timestamptz
-  status            String?  @default("pending") @db.VarChar
-  reasons           String?  @db.Text
-  updates           String?  @db.Text
-  order_file        String?  @db.VarChar(255)
-  order_file_status String?  @default("Not Submitted") @db.VarChar
-
-  order_file_price Float?
-  order_check      String?  @db.VarChar(255)
-model_order_purchases   model_order_purchases[]
-  // Foreign key relations
-  Users     Users     @relation(fields: [user_id], references: [user_id])
-  Designers Designers @relation(fields: [designer_id], references: [designer_id])
+  order_id              Int                     @id @default(autoincrement())
+  user_id               Int
+  model_name            String                  @db.VarChar(255)
+  description           String
+  dimensions            Json
+  file_format           String                  @db.VarChar(50)
+  reference_file        String?                 @db.VarChar(255)
+  additional_notes      String?
+  designer_id           Int
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime                @updatedAt @db.Timestamptz(6)
+  status                String?                 @default("pending") @db.VarChar
+  reasons               String?
+  updates               String?
+  order_file            String?                 @db.VarChar(255)
+  order_file_status     String?                 @default("Not Submitted") @db.VarChar
+  order_file_price      Float?
+  order_check           String?                 @db.VarChar(255)
+  model_order_purchases model_order_purchases[]
+  Designers             Designers               @relation(fields: [designer_id], references: [designer_id])
+  Users                 Users                   @relation(fields: [user_id], references: [user_id])
 
   @@index([order_id])
   @@index([user_id])
   @@index([designer_id])
 }
 
-// printer_orders table
 model printer_orders {
-  pending_order_id Int      @id @default(autoincrement())
+  pending_order_id Int             @id @default(autoincrement())
   user_id          Int
   printerid        Int
   printer_owner_id Int?
-  model_file       String   @db.VarChar
-  instructions     String   @db.Text
-  material         String   @db.VarChar
-  color            String   @db.VarChar
-  resolution       String   @db.VarChar
-  resistance       String   @db.VarChar
-  status           String?  @default("pending") @db.VarChar
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt @db.Timestamptz
-  updates          String?  @db.Text
-  reasons          String?  @db.Text
-
-  // Foreign key relations
-  Users          Users           @relation(fields: [user_id], references: [user_id])
-  Printer_Owners Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
-  Printers       Printers        @relation(fields: [printerid], references: [printer_id])
+  model_file       String          @db.VarChar
+  instructions     String
+  material         String          @db.VarChar
+  color            String          @db.VarChar
+  resolution       String          @db.VarChar
+  resistance       String          @db.VarChar
+  status           String?         @default("pending") @db.VarChar
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt @db.Timestamptz(6)
+  updates          String?
+  reasons          String?
+  Printer_Owners   Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
+  Printers         Printers        @relation(fields: [printerid], references: [printer_id])
+  Users            Users           @relation(fields: [user_id], references: [user_id])
 
   @@index([pending_order_id])
   @@index([user_id])
   @@index([printerid])
 }
 
-// Chats table
 model Chats {
   chat_id     Int      @id @default(autoincrement())
-  room_id     String   @db.VarChar(255)
   sender_id   Int
   receiver_id Int
-  message     String   @db.Text
-  createdat   DateTime @default(now()) @db.Timestamptz
-
-  // Foreign key relations
-  sender   Users @relation("ChatSender", fields: [sender_id], references: [user_id])
-  receiver Users @relation("ChatReceiver", fields: [receiver_id], references: [user_id])
+  message     String
+  createdat   DateTime @default(now()) @db.Timestamptz(6)
+  room_id     String   @db.VarChar(255)
+  receiver    Users    @relation("ChatReceiver", fields: [receiver_id], references: [user_id])
+  sender      Users    @relation("ChatSender", fields: [sender_id], references: [user_id])
 
   @@index([chat_id])
   @@index([room_id])
@@ -277,43 +226,37 @@ model Chats {
   @@index([receiver_id])
 }
 
-// otp table
 model otp {
   id     Int      @id @default(autoincrement())
   email  String   @unique @db.VarChar(255)
   otp    String   @db.VarChar(6)
-  expiry DateTime @db.Timestamptz
+  expiry DateTime @db.Timestamptz(6)
 
   @@index([id])
   @@index([email])
 }
 
-// printed_models model
 model printed_models {
-  printed_model_id Int  @id @default(autoincrement())
-  user_id          Int?
-  printer_owner_id Int?
-  quantity         Int?
-
-  name        String  @db.VarChar
-  description String  @db.Text
-  material    String  @db.VarChar
-  color       String  @db.VarChar
-  resolution  String  @db.VarChar
-  resistance  String  @db.VarChar
-  dimensions  Json?
-  weight      Float?
-  image       String? @db.VarChar
-  status      String  @default("available")
-  price       Float? // Using Float for compatibility
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @db.Timestamptz
-
-  // Foreign key relations with explicit relation names
-  user                    Users?                    @relation("UserPrintedModels", fields: [user_id], references: [user_id])
-  printer_owner           Printer_Owners?           @relation("PrinterOwnerPrintedModels", fields: [printer_owner_id], references: [printer_owner_id])
+  printed_model_id        Int                       @id @default(autoincrement())
+  user_id                 Int?
+  printer_owner_id        Int?
+  name                    String                    @db.VarChar
+  description             String
+  material                String                    @db.VarChar
+  color                   String                    @db.VarChar
+  resolution              String                    @db.VarChar
+  resistance              String                    @db.VarChar
+  dimensions              Json?
+  weight                  Float?
+  image                   String?                   @db.VarChar
+  status                  String                    @default("available")
+  price                   Float?
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @updatedAt @db.Timestamptz(6)
+  quantity                Int?
   printed_model_purchases printed_model_purchases[]
+  printer_owner           Printer_Owners?           @relation("PrinterOwnerPrintedModels", fields: [printer_owner_id], references: [printer_owner_id])
+  user                    Users?                    @relation("UserPrintedModels", fields: [user_id], references: [user_id])
 
   @@index([printed_model_id])
   @@index([user_id, status])
@@ -325,48 +268,57 @@ model model_purchase {
   user_id           Int
   model_id          Int
   purchasedAt       DateTime @default(now())
-  price             Float // Add this line
+  price             Float
+  model             Models   @relation(fields: [model_id], references: [model_id])
+  user              Users    @relation(fields: [user_id], references: [user_id])
 
-  // Foreign key relations
-  user  Users  @relation(fields: [user_id], references: [user_id])
-  model Models @relation(fields: [model_id], references: [model_id])
-
-  @@unique([user_id, model_id]) // Prevent duplicate purchases
+  @@unique([user_id, model_id])
   @@index([user_id])
   @@index([model_id])
 }
 
-// printed_model_purchases model
 model printed_model_purchases {
-  purchase_id       Int      @id @default(autoincrement())
+  purchase_id       Int            @id @default(autoincrement())
   user_id           Int
   printed_model_id  Int
   quantity          Int
   price             Float
   total_price       Float
   payment_intent_id String
-  purchase_date     DateTime @default(now())
-
-  user          Users          @relation(fields: [user_id], references: [user_id])
-  printed_model printed_models @relation(fields: [printed_model_id], references: [printed_model_id])
+  purchase_date     DateTime       @default(now())
+  printed_model     printed_models @relation(fields: [printed_model_id], references: [printed_model_id])
+  user              Users          @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
   @@index([printed_model_id])
 }
 
-
 model model_order_purchases {
-  purchase_id      Int           @id @default(autoincrement())
-  user_id          Int
-  order_id         Int
-  price             Float
-  purchased_at     DateTime      @default(now())
-
-  // Relations
-  user             Users         @relation(fields: [user_id], references: [user_id])
-  model_order      model_orders  @relation(fields: [order_id], references: [order_id])
+  purchase_id  Int          @id @default(autoincrement())
+  user_id      Int
+  order_id     Int
+  price        Float
+  purchased_at DateTime     @default(now())
+  model_order  model_orders @relation(fields: [order_id], references: [order_id])
+  user         Users        @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
   @@index([order_id])
 }
 
+model scraped_models {
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar
+  description   String    @db.VarChar
+  file_path     String    @unique @db.VarChar
+  image_url     String    @db.VarChar
+  price         Float?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  download_link String?   @db.VarChar
+
+  @@index([id], map: "ix_scraped_models_id")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
