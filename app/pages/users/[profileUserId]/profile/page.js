@@ -171,6 +171,7 @@ const ProfilePage = () => {
                 currentUser={currentUser}
                 roomId={generatedRoomId}
                 otherUser={otherUser}
+                onClose={() => setShowChat(false)}
               />
             </div>
           )}

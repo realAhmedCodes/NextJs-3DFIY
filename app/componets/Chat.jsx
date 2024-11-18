@@ -116,12 +116,19 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
   };
 
   const handleSelectChat = (roomId, otherUserId) => {
-    setActiveRoomId(roomId);
-    setActiveOtherUser(otherUserId);
-    setMessages([]);
+    if (activeRoomId === roomId) {
+      setActiveRoomId(null);
+      setActiveOtherUser(null);
+      setMessages([]);
+    } else {
+      setActiveRoomId(roomId);
+      setActiveOtherUser(otherUserId);
+      setMessages([]);
+    }
   };
 
   return (
+    // Only render the ChatComponent if a chat is active or if you want it always visible
     <div className="fixed top-24 right-4 w-[600px] z-50">
       {/* Close Button */}
       <button
@@ -129,7 +136,7 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
         className="absolute top-6 right-6 text-gray-800 hover:text-gray-900"
         aria-label="Close chat"
       >
-        <X className="w-6 h-6 " />
+        <X className="w-6 h-6" />
       </button>
 
       <div className="flex w-full">
@@ -138,72 +145,86 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
           <CardHeader>
             <CardTitle>Live Chat</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col  h-[500px] p-4">
-            <ScrollArea className="flex-1 mb-4">
-              {messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  No messages yet
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {messages.map((msg, index) => {
-                    // Determine if a date divider should be shown before this message
-                    const showDateDivider =
-                      index === 0 ||
-                      !isSameDay(msg.createdat, messages[index - 1].createdat);
+          <CardContent className="flex flex-col h-[500px] p-4">
+            {activeRoomId ? (
+              <>
+                <ScrollArea className="flex-1 mb-4">
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      No messages yet
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {messages.map((msg, index) => {
+                        // Determine if a date divider should be shown before this message
+                        const showDateDivider =
+                          index === 0 ||
+                          !isSameDay(
+                            msg.createdat,
+                            messages[index - 1].createdat
+                          );
 
-                    return (
-                      <div key={index}>
-                        {showDateDivider && (
-                          <DateDivider date={msg.createdat} />
-                        )}
-                        <div
-                          className={`flex ${
-                            msg.sender_id === currentUser
-                              ? "justify-end"
-                              : "justify-start"
-                          }`}
-                        >
-                          <div
-                            className={`px-4 py-2 rounded-lg ${
-                              msg.sender_id === currentUser
-                                ? "bg-primary text-white"
-                                : "bg-secondary text-gray-800"
-                            }`}
-                          >
-                            <p className="text-sm">{msg.message}</p>
-                            <div className="flex justify-between mt-1 text-xs opacity-70">
-                              <p>
-                                {new Date(msg.createdat).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </p>
+                        return (
+                          <div key={index}>
+                            {showDateDivider && (
+                              <DateDivider date={msg.createdat} />
+                            )}
+                            <div
+                              className={`flex ${
+                                msg.sender_id === currentUser
+                                  ? "justify-end"
+                                  : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`px-4 py-2 rounded-lg ${
+                                  msg.sender_id === currentUser
+                                    ? "bg-primary text-white"
+                                    : "bg-secondary text-gray-800"
+                                }`}
+                              >
+                                <p className="text-sm">{msg.message}</p>
+                                <div className="flex justify-between mt-1 text-xs opacity-70">
+                                  <p>
+                                    {new Date(msg.createdat).toLocaleTimeString(
+                                      [],
+                                      {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  )}
+                </ScrollArea>
+                <div className="flex items-center">
+                  <Input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                    placeholder="Type your message here..."
+                    className="mr-2 flex-grow"
+                  />
+                  <Button onClick={sendMessage} variant="default">
+                    Send
+                  </Button>
                 </div>
-              )}
-            </ScrollArea>
-            <div className="flex items-center">
-              <Input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                placeholder="Type your message here..."
-                className="mr-2 flex-grow"
-              />
-              <Button onClick={sendMessage} variant="default">
-                Send
-              </Button>
-            </div>
+              </>
+            ) : (
+              // Optionally, you can show a placeholder or keep it empty when no chat is active
+              <div className="w-full flex items-center justify-center">
+                <p className="text-gray-500">
+                  Select a chat to start messaging
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

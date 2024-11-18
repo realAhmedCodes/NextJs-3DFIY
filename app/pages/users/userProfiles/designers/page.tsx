@@ -13,6 +13,7 @@ import DesignerFilterForm from "@/app/componets/searchDesigners/FilterForm";
 import Pagination from "@/app/componets/searchDesigners/Pagination";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 interface PaginationInfo {
   total: number;
@@ -130,6 +131,13 @@ const DesignersPage: React.FC = () => {
 
     router.push(`/pages/designers?${queryParams.toString()}`);
   };
+
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">

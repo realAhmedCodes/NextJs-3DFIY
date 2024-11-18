@@ -1,60 +1,3 @@
-/*import { useEffect, useState } from "react";
-import axios from "axios";
-
-const ChatList = ({ currentUser }) => {
-  const [chatRooms, setChatRooms] = useState([]);
-
-  useEffect(() => {
-    const fetchChatRooms = async () => {
-      try {
-        const response = await axios.get(
-          `/api/socketIo/${currentUser}/chatList`
-        );
-        setChatRooms(response.data);
-      } catch (error) {
-        console.error("Error fetching chat rooms:", error);
-      }
-    };
-
-    fetchChatRooms();
-  }, [currentUser]);
-console.log(chatRooms)
-  return (
-    <div className="w-1/4 bg-gray-200">
-      <h2 className="p-4 text-lg font-bold text-center">Chats</h2>
-      <ul>
-        {chatRooms.map((room, index) => (
-          <li
-            key={index}
-            onClick={() => selectChat(room.room_id)}
-            className="p-4 border-b border-gray-300 cursor-pointer hover:bg-gray-300"
-          >
-            <div className="flex items-center">
-              
-              <div>
-                <p className="font-bold">{room.other_user_name}</p>
-                <p className="text-sm text-gray-600 truncate">
-                  {room.last_message}
-                </p>
-              </div>
-            </div>
-           
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
-export default ChatList;
-
-
-
-
-*/
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -96,16 +39,20 @@ const ChatList = ({ currentUser, onSelectChat }) => {
     };
   }, [mutate]);
 
-  const selectChat = (roomId, otherUserId) => {
+  const handleSelectChat = (roomId, otherUserId) => {
     onSelectChat(roomId, otherUserId);
   };
-
-  if (error) return <div className="text-red-500">Error loading chat list</div>;
-
   if (!chatRooms)
     return (
-      <div className="flex items-center justify-center w-64">
+      <div className="bg-white p-4 w-80 flex items-center justify-center text-center shadow border z-10">
         <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
+      </div>
+    );
+
+  if (error && !chatRooms)
+    return (
+      <div className="bg-white p-4 w-80 flex items-center justify-center text-center shadow border z-10">
+        <div className="text-red-500">Error loading chat list</div>
       </div>
     );
 
@@ -117,10 +64,12 @@ const ChatList = ({ currentUser, onSelectChat }) => {
       <CardContent className="p-0">
         <ScrollArea className="h-[500px]">
           <ul>
-            {chatRooms.map((room, index) => (
+            {chatRooms.map((room) => (
               <li
-                key={index}
-                onClick={() => selectChat(room.room_id, room.other_user_id)}
+                key={room.room_id} // Use a unique key instead of index
+                onClick={() =>
+                  handleSelectChat(room.room_id, room.other_user_id)
+                } // Correctly wrapped in an arrow function
                 className="flex items-center p-4 cursor-pointer hover:bg-gray-100"
               >
                 <Avatar className="mr-3">
