@@ -1,5 +1,6 @@
-# app/models.py
-from sqlalchemy import Column, Integer, String, Float, DateTime
+#models.py
+
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
@@ -14,6 +15,8 @@ class ScrapedModel(Base):
     file_path = Column(String, nullable=False, unique=True)
     image_url = Column(String, nullable=False)
     price = Column(Float, nullable=True)
-    download_link = Column(String, nullable=True)  # New field for download link
+    download_link = Column(String, nullable=True)
+    specifications = Column(Text, nullable=True)  # New field for specifications
+    formats = Column(Text, nullable=True)  # New field for formats & files
+    tags = Column(Text, nullable=True)  # New field for tags
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-

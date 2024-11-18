@@ -1,4 +1,5 @@
 // File: /app/api/models/modelUpload/route.js or route.ts
+// File: /app/api/models/modelUpload/route.js
 
 import path from "path";
 import fs from "fs/promises";
@@ -122,6 +123,7 @@ export async function POST(req) {
 
 // Helper function to send image to FastAPI
 async function sendImageToFastAPI(model_id, imagePath) {
+  console.log(`Sending image to FastAPI: model_id=${model_id}, imagePath=${imagePath}`);
   const form = new FormData();
   const fileBuffer = await fs.readFile(imagePath);
 

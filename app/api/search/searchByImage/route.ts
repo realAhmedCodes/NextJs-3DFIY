@@ -1,11 +1,8 @@
 // app/api/search/searchByImage/route.ts
+// app/api/search/searchByImage/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-// Updated route configuration as per Next.js documentation
 export const dynamic = 'force-dynamic'; // Ensures the route is treated as dynamic
 
 export async function POST(req: NextRequest) {
@@ -69,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Extract model_ids from matches
-    const modelIds = fastApiData.matches.map((match: any) => parseInt(match.id, 10));
+    const modelIds = fastApiData.matches.map((match: any) => match.model_id);
 
     // Validate that modelIds are numbers
     if (!modelIds.every((id: number) => !isNaN(id))) {

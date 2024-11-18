@@ -1,5 +1,5 @@
 # database.py
-
+'''
 import os
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -28,3 +28,35 @@ async def init_db():
     async with engine.begin() as conn:
         # Create all tables
         await conn.run_sync(models.Base.metadata.create_all)
+'''
+
+# database.py
+import os
+from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Fetch the DATABASE_URL from the environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL not set in environment variables.")
+
+# Create the async engine using DATABASE_URL
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+# Define the session factory
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+# Initialize the database
+async def init_db():
+    from routers.scraping import Base  # Import Base from scraping.py
+    async with engine.begin() as conn:
+        # Create all tables
+        await conn.run_sync(Base.metadata.create_all)

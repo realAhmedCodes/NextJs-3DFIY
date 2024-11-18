@@ -1,4 +1,4 @@
-// components/search/FilterForm.tsx
+// components/searchModels/FilterForm.tsx
 
 "use client";
 
@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Import ShadCN Select components
+} from "@/components/ui/select";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 interface FilterFormProps {
@@ -24,6 +24,7 @@ interface FilterFormProps {
     maxPrice: number;
     tags: string;
     sortBy: string;
+    modelType: string;
   };
 }
 
@@ -41,6 +42,10 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 
   const handleSortChange = (value: string) => {
     handleInputFilterChange("sortBy", value);
+  };
+
+  const handleModelTypeChange = (value: string) => {
+    handleInputFilterChange("modelType", value);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -66,6 +71,9 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     if (inputFilters.sortBy) {
       queryParams.sortBy = inputFilters.sortBy;
     }
+    if (inputFilters.modelType && inputFilters.modelType !== "all") {
+      queryParams.modelType = inputFilters.modelType;
+    }
 
     // Always reset to page 1 on new search
     queryParams.page = "1";
@@ -73,7 +81,7 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
-    router.push(`/pages/ViewModels?${queryString}`); // Updated path
+    router.push(`/pages/ViewModels?${queryString}`);
   };
 
   return (
@@ -93,7 +101,6 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
         </button>
       </div>
 
-
       {/* Filter Form */}
       {isOpen && (
         <form onSubmit={handleSearch} className="flex flex-wrap mt-4">
@@ -111,7 +118,9 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
               type="text"
               placeholder="e.g., Model"
               value={inputFilters.keyword}
-              onChange={(e) => handleInputFilterChange("keyword", e.target.value)}
+              onChange={(e) =>
+                handleInputFilterChange("keyword", e.target.value)
+              }
               className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -212,6 +221,26 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
                 <SelectItem value="price">Price</SelectItem>
                 <SelectItem value="createdAt">Newest</SelectItem>
                 <SelectItem value="likes_count">Popularity</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Model Type Select */}
+          <div className="flex flex-col w-1/3 ml-4">
+            <Label
+              htmlFor="modelType"
+              className="mb-2 text-lg font-medium text-gray-700"
+            >
+              Model Type
+            </Label>
+            <Select onValueChange={handleModelTypeChange} defaultValue="all">
+              <SelectTrigger className="w-full border border-gray-300 rounded-lg">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="designer">Designer</SelectItem>
+                <SelectItem value="scraped">Scraped</SelectItem>
               </SelectContent>
             </Select>
           </div>
