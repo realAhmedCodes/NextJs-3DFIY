@@ -1,3 +1,4 @@
+// components/PriceEstimate.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -6,9 +7,8 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Upload, ShoppingCart, Eye } from "lucide-react";
-import Dropzone from "@/components/ui/dropzone"; // Custom Dropzone component or use a library
+import Dropzone from "@/components/ui/dropzone";
 
 const PriceEstimate = () => {
   const router = useRouter();
@@ -16,25 +16,45 @@ const PriceEstimate = () => {
     (state) => state.user
   );
 
-  const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleFileChange = async (uploadedFile) => {
-    setFile(uploadedFile);
     setUploading(true);
+    setError(null);
 
-    // Simulate file upload
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+    // If your backend requires additional fields, append them here with default values
+    // Example:
+    // formData.append("material", "PLA");
+    // formData.append("color", "White");
+    // formData.append("resolution", "0.1");
+    // formData.append("resistance", "50");
+
     try {
-      // Replace with actual upload logic
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("File uploaded successfully!");
-      // Navigate to upload page with file details if needed
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Upload failed");
+      }
+
+      const data = await response.json();
+      console.log("Cost estimation received:", data.cost);
       router.push({
-        pathname: "/upload",
-        query: { file: uploadedFile.name },
+        pathname: "/pages/cost-estimation",
+        query: { cost: data.cost },
       });
-    } catch (error) {
-      console.error("Failed to upload file.");
+    } catch (err) {
+      console.error("Failed to upload file:", err);
+      setError(err.message);
     } finally {
       setUploading(false);
     }
@@ -52,7 +72,12 @@ const PriceEstimate = () => {
             </h3>
             <Dropzone onFileUpload={handleFileChange} />
             {uploading && (
-              <p className="mt-4 text-sm text-gray-600">Uploading...</p>
+              <p className="mt-4 text-sm text-gray-600">
+                Uploading and processing...
+              </p>
+            )}
+            {error && (
+              <p className="mt-2 text-xs text-red-500 text-center">{error}</p>
             )}
             <p className="mt-2 text-xs text-gray-500 text-center">
               Files accepted: *.stl, *.obj. Maximum size: 32 MB.
@@ -65,15 +90,13 @@ const PriceEstimate = () => {
               Place Custom Print Orders Now! Or Explore Ready-Made Items
             </h3>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="#" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                >
+              <Link href="/order" className="w-full sm:w-auto">
+                <Button size="lg" className="flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5" />
                   Order Now
                 </Button>
               </Link>
-              <Link href="#" className="w-full sm:w-auto">
+              <Link href="/explore" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="lg"

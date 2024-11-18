@@ -276,8 +276,8 @@ const likeBtn = async () => {
       </div>
     );
   }
-  const profilePicFilename = model.profile_pic.split("\\").pop();
-  const profilePicPath = `/uploads/${profilePicFilename}`;
+  //const profilePicFilename = model.profile_pic.split("\\").pop();
+  //const profilePicPath = `/uploads/${profilePicFilename}`;
 
   
 

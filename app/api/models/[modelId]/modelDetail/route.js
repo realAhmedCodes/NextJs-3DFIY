@@ -108,7 +108,7 @@ export async function GET(request, { params }) {
           name: designerModel.Designers.Users.name,
           location: designerModel.Designers.Users.location,
           profile_pic: designerModel.Designers.Users.profile_pic
-            ? `/uploads/${designerModel.Designers.Users.profile_pic}` // Relative path
+            ? `${designerModel.Designers.Users.profile_pic}` // Relative path
             : null,
         },
         downloadLink: null, // Designer models do not have external download links

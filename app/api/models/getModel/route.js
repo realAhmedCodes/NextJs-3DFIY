@@ -4,8 +4,10 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // Fetch all models from the database using Prisma
-    const models = await prisma.models.findMany();
+    // Fetch up to 3 models from the database using Prisma
+    const models = await prisma.models.findMany({
+      take: 3,
+    });
 
     // If no models are found, return a 404 response
     if (models.length === 0) {
