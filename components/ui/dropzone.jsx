@@ -6,12 +6,24 @@ import { UploadCloud } from "lucide-react";
 const Dropzone = ({ onFileUpload }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
+      console.log("Accepted files:", acceptedFiles); // Debugging
       if (acceptedFiles && acceptedFiles.length > 0) {
-        onFileUpload(acceptedFiles[0]);
+        const file = acceptedFiles[0];
+        // Ensure we pass the File object itself
+        if (file instanceof File) {
+          console.log("File Name:", file.name);
+          console.log("File Size:", file.size);
+          onFileUpload(file); // Pass only the valid File object
+        } else {
+          console.error("Invalid file received:", file);
+          alert("Invalid file. Please try again.");
+        }
       }
     },
     accept: {
       "application/octet-stream": [".stl", ".obj"],
+      "model/stl": [".stl"],
+      "model/obj": [".obj"],
     },
     maxSize: 32 * 1024 * 1024, // 32 MB
   });

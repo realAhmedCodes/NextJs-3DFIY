@@ -1,17 +1,20 @@
 // components/PriceEstimate.jsx
+// components/PriceEstimate.jsx
 "use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, ShoppingCart, Eye } from "lucide-react";
 import Dropzone from "@/components/ui/dropzone";
+import { setFile } from "@/redux/features/uploadSlice";
 
 const PriceEstimate = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { userId, email, sellerType, isVerified, sellerId } = useSelector(
     (state) => state.user
   );
@@ -19,39 +22,46 @@ const PriceEstimate = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleFileChange = async (uploadedFile) => {
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      alert("Please upload a file.");
+      return;
+    }
+
+    console.log("Uploading File:", file.name, file.size); // Debugging
+
     setUploading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append("file", uploadedFile);
-    // If your backend requires additional fields, append them here with default values
-    // Example:
-    // formData.append("material", "PLA");
-    // formData.append("color", "White");
-    // formData.append("resolution", "0.1");
-    // formData.append("resistance", "50");
-
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const formData = new FormData();
+      formData.append("file", file);
 
-      if (!response.ok) {
+      // Use environment variable or fallback to localhost
+      const uploadUrl = process.env.NEXT_PUBLIC_BACKEND_URL
+        ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload-file`
+        : "http://localhost:8000/upload-file";
+
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const fileId = String(data.file_id); // Ensure fileId is a string
+
+        console.log("File uploaded successfully. File ID:", fileId);
+
+        // Dispatch to Redux store
+        dispatch(setFile({ fileId, fileName: file.name }));
+
+        // Navigate to the price-estimate page
+        router.push("/pages/price-estimate");
+      } else {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Upload failed");
       }
-
-      const data = await response.json();
-      console.log("Cost estimation received:", data.cost);
-      router.push({
-        pathname: "/pages/cost-estimation",
-        query: { cost: data.cost },
-      });
     } catch (err) {
       console.error("Failed to upload file:", err);
       setError(err.message);
@@ -70,7 +80,7 @@ const PriceEstimate = () => {
             <h3 className="text-2xl font-semibold text-gray-800 text-center mb-4">
               Get Free Printing Cost Estimation
             </h3>
-            <Dropzone onFileUpload={handleFileChange} />
+            <Dropzone onFileUpload={handleFileUpload} />
             {uploading && (
               <p className="mt-4 text-sm text-gray-600">
                 Uploading and processing...
