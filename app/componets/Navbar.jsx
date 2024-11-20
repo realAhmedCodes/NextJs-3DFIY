@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, Printer } from "lucide-react";
 import Image from "next/image";
+import { CartContext } from "@/context/CartContext";
 
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,6 +25,7 @@ const Navbar = () => {
   const { userId, email, profile_pic, sellerType } = useSelector(
     (state) => state.user
   );
+   const { cartItems, openCart } = useContext(CartContext);
 
   const logout = () => {
     window.localStorage.clear("token");
@@ -37,6 +40,10 @@ const Navbar = () => {
     },
     { label: "3D Printers", href: "/pages/printers/ViewPrinter" },
     { label: "Buy 3D Models", href: "/pages/ViewModels" },
+    {
+      label: "Buy Printed Models",
+      href: "/pages/printedModels/viewPrintedModels",
+    },
   ];
 
   // Determine the profile URL based on sellerType
@@ -150,7 +157,14 @@ const Navbar = () => {
               </Button>
             )}
           </div>
-
+          <Button
+            variant="outline"
+            onClick={openCart}
+            className="flex items-center"
+          >
+            <ShoppingCart className="mr-2 h-5 w-5" />
+            Cart ({cartItems.length})
+          </Button>
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
             <button
