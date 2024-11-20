@@ -43,6 +43,7 @@ next-env.d.ts
 
 
 fastApiserver/venv/
+fastApiserver/uploaded_files
 fastApiserver/__pycache__/
 fastApiserver/*.py[cod]
 
