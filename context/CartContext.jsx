@@ -1,3 +1,4 @@
+//context/CartContext.jsx
 "use client";
 
 import React, { createContext, useState, useEffect } from "react";
@@ -5,7 +6,7 @@ import React, { createContext, useState, useEffect } from "react";
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  // Initialize cartItems from localStorage if available
+  // Initialize cartItems from sessionStorage if available
   const [cartItems, setCartItems] = useState(() => {
     if (typeof window !== "undefined") {
       const storedCart = sessionStorage.getItem("cartItems");
@@ -15,10 +16,10 @@ export const CartProvider = ({ children }) => {
     }
   });
 
-  // Initialize isCartOpen from localStorage or default to false
+  // Manage cart visibility state
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Save cartItems to localStorage whenever it changes
+  // Save cartItems to sessionStorage whenever it changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("cartItems", JSON.stringify(cartItems));
@@ -66,6 +67,10 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
   };
 
+  // Functions to open and close the cart
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+
   return (
     <CartContext.Provider
       value={{
@@ -75,7 +80,8 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         clearCart,
         isCartOpen,
-        setIsCartOpen,
+        openCart,
+        closeCart,
       }}
     >
       {children}
