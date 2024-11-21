@@ -40,11 +40,6 @@ const Cart = () => {
           <SheetDescription>
             Review the items in your cart before proceeding to checkout.
           </SheetDescription>
-          <SheetClose asChild>
-            <Button variant="ghost" className="absolute top-4 right-4">
-              <X className="h-5 w-5" />
-            </Button>
-          </SheetClose>
         </SheetHeader>
         {cartItems.length === 0 ? (
           <p className="p-4">Your cart is empty.</p>

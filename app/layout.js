@@ -1,10 +1,10 @@
 import "./globals.css";
 import ThemeProviders from "./ThemeProviders";
 import Providers from "./Providers";
-import Navbar from "./componets/Navbar";
-import Footer from "./componets/Footer";
 import { CartProvider } from "@/context/CartContext";
 import Cart from "./componets/Cart/Cart";
+import { Toaster } from "@/components/ui/sonner";
+import ClientLayoutContent from "./ClientLayoutContent";
 
 export const metadata = {
   title: "3D Models Marketplace",
@@ -18,10 +18,9 @@ export default function RootLayout({ children }) {
         <Providers>
           <ThemeProviders>
             <CartProvider>
-              <Navbar />
               <Cart />
-              <main className="flex-grow">{children}</main>
-              <Footer />
+              <ClientLayoutContent>{children}</ClientLayoutContent>
+              <Toaster position="top-right" />
             </CartProvider>
           </ThemeProviders>
         </Providers>

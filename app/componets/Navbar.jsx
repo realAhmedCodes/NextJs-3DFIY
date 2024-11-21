@@ -7,11 +7,15 @@ import { useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, Printer } from "lucide-react";
 import Image from "next/image";
 import { CartContext } from "@/context/CartContext";
-
+import { toast } from "sonner";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Dropdown,
   DropdownMenu,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -25,11 +29,15 @@ const Navbar = () => {
   const { userId, email, profile_pic, sellerType } = useSelector(
     (state) => state.user
   );
-   const { cartItems, openCart } = useContext(CartContext);
+  const { cartItems, openCart } = useContext(CartContext);
 
   const logout = () => {
     window.localStorage.clear("token");
+    toast.success("Logout successful");
     router.push("/pages/Login");
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const navigationLinks = [
@@ -102,69 +110,96 @@ const Navbar = () => {
           </div>
 
           {/* User Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            {userId ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center space-x-2 focus:outline-none">
-                    <Avatar className="h-10 w-10 rounded-full shadow-lg">
-                      {profile_pic ? (
-                        <AvatarImage
-                          src={`/uploads/${profile_pic}`}
-                          alt="User Avatar"
-                        />
-                      ) : (
-                        <AvatarFallback className="text-white bg-blue-500">
-                          {email ? email.charAt(0).toUpperCase() : "U"}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <ChevronDown className="h-5 w-5 text-gray-600" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="rounded-md shadow-lg mt-2 bg-white"
-                >
-                  {profileMenuItems.map(
-                    ({ label, href, onClick, color }, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        className={`${
-                          color || "text-gray-700"
-                        } hover:bg-gray-100 rounded-md transition-colors duration-200 ease-in-out px-4 py-2`}
-                        onClick={() => {
-                          if (onClick) {
-                            onClick();
-                          } else {
-                            router.push(href);
-                          }
-                        }}
-                      >
-                        {label}
+
+          <>
+            <Button
+              variant="outline"
+              onClick={openCart}
+              className="flex items-center"
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Cart ({cartItems.length})
+            </Button>
+
+            <div className="hidden md:flex items-center space-x-4">
+              {userId ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center space-x-2 focus:outline-none">
+                      <Avatar className="h-10 w-10 rounded-full shadow-lg">
+                        {profile_pic ? (
+                          <AvatarImage
+                            src={`/uploads/${profile_pic}`}
+                            alt="User Avatar"
+                          />
+                        ) : (
+                          <AvatarFallback className="text-white bg-primary">
+                            {email ? email.charAt(0).toUpperCase() : "U"}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="rounded-md shadow-lg mt-2 bg-white"
+                  >
+                    {profileMenuItems.map(
+                      ({ label, href, onClick, color }, index) => (
+                        <DropdownMenuItem
+                          key={index}
+                          className={`${
+                            color || "text-gray-700"
+                          } hover:bg-gray-100 rounded-md transition-colors duration-200 ease-in-out px-4 py-2`}
+                          onClick={() => {
+                            if (onClick) {
+                              onClick();
+                            } else {
+                              router.push(href);
+                            }
+                          }}
+                        >
+                          {label}
+                        </DropdownMenuItem>
+                      )
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button>Get Started</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem>
+                        <Button
+                          className="w-full"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push("/pages/Login")}
+                        >
+                          Login
+                        </Button>
                       </DropdownMenuItem>
-                    )
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button
-                variant="outline"
-                className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors duration-200 ease-in-out font-medium"
-                onClick={() => router.push("/pages/Login")}
-              >
-                Login
-              </Button>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            onClick={openCart}
-            className="flex items-center"
-          >
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            Cart ({cartItems.length})
-          </Button>
+                      <DropdownMenuItem>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => router.push("/pages/register")}
+                          size="sm"
+                        >
+                          Get Started
+                        </Button>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
+            </div>
+          </>
+
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
             <button

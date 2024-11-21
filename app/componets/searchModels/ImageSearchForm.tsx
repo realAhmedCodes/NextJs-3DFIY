@@ -113,7 +113,6 @@ const ImageSearchForm: React.FC = () => {
         <Button
           type="submit"
           disabled={loading}
-          className="bg-green-600 hover:bg-green-700 text-white"
         >
           {loading ? "Searching..." : "Search by Image"}
         </Button>

@@ -10,9 +10,16 @@ import { EyeIcon, EyeSlashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   // State management for form inputs and UI states
@@ -30,7 +37,7 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError(null); // Reset error state on each submission
+    setError(null);
 
     try {
       const response = await fetch("/api/login", {
@@ -44,9 +51,8 @@ const LoginForm = () => {
       const data = await response.json();
 
       if (data.detail) {
-        setError(data.detail);
+        toast.error(data.detail);
       } else {
-        // Save non-sensitive user data in Redux store
         dispatch(
           setUser({
             userId: data.user_id,
@@ -57,11 +63,11 @@ const LoginForm = () => {
           })
         );
 
-        console.log("Login successful");
+        toast.success("Login successful!");
         router.push(`/`); // Redirect to home page upon successful login
       }
     } catch (error) {
-      setError("Error during login, please try again.");
+      toast.error("Error during login, please try again.");
       console.error("Error during login:", error);
     }
   };
@@ -86,14 +92,17 @@ const LoginForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Input */}
             <div>
-              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="email@example.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -104,10 +113,16 @@ const LoginForm = () => {
             {/* Password Input */}
             <div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password
                 </Label>
-                <Link href="#" className="text-sm text-green-600 hover:text-green-700">
+                <Link
+                  href="#"
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                >
                   Forgot your password?
                 </Link>
               </div>
@@ -128,17 +143,18 @@ const LoginForm = () => {
                   className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
                   aria-label={passwordShown ? "Hide password" : "Show password"}
                 >
-                  {passwordShown ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                  {passwordShown ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Submit Button */}
             <div>
-              <Button
-                type="submit"
-                className="w-full"
-              >
+              <Button type="submit" className="w-full">
                 Login
               </Button>
             </div>
@@ -162,8 +178,11 @@ const LoginForm = () => {
 
           {/* Register Link */}
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="#" className="font-medium text-green-600 hover:text-green-700">
+            Don't have an account?{" "}
+            <Link
+              href="/pages/register"
+              className="font-medium text-gray-700 hover:text-gray-800"
+            >
               Sign up
             </Link>
           </div>

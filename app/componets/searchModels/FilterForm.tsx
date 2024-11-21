@@ -164,96 +164,96 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
               className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
+          <div className="flex flex-row w-full gap-4">
+            {/* Price Range Inputs */}
+            <div className="flex flex-col md:col-span-2 w-1/3">
+              <Label className="mb-2 text-lg font-medium text-gray-700">
+                Price Range
+              </Label>
+              <div className="flex space-x-4">
+                <Input
+                  id="minPrice"
+                  name="minPrice"
+                  type="number"
+                  placeholder="Min"
+                  value={inputFilters.minPrice}
+                  onChange={(e) =>
+                    handleInputFilterChange(
+                      "minPrice",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  min={0}
+                />
+                <Input
+                  id="maxPrice"
+                  name="maxPrice"
+                  type="number"
+                  placeholder="Max"
+                  value={inputFilters.maxPrice}
+                  onChange={(e) =>
+                    handleInputFilterChange(
+                      "maxPrice",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  min={0}
+                />
+              </div>
+            </div>
+            <div className="flex flex-row w-full gap-4">
+              {/* Sort By Select */}
+              <div className="flex flex-col w-1/3">
+                <Label
+                  htmlFor="sortBy"
+                  className="mb-2 text-lg font-medium text-gray-700"
+                >
+                  Sort By
+                </Label>
+                <Select onValueChange={handleSortChange} defaultValue="">
+                  <SelectTrigger className="w-full border border-gray-300 rounded-lg">
+                    <SelectValue placeholder="Select Option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="price">Price</SelectItem>
+                    <SelectItem value="createdAt">Newest</SelectItem>
+                    <SelectItem value="likes_count">Popularity</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Price Range Inputs */}
-          <div className="flex flex-col md:col-span-2 w-1/2">
-            <Label className="mb-2 text-lg font-medium text-gray-700">
-              Price Range
-            </Label>
-            <div className="flex space-x-4">
-              <Input
-                id="minPrice"
-                name="minPrice"
-                type="number"
-                placeholder="Min"
-                value={inputFilters.minPrice}
-                onChange={(e) =>
-                  handleInputFilterChange(
-                    "minPrice",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                min={0}
-              />
-              <Input
-                id="maxPrice"
-                name="maxPrice"
-                type="number"
-                placeholder="Max"
-                value={inputFilters.maxPrice}
-                onChange={(e) =>
-                  handleInputFilterChange(
-                    "maxPrice",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                min={0}
-              />
+              {/* Model Type Select */}
+              <div className="flex flex-col w-1/3">
+                <Label
+                  htmlFor="modelType"
+                  className="mb-2 text-lg font-medium text-gray-700"
+                >
+                  Model Type
+                </Label>
+                <Select
+                  onValueChange={handleModelTypeChange}
+                  defaultValue="all"
+                >
+                  <SelectTrigger className="w-full border border-gray-300 rounded-lg">
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="designer">Designer</SelectItem>
+                    <SelectItem value="scraped">Scraped</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end w-1/3">
+                <Button className="w-full" type="submit">Apply Filters</Button>
+              </div>
             </div>
           </div>
 
-          {/* Sort By Select */}
-          <div className="flex flex-col w-1/3 ml-4">
-            <Label
-              htmlFor="sortBy"
-              className="mb-2 text-lg font-medium text-gray-700"
-            >
-              Sort By
-            </Label>
-            <Select onValueChange={handleSortChange} defaultValue="">
-              <SelectTrigger className="w-full border border-gray-300 rounded-lg">
-                <SelectValue placeholder="Select Option" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Default</SelectItem>
-                <SelectItem value="price">Price</SelectItem>
-                <SelectItem value="createdAt">Newest</SelectItem>
-                <SelectItem value="likes_count">Popularity</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Model Type Select */}
-          <div className="flex flex-col w-1/3 ml-4">
-            <Label
-              htmlFor="modelType"
-              className="mb-2 text-lg font-medium text-gray-700"
-            >
-              Model Type
-            </Label>
-            <Select onValueChange={handleModelTypeChange} defaultValue="all">
-              <SelectTrigger className="w-full border border-gray-300 rounded-lg">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="designer">Designer</SelectItem>
-                <SelectItem value="scraped">Scraped</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Search Button */}
-          <div className="flex flex-col self-end ml-4 flex-1">
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-6 rounded-lg"
-            >
-              Apply Filters
-            </Button>
-          </div>
         </form>
       )}
     </div>
