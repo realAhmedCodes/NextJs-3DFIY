@@ -1,5 +1,7 @@
 // components/searchModels/FilterForm.tsx
 
+// components/searchModels/FilterForm.tsx
+
 "use client";
 
 import React, { useState } from "react";
@@ -7,6 +9,9 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { UseSelector } from "react-redux";
+
+import { RootState } from "@/redux/store";
 import {
   Select,
   SelectContent,
@@ -15,6 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import axios from "axios"; // Import Axios
+import { useSelector } from "react-redux"; // Import useSelector
+
 
 interface FilterFormProps {
   initialFilters: {
@@ -33,6 +41,10 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true); // For collapsible filters on small screens
 
+
+const { userId, email, profile_pic, sellerType } = useSelector(
+  (state: RootState) => state.user
+);
   const handleInputFilterChange = (name: string, value: any) => {
     setInputFilters((prevFilters) => ({
       ...prevFilters,
@@ -48,7 +60,7 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     handleInputFilterChange("modelType", value);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const queryParams: Record<string, string> = {};
@@ -78,6 +90,29 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     // Always reset to page 1 on new search
     queryParams.page = "1";
     queryParams.limit = "9"; // Ensure consistent limit
+
+    // Log the search
+    try {
+      if (userId) {
+        // Split tags by comma, trim whitespace, and filter out empty strings
+        const tagsArray = inputFilters.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0);
+
+        if (tagsArray.length > 0) {
+          await axios.post("/api/log_search/models", {
+            user_id: userId,
+            tags: tagsArray,
+          });
+          console.log("Model search logged successfully.");
+        }
+      } else {
+        console.warn("User ID not available. Search not logged.");
+      }
+    } catch (error) {
+      console.error("Error logging model search:", error);
+    }
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
