@@ -30,6 +30,8 @@ interface Model {
   updatedAt: string; // ISO string
   tags: string[];
   price?: number;
+  isScraped?: boolean;
+  downloadLink?: string;
 }
 
 interface PaginationInfo {

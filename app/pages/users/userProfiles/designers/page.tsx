@@ -24,8 +24,10 @@ interface PaginationInfo {
 
 interface Designer {
   designer_id: number;
+  user_id: number;
   Users: {
     name: string;
+
     username: string;
     location: string;
     profile_pic: string | null;
@@ -138,7 +140,7 @@ const DesignersPage: React.FC = () => {
         <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
       </div>
     );
-
+console.log(designers)
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="container mx-auto">
@@ -247,7 +249,7 @@ const DesignersPage: React.FC = () => {
                     )}
 
                     <div className="m-6 -mt-4 rounded-b-xl">
-                      <Link href={`/pages/users/${designer.designer_id}/profile`}>
+                      <Link href={`/pages/users/${designer.user_id}/profile`}>
                         <Button className="w-full">View Profile</Button>
                       </Link>
                     </div>

@@ -98,6 +98,9 @@ model Users {
   printed_model_purchases printed_model_purchases[]
   printed_models          printed_models[]          @relation("UserPrintedModels")
   printer_orders          printer_orders[]
+  modelsSearchLogs        ModelsSearchLog[]
+  designersSearchLogs     DesignersSearchLog[]
+  printersSearchLogs      PrintersSearchLog[]
 
   @@index([user_id])
 }
@@ -320,6 +323,43 @@ model scraped_models {
   tags           String?
 
   @@index([id], map: "ix_scraped_models_id")
+}
+model ModelsSearchLog {
+  search_id   Int      @id @default(autoincrement())
+  user_id     Int
+  tags        String[] // Tags from the Model search bar
+  timestamp   DateTime @default(now()) @db.Timestamptz(6)
+
+  Users       Users    @relation(fields: [user_id], references: [user_id])
+
+  @@index([user_id])
+  @@index([tags], type: Gin)
+}
+
+model DesignersSearchLog {
+  search_id   Int      @id @default(autoincrement())
+  user_id     Int
+  location    String   @db.VarChar(255) // Location from the Designer search bar
+  timestamp   DateTime @default(now()) @db.Timestamptz(6)
+
+  Users       Users    @relation(fields: [user_id], references: [user_id])
+
+  @@index([user_id])
+  @@index([location])
+}
+
+model PrintersSearchLog {
+  search_id   Int      @id @default(autoincrement())
+  user_id     Int
+  location    String   @db.VarChar(255) // Location from the Printer search bar
+  materials   String[] // Materials from the Printer search bar
+  timestamp   DateTime @default(now()) @db.Timestamptz(6)
+
+  Users       Users    @relation(fields: [user_id], references: [user_id])
+
+  @@index([user_id])
+  @@index([location])
+  @@index([materials], type: Gin)
 }
 
 model alembic_version {
