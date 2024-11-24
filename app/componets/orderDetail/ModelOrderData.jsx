@@ -3,6 +3,7 @@ import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
+import { useSelector } from "react-redux";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
@@ -18,6 +19,9 @@ const ModelOrderData = ({ orderId }) => {
     fetcher
   );
 
+const { userId, email, profile_pic, sellerType } = useSelector(
+  (state) => state.user
+);
   const handleAction = async (action) => {
     if (action === "denied" && !reason) {
       alert("Please provide a reason for denial.");
@@ -106,7 +110,7 @@ const ModelOrderData = ({ orderId }) => {
           </p>
         </div>
 
-        {orderData.status === "pending" && (
+        {orderData.status === "pending" && sellerType === "Designer" && (
           <div className="flex space-x-4 mt-6">
             <Button onClick={() => handleAction("accepted")} variant="success">
               Accept
