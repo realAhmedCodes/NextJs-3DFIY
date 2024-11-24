@@ -162,7 +162,7 @@ const ModelUploadPage = () => {
         setError(data.error);
       } else {
         console.log("Model uploaded successfully:", data);
-        
+
       }
     } catch (error) {
       console.error(error);
@@ -219,8 +219,8 @@ const ModelUploadPage = () => {
                   <span>
                     {selectedCategoryId
                       ? categories.find(
-                          (cat) => cat.category_id === selectedCategoryId
-                        )?.name
+                        (cat) => cat.category_id.toString() === selectedCategoryId
+                      )?.name
                       : "Select a category"}
                   </span>
                 </SelectTrigger>
@@ -228,7 +228,7 @@ const ModelUploadPage = () => {
                   {categories.map((category) => (
                     <SelectItem
                       key={category.category_id}
-                      value={category.category_id}
+                      value={category.category_id.toString()} // Convert to string
                     >
                       {category.name}
                     </SelectItem>
@@ -249,8 +249,8 @@ const ModelUploadPage = () => {
                     <span>
                       {selectedSubcategoryId
                         ? subcategories.find(
-                            (sub) => sub.category_id === selectedSubcategoryId
-                          )?.name
+                          (sub) => sub.category_id.toString() === selectedSubcategoryId
+                        )?.name
                         : "Select a subcategory"}
                     </span>
                   </SelectTrigger>
@@ -258,7 +258,7 @@ const ModelUploadPage = () => {
                     {subcategories.map((subcategory) => (
                       <SelectItem
                         key={subcategory.category_id}
-                        value={subcategory.category_id}
+                        value={subcategory.category_id.toString()} // Convert to string
                       >
                         {subcategory.name}
                       </SelectItem>
@@ -280,9 +280,9 @@ const ModelUploadPage = () => {
                     <span>
                       {selectedSubSubcategoryId
                         ? subSubcategories.find(
-                            (subsub) =>
-                              subsub.category_id === selectedSubSubcategoryId
-                          )?.name
+                          (subsub) =>
+                            subsub.category_id.toString() === selectedSubSubcategoryId
+                        )?.name
                         : "Select a sub-subcategory"}
                     </span>
                   </SelectTrigger>
@@ -290,7 +290,7 @@ const ModelUploadPage = () => {
                     {subSubcategories.map((subsubcategory) => (
                       <SelectItem
                         key={subsubcategory.category_id}
-                        value={subsubcategory.category_id}
+                        value={subsubcategory.category_id.toString()} // Convert to string
                       >
                         {subsubcategory.name}
                       </SelectItem>

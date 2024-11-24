@@ -173,7 +173,7 @@ console.log(designers)
               {designers.map((designer) => {
                 const { Users, cnic_number, bio, ratings } = designer;
                const profilePicPath = Users.profile_pic
-                 ? `/uploads/${Users.profile_pic}` 
+                 ? `${Users.profile_pic}` 
                  : null;
 
                 return (

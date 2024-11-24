@@ -1,7 +1,7 @@
 // components/RegisterForm.jsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -20,9 +20,9 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@/components/ui/radio-group"; // Assuming you have a RadioGroup component
+} from "@/components/ui/radio-group";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
-
+import { toast } from "sonner";
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -74,12 +74,12 @@ const RegisterForm = () => {
     setValidMatch(formData.pwd === formData.matchPwd);
   }, [formData.pwd, formData.matchPwd]);
 
-  const handleFileChange = (e, setFile) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && FILE_TYPES.includes(file.type)) {
-      setFile(file);
+      setFormData({ ...formData, profile_pic: file });
     } else {
-      setFile(null);
+      setFormData({ ...formData, profile_pic: null });
     }
   };
 
@@ -87,7 +87,6 @@ const RegisterForm = () => {
     const { id } = e.target;
     setTouched({ ...touched, [id]: true });
   };
-
 
   const SubmitBtn = async (e) => {
     e.preventDefault();
@@ -114,7 +113,7 @@ const RegisterForm = () => {
       !validPwd ||
       !validMatch
     ) {
-      alert("Please fill out the form correctly.");
+      toast.warning("Please fill out the form correctly.");
       return;
     }
 
@@ -122,7 +121,7 @@ const RegisterForm = () => {
       (sellerType === "Designer" || sellerType === "Printer Owner") &&
       !profile_pic
     ) {
-      alert("Profile picture is required for Designer and Printer Owner.");
+      toast.warning("Profile picture is required for Designer and Printer Owner.");
       return;
     }
 
@@ -150,8 +149,7 @@ const RegisterForm = () => {
       // Open OTP dialog
       setIsOtpDialogOpen(true);
     } catch (error) {
-      console.error("There was an error!", error);
-      alert("Registration failed.");
+      toast.error("There was an error! " + error);
     }
   };
 
@@ -187,7 +185,7 @@ const RegisterForm = () => {
     const otp = otpValues.join("");
 
     if (otp.length !== 6) {
-      alert("Please enter the 6-digit OTP code.");
+      toast.warning("Please enter the 6-digit OTP code.");
       return;
     }
 
@@ -198,42 +196,49 @@ const RegisterForm = () => {
       });
 
       if (response.status === 200) {
-        alert("OTP verified successfully!");
+        toast.success("Registration Completed. Please login to continue.");
         setIsOtpDialogOpen(false);
-        router.push("/"); // Redirect to a success page or dashboard
+        router.push("/pages/Login"); 
       } else {
-        alert("OTP verification failed. Please try again.");
+        toast.warning("OTP verification failed. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      alert("OTP verification failed. Please try again.");
+      toast.warning("Please enter the correct OTP.");
     }
   };
 
   const handleNext = () => {
-    // Validate Step 1 before moving to Step 2
-    if (
-      validName &&
-      validUsername &&
-      validEmail &&
-      validPwd &&
-      validMatch
-    ) {
-      setCurrentStep(2);
-    } else {
-      setTouched({
-        name: true,
-        username: true,
-        email: true,
-        pwd: true,
-        matchPwd: true,
-      });
-      alert("Please fill out the form correctly before proceeding.");
+    if (currentStep === 1) {
+      // Validate Step 1
+      if (validName && validUsername && validEmail) {
+        setCurrentStep(2);
+      } else {
+        setTouched({
+          ...touched,
+          name: true,
+          username: true,
+          email: true,
+        });
+        toast.warning("Please fill out the form correctly before proceeding.");
+      }
+    } else if (currentStep === 2) {
+      // Validate Step 2
+      if (validPwd && validMatch) {
+        setCurrentStep(3);
+      } else {
+        setTouched({
+          ...touched,
+          pwd: true,
+          matchPwd: true,
+        });
+        toast.warning("Please fill out the form correctly before proceeding.");
+      }
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(1);
+    setCurrentStep((prev) => prev - 1);
   };
 
   return (
@@ -246,7 +251,7 @@ const RegisterForm = () => {
         </CardHeader>
         <CardContent>
           {currentStep === 1 && (
-            <form className="space-y-6" onSubmit={handleNext}>
+            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
               {/* Name */}
               <div>
                 <Label htmlFor="name">Name</Label>
@@ -302,6 +307,27 @@ const RegisterForm = () => {
                 )}
               </div>
 
+              {/* Next Button */}
+              <Button type="button" onClick={handleNext} className="w-full">
+                Next
+              </Button>
+
+              {/* Login Link */}
+              <p className="mt-6 text-center text-sm text-gray-600">
+                Already have an account?
+                <a
+                  href="/pages/Login"
+                  className="font-semibold text-gray-600 hover:text-gray-800"
+                >
+                  {" "}
+                  Log In
+                </a>
+              </p>
+            </form>
+          )}
+
+          {currentStep === 2 && (
+            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
               {/* Password */}
               <div>
                 <Label htmlFor="pwd">Password</Label>
@@ -341,6 +367,20 @@ const RegisterForm = () => {
                 )}
               </div>
 
+              {/* Navigation Buttons */}
+              <div className="flex justify-between">
+                <Button type="button" variant="outline" onClick={handleBack}>
+                  Back
+                </Button>
+                <Button type="button" onClick={handleNext}>
+                  Next
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {currentStep === 3 && (
+            <form className="space-y-6" onSubmit={SubmitBtn}>
               {/* Location */}
               <div>
                 <Label htmlFor="location">Location</Label>
@@ -365,6 +405,31 @@ const RegisterForm = () => {
                   onChange={handleInputChange}
                   className="mt-1"
                 />
+              </div>
+
+              {/* CNIC Number */}
+              <div>
+                <Label htmlFor="cnic_number">CNIC Number</Label>
+                <Input
+                  id="cnic_number"
+                  type="text"
+                  placeholder="Enter CNIC"
+                  value={formData.cnic_number}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Bio */}
+              <div>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Write your bio here"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                ></Textarea>
               </div>
 
               {/* Seller Type Selection */}
@@ -392,27 +457,6 @@ const RegisterForm = () => {
                 </RadioGroup>
               </div>
 
-              {/* Next Button */}
-              <Button type="submit" className="w-full">
-                Next
-              </Button>
-
-              {/* Login Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
-                Already have an account?
-                <a
-                  href="/pages/login"
-                  className="font-semibold text-indigo-600 hover:text-indigo-500"
-                >
-                  {" "}
-                  Log In
-                </a>
-              </p>
-            </form>
-          )}
-
-          {currentStep === 2 && (
-            <form className="space-y-6" onSubmit={SubmitBtn}>
               {/* Profile Picture */}
               {(formData.sellerType === "Designer" ||
                 formData.sellerType === "Printer Owner") && (
@@ -422,7 +466,7 @@ const RegisterForm = () => {
                     id="profile_pic"
                     type="file"
                     accept="image/jpeg,image/png"
-                    onChange={handleInputChange}
+                    onChange={handleFileChange}
                     className="mt-1"
                   />
                   {!formData.profile_pic && (
@@ -433,32 +477,7 @@ const RegisterForm = () => {
                 </div>
               )}
 
-              {/* Bio */}
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Write your bio here"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                ></Textarea>
-              </div>
-
-              {/* CNIC Number */}
-              <div>
-                <Label htmlFor="cnic_number">CNIC Number</Label>
-                <Input
-                  id="cnic_number"
-                  type="text"
-                  placeholder="Enter CNIC"
-                  value={formData.cnic_number}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Back and Submit Buttons */}
+              {/* Navigation Buttons */}
               <div className="flex justify-between">
                 <Button type="button" variant="outline" onClick={handleBack}>
                   Back
