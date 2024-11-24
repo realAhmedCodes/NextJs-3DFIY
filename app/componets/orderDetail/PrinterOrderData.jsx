@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import useSWR from "swr";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
@@ -13,11 +14,14 @@ const PrinterOrderData = ({ orderId }) => {
   const [reason, setReason] = useState("");
   const [isDeclining, setIsDeclining] = useState(false);
   const [error, setError] = useState(null);
-
+const { userId, email, profile_pic, sellerType } = useSelector(
+  (state) => state.user
+);
   const { data: orderData, error: fetchError } = useSWR(
     orderId ? `/api/orders/orderData/printerOrderData/${orderId}` : null,
     fetcher
   );
+  
 
   const handleAction = async (action) => {
     if (action === "denied" && !reason) {
@@ -99,7 +103,7 @@ const PrinterOrderData = ({ orderId }) => {
           </p>
         </div>
 
-        {orderData.status === "pending" && (
+        {orderData.status === "pending" && sellerType === "Printer Owner" && (
           <div className="flex space-x-4 mt-6">
             <Button onClick={() => handleAction("accepted")} variant="success">
               Accept

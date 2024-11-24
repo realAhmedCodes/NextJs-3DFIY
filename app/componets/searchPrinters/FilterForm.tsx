@@ -1,5 +1,7 @@
 // components/searchPrinters/FilterForm.tsx
 
+// components/searchPrinters/FilterForm.tsx
+
 "use client";
 
 import React, { useState } from "react";
@@ -15,6 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"; // Import ShadCN Select components
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import axios from "axios"; // Import Axios
+import { useSelector } from "react-redux"; // Import useSelector
+import { RootState } from "@/redux/store";
 
 interface FilterFormProps {
   initialFilters: {
@@ -32,6 +37,11 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true); // For collapsible filters on small screens
 
+const { userId, email, profile_pic, sellerType } = useSelector(
+  (state: RootState) => state.user
+);
+
+
   const handleInputFilterChange = (name: string, value: any) => {
     setInputFilters((prevFilters) => ({
       ...prevFilters,
@@ -43,7 +53,7 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     handleInputFilterChange("sortBy", value);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const queryParams: Record<string, string> = {};
@@ -70,6 +80,30 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     // Always reset to page 1 on new search
     queryParams.page = "1";
     queryParams.limit = "6"; // Ensure consistent limit
+
+    // Log the search
+    try {
+      if (userId) {
+        // Split materials by comma, trim whitespace, and filter out empty strings
+        const materialsArray = inputFilters.materials
+          .split(",")
+          .map((material) => material.trim())
+          .filter((material) => material.length > 0);
+
+        if (inputFilters.location || materialsArray.length > 0) {
+          await axios.post("/api/log_search/printers", {
+            user_id: userId,
+            location: inputFilters.location.trim(),
+            materials: materialsArray,
+          });
+          console.log("Printer search logged successfully.");
+        }
+      } else {
+        console.warn("User ID not available. Search not logged.");
+      }
+    } catch (error) {
+      console.error("Error logging printer search:", error);
+    }
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();

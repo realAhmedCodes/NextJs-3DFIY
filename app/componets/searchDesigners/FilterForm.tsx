@@ -1,4 +1,5 @@
 // components/searchDesigners/DesignerFilterForm.tsx
+// components/searchDesigners/DesignerFilterForm.tsx
 
 "use client";
 
@@ -15,6 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronDownIcon } from "@heroicons/react/24/solid"; // Ensure you have Heroicons installed
+import axios from "axios"; // Import Axios
+import { useSelector } from "react-redux"; // Import useSelector
+import { RootState } from "@/redux/store";
 
 interface FilterFormProps {
   initialFilters: {
@@ -23,12 +27,16 @@ interface FilterFormProps {
   };
 }
 
-const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
+const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   const [inputFilters, setInputFilters] = useState({
     ...initialFilters,
     sortBy: "", // Initialize sortBy
   });
   const router = useRouter();
+
+const { userId, email, profile_pic, sellerType } = useSelector(
+  (state: RootState) => state.user
+);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,14 +53,11 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
     }));
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const queryParams: Record<string, string> = {};
 
-    if (inputFilters.name) {
-      queryParams.name = inputFilters.name;
-    }
     if (inputFilters.location) {
       queryParams.location = inputFilters.location;
     }
@@ -62,6 +67,21 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
 
     queryParams.page = "1"; // Reset to first page on new search
     queryParams.limit = "6"; // Set limit for designers
+
+    // Log the search
+    try {
+      if (userId) {
+        await axios.post("/api/log_search/designers", {
+          user_id: userId,
+          location: inputFilters.location.trim(),
+        });
+        console.log("Designer search logged successfully.");
+      } else {
+        console.warn("User ID not available. Search not logged.");
+      }
+    } catch (error) {
+      console.error("Error logging designer search:", error);
+    }
 
     // Update the URL with new query parameters
     const queryString = new URLSearchParams(queryParams).toString();
@@ -74,7 +94,7 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
         onSubmit={handleSearch}
         className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
-        {/* Name Input */}
+        {/* Name Input - Ignored for logging */}
         <div className="flex flex-col">
           <Label
             htmlFor="name"
@@ -125,7 +145,6 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
               <SelectValue placeholder="Select Option" />
             </SelectTrigger>
             <SelectContent>
-              {/* Removed the SelectItem with value="" */}
               <SelectItem value="ratings">Ratings</SelectItem>
               <SelectItem value="name_asc">Name (A-Z)</SelectItem>
               <SelectItem value="name_desc">Name (Z-A)</SelectItem>
@@ -143,4 +162,4 @@ const DesignerFilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   );
 };
 
-export default DesignerFilterForm;
+export default FilterForm;

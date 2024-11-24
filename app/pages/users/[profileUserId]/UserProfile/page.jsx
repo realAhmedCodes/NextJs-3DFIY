@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
-import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
+
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -167,7 +167,9 @@ const ProfilePage = () => {
                   <UserPendingOrder profileUserId={profileUserId} />
                 </TabsContent>
                 <TabsContent value="active">
-                  <UserActiveOrder profileUserId={profileUserId} />
+                  <UserActiveOrder
+                    profileUserId={profileUserId}
+                  ></UserActiveOrder>
                 </TabsContent>
               </Tabs>
             </CardContent>
