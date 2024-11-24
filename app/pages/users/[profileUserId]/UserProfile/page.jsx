@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
-import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
+
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -163,7 +164,9 @@ const ProfilePage = () => {
                   <UserPendingOrder profileUserId={profileUserId} />
                 </TabsContent>
                 <TabsContent value="active">
-                  <UserActiveOrder profileUserId={profileUserId} />
+                  <UserActiveOrder
+                    profileUserId={profileUserId}
+                  ></UserActiveOrder>
                 </TabsContent>
               </Tabs>
             </CardContent>

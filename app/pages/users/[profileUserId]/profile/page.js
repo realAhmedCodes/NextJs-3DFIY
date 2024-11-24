@@ -69,7 +69,7 @@ const ProfilePage = () => {
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
     : "";
-
+console.log(profileUserId);
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row gap-6">

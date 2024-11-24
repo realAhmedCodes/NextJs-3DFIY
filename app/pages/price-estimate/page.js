@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClearCcw } from "lucide-react"; // Ensure this icon exists in lucide-react
+//import { ClearCcw } from "lucide-react"; // Ensure this icon exists in lucide-react
 import { clearFile } from "@/redux/features/uploadSlice";
 
 const PriceEstimatePage = () => {
@@ -100,7 +100,7 @@ const PriceEstimatePage = () => {
                 onClick={handleRemoveFile}
                 className="text-red-500 hover:text-red-700 flex items-center"
               >
-                <ClearCcw className="h-4 w-4 mr-1" />
+
                 Remove
               </Button>
             </div>
