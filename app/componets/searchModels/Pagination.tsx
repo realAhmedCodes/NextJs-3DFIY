@@ -1,9 +1,15 @@
-// components/ui/Pagination.tsx
-
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface PaginationProps {
   currentPage: number;
@@ -11,7 +17,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
+const PaginationComponent: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
@@ -58,54 +64,53 @@ const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers();
 
   return (
-    <div className="flex justify-center items-center mt-8 space-x-2">
-      {/* Previous Button */}
-      <Button
-        variant="outline"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="px-3 py-2"
-      >
-        Previous
-      </Button>
+    <Pagination>
+      <PaginationContent>
+        {/* Previous Button */}
+        <PaginationItem>
+          <PaginationPrevious
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              if (currentPage > 1) onPageChange(currentPage - 1);
+            }}
+          />
+        </PaginationItem>
 
-      {/* Page Numbers */}
-      {pages.map((page, index) => {
-        if (page === "...") {
+        {/* Page Numbers */}
+        {pages.map((page, index) => {
+          if (page === "...") {
+            return <PaginationEllipsis key={index} />;
+          }
           return (
-            <span key={index} className="px-3 py-2 text-gray-700">
-              ...
-            </span>
+            <PaginationItem key={index}>
+              <PaginationLink
+                href="#"
+                isActive={page === currentPage}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onPageChange(page);
+                }}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
           );
-        } else {
-          return (
-            <Button
-              key={index}
-              variant={page === currentPage ? "solid" : "outline"}
-              onClick={() => onPageChange(page)}
-              className={`px-3 py-2 ${
-                page === currentPage
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-green-600 hover:text-white"
-              }`}
-            >
-              {page}
-            </Button>
-          );
-        }
-      })}
+        })}
 
-      {/* Next Button */}
-      <Button
-        variant="outline"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="px-3 py-2"
-      >
-        Next
-      </Button>
-    </div>
+        {/* Next Button */}
+        <PaginationItem>
+          <PaginationNext
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              if (currentPage < totalPages) onPageChange(currentPage + 1);
+            }}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   );
 };
 
-export default Pagination;
+export default PaginationComponent;

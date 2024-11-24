@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Star, Printer, PenTool, TrendingUp } from "lucide-react";
+import { BoomBox, Star, Box, PenTool, TrendingUp, Boxes } from "lucide-react";
 import PriceEstimate from "./componets/PriceEstimate";
 import Image from "next/image";
 import Link from "next/link";
@@ -59,13 +59,18 @@ export default function Home() {
                 </p>
               </div>
               <div className="mt-10 flex items-center gap-x-4">
-                <Link href="#">
-                  <Button variant="secondary">
+                <Link href="/pages/users/userProfiles/designers">
+                  <Button className="bg-white text-primary hover:bg-white/90">
                     Connect with Designers
                   </Button>
                 </Link>
-                <Link href="#">
-                  <Button variant="outline" className="bg-transparent  text-white hover:bg-white/90">Print Models</Button>
+                <Link href="/pages/printers/ViewPrinter">
+                  <Button
+                    variant="outline"
+                    className="bg-transparent  text-white hover:bg-white"
+                  >
+                    Print Models
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -83,10 +88,10 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
-                { icon: Printer, name: "3D Models" },
-                { icon: Printer, name: "3D Printing" },
+                { icon: Box, name: "3D Models" },
+                { icon: Boxes, name: "3D Printing" },
                 { icon: PenTool, name: "Custom Designs" },
-                { icon: TrendingUp, name: "Trending" },
+                { icon: Boxes, name: "Printed Models" },
               ].map((category, index) => (
                 <Card
                   key={index}
@@ -196,7 +201,7 @@ export default function Home() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="bg-primary text-white border-white hover:bg-primary/90"
+                  className="bg-primary text-white border-white hover:bg-white/90"
                 >
                   Learn More
                 </Button>

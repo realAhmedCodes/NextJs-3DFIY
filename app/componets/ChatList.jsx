@@ -44,8 +44,8 @@ const ChatList = ({ currentUser, onSelectChat }) => {
   };
   if (!chatRooms)
     return (
-      <div className="bg-white p-4 w-80 flex items-center justify-center text-center shadow border z-10">
-        <Loader2 className="animate-spin h-8 w-8 text-gray-500" />
+      <div className="bg-white p-4 w-80 flex items-center justify-center text-center shadow rounded-l-xl border z-10">
+        <p className="text-gray-700">No chat found.</p>
       </div>
     );
 
