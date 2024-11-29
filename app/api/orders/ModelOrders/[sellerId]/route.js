@@ -1,11 +1,14 @@
+// api/orders/ModelOrders/[sellerId]/route.js
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, NotificationType } from "@prisma/client";
 import path from "path";
 import fs from "fs";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 const uploadDir = path.join(process.cwd(), "public", "uploads");
 
+// Ensure the upload directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -24,14 +27,16 @@ export async function POST(req, { params }) {
     const additionalNotes = form.get("additionalNotes");
     const userId = parseInt(form.get("userId"), 10);
 
-  console.log(
-  modelName ,
-    description ,
-    dimensions ,
-    fileFormat ,
-    sellerId ,
-    userId,
-  );
+    console.log(
+      modelName,
+      description,
+      dimensions,
+      fileFormat,
+      sellerId,
+      userId
+    );
+
+    // Validate required fields
     if (
       !modelName ||
       !description ||
@@ -49,9 +54,30 @@ export async function POST(req, { params }) {
     // Handle file upload
     let filename = null;
     if (referenceFile && referenceFile.name) {
-      filename = `${sellerId}_${Date.now()}.${referenceFile.name
-        .split(".")
-        .pop()}`;
+      const allowedExtensions = ["stl", "obj"];
+      const fileExtension = referenceFile.name.split(".").pop().toLowerCase();
+
+      // Validate file type
+      if (!allowedExtensions.includes(fileExtension)) {
+        return new Response(
+          JSON.stringify({
+            error: "Invalid file format. Only STL and OBJ are allowed.",
+          }),
+          { status: 400 }
+        );
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (referenceFile.size > maxSize) {
+        return new Response(
+          JSON.stringify({ error: "File size exceeds the 5MB limit." }),
+          { status: 400 }
+        );
+      }
+
+      // Generate unique filename
+      filename = `${sellerId}_${Date.now()}.${fileExtension}`;
       const filePath = path.join(uploadDir, filename);
 
       // Write file to disk
@@ -78,6 +104,38 @@ export async function POST(req, { params }) {
       },
     });
 
+    // Create a notification for the designer
+    const notificationMessage = `You have received a new custom order (#${newOrder.order_id}) from User ${userId}.`;
+
+    const newNotification = await prisma.notification.create({
+      data: {
+        recipientId: parseInt(sellerId, 10),
+        type: NotificationType.CUSTOM_ORDER,
+        message: notificationMessage,
+        relatedEntity: "order",
+        relatedId: newOrder.order_id,
+      },
+    });
+
+    // Emit the notification via Socket.io without API Key
+    try {
+      await axios.post(`${process.env.SOCKET_IO_SERVER_URL}/notify`, {
+        recipientId: parseInt(sellerId, 10),
+        notification: {
+          id: newNotification.id,
+          type: newNotification.type,
+          message: newNotification.message,
+          isRead: newNotification.isRead,
+          createdAt: newNotification.createdAt,
+          relatedEntity: newNotification.relatedEntity,
+          relatedId: newNotification.relatedId,
+        },
+      });
+    } catch (emitError) {
+      console.error("Error emitting notification via Socket.io:", emitError);
+      // Optionally, handle emission error (e.g., retry, alert admin)
+    }
+
     // Return success response
     return new Response(JSON.stringify(newOrder), { status: 201 });
   } catch (error) {
@@ -87,4 +145,3 @@ export async function POST(req, { params }) {
     });
   }
 }
-

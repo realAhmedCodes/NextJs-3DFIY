@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/tooltip";
 import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ProfilePage = () => {
@@ -366,8 +367,8 @@ const ProfilePage = () => {
             </Card>
           </div>
         </div>
+      
 
-        {/* Chat Component */}
         {showChat && currentUser && (
           <ChatComponent
             currentUser={currentUser}

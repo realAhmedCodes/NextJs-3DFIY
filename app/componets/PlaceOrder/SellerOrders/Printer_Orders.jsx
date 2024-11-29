@@ -38,6 +38,11 @@ const PrinterOrder = ({ printerId }) => {
   const [instructions, setInstructions] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // New state variables for user details
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+
   const { userId } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -92,6 +97,11 @@ const PrinterOrder = ({ printerId }) => {
     formData.append("instructions", instructions);
     formData.append("printer_Owner_id", printerOwnerId);
 
+    // Append new user details
+    formData.append("name", name);
+    formData.append("address", address);
+    formData.append("phoneNumber", phoneNumber);
+
     try {
       const response = await fetch(
         `/api/orders/printers/${printerId}/pendingOrders`,
@@ -117,6 +127,9 @@ const PrinterOrder = ({ printerId }) => {
         setResistance("");
         setInstructions("");
         setModelFile(null);
+        setName("");
+        setAddress("");
+        setPhoneNumber("");
       } else {
         throw new Error("Unexpected response format.");
       }
@@ -149,6 +162,46 @@ const PrinterOrder = ({ printerId }) => {
           {successMessage} {cost && `Estimated Cost: $${cost.toFixed(2)}`}
         </Alert>
       )}
+
+      {/* Name Field */}
+      <div>
+        <Label htmlFor="name">Full Name</Label>
+        <Input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your full name"
+          required
+        />
+      </div>
+
+      {/* Address Field */}
+      <div>
+        <Label htmlFor="address">Address</Label>
+        <Textarea
+          id="address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter your shipping address"
+          required
+        />
+      </div>
+
+      {/* Phone Number Field */}
+      <div>
+        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Input
+          id="phoneNumber"
+          type="tel"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          placeholder="Enter your phone number"
+          required
+          pattern="^[0-9]{10,15}$" // Adjust pattern as needed
+          title="Please enter a valid phone number (10-15 digits)"
+        />
+      </div>
 
       {/* Material Selection */}
       <div>

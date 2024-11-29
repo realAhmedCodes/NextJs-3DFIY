@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Reviews from "@/app/componets/Reviews/Reviews";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -164,7 +165,9 @@ console.log(profileUserId);
             )}
             <Button onClick={() => setShowChat(!showChat)}>Message</Button>
           </div>
-
+          <div>
+           <Reviews profileId={profileUserId}></Reviews>
+          </div>
           {showChat && currentUser && (
             <div className="mt-6">
               <ChatComponent

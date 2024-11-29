@@ -8,8 +8,10 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const Cart = () => {
+  const router= useRouter()
   const { cartItems, removeFromCart, updateQuantity, clearCart } =
     useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
@@ -82,8 +84,9 @@ const Cart = () => {
               </p>
             </div>
             <div className="mt-4">
-              <Button variant="primary" className="w-full" href="/checkout">
-                Proceed to Checkout
+              <Button variant="primary" className="w-full">
+                router.push("/pages/checkout")
+                 Proceed to Checkout
               </Button>
               <Button
                 variant="outline"

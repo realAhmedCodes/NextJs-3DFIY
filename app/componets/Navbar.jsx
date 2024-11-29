@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import Notifications from "./Notifications/Notifications";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -120,7 +121,7 @@ const Navbar = () => {
               <ShoppingCart className="mr-2 h-5 w-5" />
               Cart ({cartItems.length})
             </Button>
-
+<div><Notifications></Notifications></div>
             <div className="hidden md:flex items-center space-x-4">
               {userId ? (
                 <DropdownMenu>

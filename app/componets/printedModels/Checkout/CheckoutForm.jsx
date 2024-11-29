@@ -1,6 +1,5 @@
 //app/ components/printedModels/Checkout/CheckoutForm.jsx
-
-"use client";
+// app/components/printedModels/Checkout/CheckoutForm.jsx
 
 import React, { useEffect, useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
@@ -10,6 +9,7 @@ import { Alert } from "@/components/ui/alert";
 import { useContext } from "react";
 import { CartContext } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux"; // Import useSelector to get user data
 
 const CheckoutForm = ({ totalPrice, cartItems }) => {
   const stripe = useStripe();
@@ -19,9 +19,9 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
   const [loading, setLoading] = useState(false);
   const { clearCart } = useContext(CartContext);
   const router = useRouter();
-console.log(cartItems, "lllll")
+  const { userId, email } = useSelector((state) => state.user); // Get userId and email from Redux
+
   useEffect(() => {
-   
     const createPaymentIntent = async () => {
       try {
         const response = await axios.post("/api/printedModelsPayment/create-payment-intent", {
@@ -70,9 +70,12 @@ console.log(cartItems, "lllll")
             items: cartItems,
             totalAmount: totalPrice,
             paymentIntentId: paymentIntent.id,
+            userId, // Include userId
+            email,   // Include email
           });
           clearCart();
-         alert("Success")
+          alert("Success");
+          router.push("/thank-you"); // Redirect to a thank you page
         } catch (updateError) {
           setErrorMessage("Failed to update purchase.");
           console.error(updateError);

@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
+import Reviews from "@/app/componets/Reviews/Reviews";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -146,6 +147,7 @@ const Page = () => {
           </div>
         </CardContent>
       </Card>
+      <div><Reviews printerId={printerId}></Reviews></div>
     </div>
   );
 };
