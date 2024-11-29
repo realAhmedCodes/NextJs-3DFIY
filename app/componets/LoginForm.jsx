@@ -64,7 +64,7 @@ const LoginForm = () => {
         );
 
         toast.success("Login successful!");
-        router.push(`/`); // Redirect to home page upon successful login
+        router.push(`/`); 
       }
     } catch (error) {
       toast.error("Error during login, please try again.");

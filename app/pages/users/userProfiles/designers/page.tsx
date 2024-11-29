@@ -131,7 +131,7 @@ const DesignersPage: React.FC = () => {
       queryParams.append("limit", pagination.limit.toString());
     if (pagination.page) queryParams.append("page", newPage.toString());
 
-    router.push(`/pages/designers?${queryParams.toString()}`);
+    router.push(`/pages/users/userProfiles/designers?${queryParams.toString()}`);
   };
 
   if (loading)

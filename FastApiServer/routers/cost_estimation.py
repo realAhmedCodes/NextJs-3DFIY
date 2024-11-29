@@ -179,10 +179,6 @@ def calculate_cost(volume_cm3: float, material: str, resolution_mm: float, infil
     # Final cost with overhead
     final_cost = total_cost_before_overhead * (1 + overhead_percentage)
 
-    # Minimum cost to cover small prints
-    minimum_cost = 5.0  # USD
-    final_cost = max(final_cost, minimum_cost)
-
     return round(final_cost, 2)
 
 @router.post("/cost-estimate")

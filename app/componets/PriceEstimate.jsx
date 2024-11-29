@@ -100,13 +100,13 @@ const PriceEstimate = () => {
               Place Custom Print Orders Now! Or Explore Ready-Made Items
             </h3>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/order" className="w-full sm:w-auto">
+              <Link href="/pages/printers/viewPrinters/" className="w-full sm:w-auto">
                 <Button size="lg" className="flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5" />
                   Order Now
                 </Button>
               </Link>
-              <Link href="/explore" className="w-full sm:w-auto">
+              <Link href="/pages/printedModels/viewPrintedModels" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="lg"

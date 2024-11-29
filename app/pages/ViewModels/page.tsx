@@ -351,7 +351,7 @@ const ModelsListPage: React.FC = () => {
                     {model.image ? (
                       <div className="relative h-48 w-full rounded-t-lg overflow-hidden">
                         <Image
-                          src={`/uploads/${model.image}`}
+                          src={model.isScraped ? `${model.image}` : `/uploads/${model.image}`}
                           alt={model.name}
                           fill
                           className="object-cover"

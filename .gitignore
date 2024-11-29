@@ -42,10 +42,15 @@ yarn-error.log*
 next-env.d.ts
 
 
+.venv
+fastApiserver/.env
 fastApiserver/venv/
+fastApiserver/.venv/
 fastApiserver/uploaded_files
 fastApiserver/__pycache__/
+fastApiserver/routers/__pycache__/
 fastApiserver/*.py[cod]
+
 
 
 fastApiserver/.env

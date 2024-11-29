@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-//import { ClearCcw } from "lucide-react"; // Ensure this icon exists in lucide-react
 import { clearFile } from "@/redux/features/uploadSlice";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 const PriceEstimatePage = () => {
   const router = useRouter();
@@ -42,6 +43,9 @@ const PriceEstimatePage = () => {
         resolution,
         resistance,
       };
+
+      console.log("Payload:", payload);
+
 
       const response = await fetch("http://localhost:8000/cost-estimate", {
         method: "POST",
@@ -81,6 +85,9 @@ const PriceEstimatePage = () => {
     router.push("/");
   };
 
+  console.log("Cost:", cost);
+
+
   return (
     <section className="w-full py-24 bg-gray-50">
       <div className="container mx-auto px-4 md:px-6">
@@ -100,7 +107,6 @@ const PriceEstimatePage = () => {
                 onClick={handleRemoveFile}
                 className="text-red-500 hover:text-red-700 flex items-center"
               >
-
                 Remove
               </Button>
             </div>
@@ -113,20 +119,25 @@ const PriceEstimatePage = () => {
               >
                 Material
               </label>
-              <select
+              <Select
                 id="material"
                 value={material}
-                onChange={(e) => setMaterial(e.target.value)}
+                onValueChange={setMaterial}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
                 required
               >
-                <option value="PLA">PLA</option>
-                <option value="PETG">PETG</option>
-                <option value="ABS">ABS</option>
-                <option value="ASA">ASA</option>
-                <option value="TPU">TPU</option>
-                <option value="Nylon">Nylon</option>
-              </select>
+                <SelectTrigger>
+                  <span>{material ? material : "Select Material"}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem id="PLA" value="PLA">PLA</SelectItem>
+                  <SelectItem id="PETG" value="PETG">PETG</SelectItem>
+                  <SelectItem id="ABS" value="ABS">ABS</SelectItem>
+                  <SelectItem id="ASA" value="ASA">ASA</SelectItem>
+                  <SelectItem id="TPU" value="TPU">TPU</SelectItem>
+                  <SelectItem id="Nylon" value="Nylon">Nylon</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Color Input */}
@@ -137,12 +148,11 @@ const PriceEstimatePage = () => {
               >
                 Color
               </label>
-              <input
+              <Input
                 id="color"
                 type="text"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
                 placeholder="e.g., White, Black, Custom"
                 required
               />
@@ -154,19 +164,19 @@ const PriceEstimatePage = () => {
                 htmlFor="resolution"
                 className="block text-sm font-medium text-gray-700"
               >
-                Resolution (e.g., 0.1)
+                Resolution (mm) <span className="text-xs text-gray-500"> Lower the value, the more detailed the model and higher the price.</span>
               </label>
-              <input
+              <Input
                 id="resolution"
                 type="number"
                 step="0.01"
                 value={resolution}
                 onChange={(e) => setResolution(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
                 placeholder="e.g., 0.1"
-                min="0.01"
+                min="0.05"
                 required
               />
+
             </div>
 
             {/* Resistance Input */}
@@ -177,14 +187,13 @@ const PriceEstimatePage = () => {
               >
                 Resistance (%)
               </label>
-              <input
+              <Input
                 id="resistance"
                 type="number"
                 value={resistance}
                 onChange={(e) => setResistance(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
                 placeholder="e.g., 100"
-                min="1"
+                min="10"
                 max="100"
                 required
               />

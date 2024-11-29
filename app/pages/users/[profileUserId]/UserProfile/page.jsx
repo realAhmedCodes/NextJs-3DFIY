@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
-
+import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Inbox, ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  Loader2,
+  Inbox,
+  ArrowLeft,
+  ArrowRight,
+  Copy,
+  Mail,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Tooltip,
@@ -22,7 +29,7 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
-import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
+import { FaLinkedin, FaTwitter } from "react-icons/fa";
 
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -111,46 +118,39 @@ const ProfilePage = () => {
       )
     : [];
 
+    console.log("userDetail", userDetail);
+    
   return (
     <TooltipProvider>
       {" "}
       {/* Wrap the component with TooltipProvider */}
-      <div className="container mx-auto p-6 bg-gray-50 min-h-screen pt-24">
+      <div className="min-h-screen bg-background">
         {/* Header Section */}
-        <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-20 h-20">
-              {profilePicPath ? (
-                <AvatarImage
-                  src={profilePicPath}
-                  alt={userDetail?.name || name}
-                />
-              ) : (
-                <AvatarFallback>
-                  {(userDetail?.name || name)?.charAt(0)}
+        <header className="bg-primary h-32 text-primary-foreground p-6">
+          <div className="max-w-7xl mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <Avatar className="w-16 h-16 border-2 border-primary-foreground">
+                
+                <AvatarFallback className="capitalize text-2xl font-bold text-primary">
+                  {userDetail.name.charAt(0)}
                 </AvatarFallback>
-              )}
-            </Avatar>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800">
-                Hi, {userDetail?.name || name}!
-              </h1>
-              <p className="text-gray-600">
-                {userDetail?.bio || "Welcome to your profile page."}
-              </p>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl font-bold capitalize">
+                  Hi, {userDetail.name}!
+                </h1>
+                <p className="text-sm opacity-90">{userDetail.bio}</p>
+              </div>
             </div>
+            <Button onClick={() => setShowChat(true)} variant="secondary">
+              <Inbox className="mr-2 h-4 w-4" />
+              Inbox
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowChat(true)}
-            className="bg-black text-white flex items-center space-x-2"
-          >
-            <Inbox className="h-4 w-4" />
-            <span>Inbox</span>
-          </Button>
-        </div>
+        </header>
 
         {/* Orders Section */}
-        <div className="mb-12">
+        <div className="mb-8 max-w-7xl mx-auto mt-6">
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-2xl">Your Orders</CardTitle>
@@ -175,200 +175,128 @@ const ProfilePage = () => {
         </div>
 
         {/* 3D Models Section */}
-        <div className="mb-12">
+        <div className="mb-12 max-w-7xl mx-auto">
           <h2 className="text-2xl font-semibold mb-6">3D Models For You</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loadingModels
-              ? Array.from({ length: 3 }).map((_, index) => (
-                  <Skeleton key={index} className="h-80 w-full rounded-lg" />
-                ))
-              : models.map((model) => (
-                  <Card
-                    key={model.model_id}
-                    className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 flex flex-col"
-                  >
-                    <div className="relative h-48 rounded-t-lg overflow-hidden">
-                      {model.image ? (
-                        <Image
-                          src={`/uploads/${model.image}`}
-                          alt={model.name}
-                          layout="fill"
-                          objectFit="cover"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full bg-gray-200">
-                          <span className="text-gray-500">No Image</span>
-                        </div>
-                      )}
-                    </div>
-                    <CardContent className="flex-1 flex flex-col">
-                      <h3 className="text-xl font-semibold mb-2">
-                        {model.name}
-                      </h3>
-                      <p className="text-gray-600 mb-4 flex-1">
-                        {model.description}
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <div className="flex space-x-2">
-                          {model.tags?.map((tag, idx) => (
-                            <Badge key={idx} variant="secondary">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        <p
-                          className={`font-semibold ${
-                            model.is_free ? "text-green-500" : "text-blue-500"
-                          }`}
-                        >
-                          {model.is_free ? "Free" : `$${model.price}`}
-                        </p>
+            {loadingModels ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton key={index} className="h-80 w-full rounded-lg" />
+              ))
+            ) : models.length > 1 ? (
+              models.map((model) => (
+                <Card key={model.id} className="overflow-hidden">
+                 
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">{model.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {model.description}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <div className="space-x-1">
+                        {model.tags.map((tag) => (
+                          <Badge key={tag} variant="secondary">
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      <span
+                        className={
+                          model.is_free
+                            ? "text-green-500 font-semibold"
+                            : "text-blue-500 font-semibold"
+                        }
+                      >
+                        {model.is_free ? "Free" : `$${model.price}`}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p className="text-red-500">No Models Found.</p>
+            )}
           </div>
         </div>
 
         {/* Invite Talent and Top Talent Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Invite Talent Section */}
-          <div className="lg:col-span-1">
-            <Card className="bg-purple-100 rounded-lg p-6 shadow-md">
-              <CardHeader>
-                <CardTitle className="text-xl text-purple-800">
-                  Refer Talent. Earn Rewards.
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-6">
-                  Invite talented individuals to join our platform and earn
-                  rewards when they start earning.
-                </p>
-                <div className="relative">
-                  <Input
-                    readOnly
-                    value="yourwebsite.com/invite/your_referral_code"
-                    className="pr-24"
-                  />
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full rounded-l-none"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            "yourwebsite.com/invite/your_referral_code"
-                          );
-                        }}
-                      >
-                        Copy
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Copy to clipboard</TooltipContent>
-                  </Tooltip>
-                </div>
-                <div className="flex space-x-2 mt-4">
+        <Card className="bg-secondary max-w-7xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-secondary-foreground">
+              Refer Talent. Earn Rewards.
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-secondary-foreground mb-4">
+              Invite talented individuals to join our platform and earn rewards
+              when they start earning.
+            </p>
+            <div className="relative mb-4">
+              <Input
+                readOnly
+                value="yourwebsite.com/invite/your_referral_code"
+                className="pr-24"
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 flex items-center justify-center"
+                    className="absolute right-0 top-0 h-full"
                   >
-                    Email
+                    <Copy className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    LinkedIn
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 flex items-center justify-center"
-                  >
-                    Twitter
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Copy to clipboard</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="icon">
+                <Mail className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon">
+                <FaLinkedin className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon">
+                <FaTwitter className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Top Talent Section */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-md">
-              <CardHeader className="flex justify-between items-center">
-                <CardTitle className="text-2xl">
-                  Get Inspired by Top Talent
-                </CardTitle>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    onClick={handlePrev}
-                    disabled={currentPage === 0}
-                    className="p-2"
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={handleNext}
-                    disabled={
-                      users
-                        ? currentPage >=
-                          Math.ceil(users.length / designersPerPage) - 1
-                        : true
-                    }
-                    className="p-2"
-                  >
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedUsers?.map((user) => (
-                    <Card
-                      key={user.user_id}
-                      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center p-4"
-                    >
-                      <Avatar className="w-20 h-20 mb-4 shadow-md">
-                        {user.profile_pic ? (
-                          <AvatarImage
-                            src={`/uploads/${user.profile_pic}`}
-                            alt={user.name}
-                          />
-                        ) : (
-                          <AvatarFallback>
-                            {user.name?.charAt(0)}
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
-                      <h3 className="text-xl font-semibold">{user.name}</h3>
-                      <p className="text-gray-600">{user.location}</p>
-                      <p className="text-gray-700 mt-2">
-                        Verified: {user.is_verified ? "Yes" : "No"}
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="mt-4 w-full"
-                        onClick={() =>
-                          router.push(`/pages/users/${user.user_id}/profile`)
-                        }
-                      >
-                        Get to know me
-                      </Button>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      
-
+        <Card className="max-w-7xl mx-auto mt-8">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Get Inspired by Top Talent</CardTitle>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="icon" onClick={handlePrev} disabled={currentPage === 0}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleNext} disabled={currentPage >= Math.ceil(users.length / 3) - 1}>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {displayedUsers.slice(currentPage * 3, (currentPage + 1) * 3).map(designer => (
+                  <Card key={designer.id} className="flex flex-col items-center p-4">
+                    <Avatar className="w-20 h-20 mb-4">
+                     
+                      <AvatarFallback>{designer.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <h3 className="font-semibold text-center">{designer.name}</h3>
+                    <p className="text-sm text-muted-foreground text-center mb-2">{designer.location}</p>
+                    {designer.is_verified && <Badge variant="secondary">Verified</Badge>}
+                    <Button variant="outline" className="mt-4 w-full" onClick={() => router.push(`/pages/users/${designer.id}/profile`)}>
+                      Get to know me
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        {/* Chat Component */}
         {showChat && currentUser && (
           <ChatComponent
             currentUser={currentUser}
