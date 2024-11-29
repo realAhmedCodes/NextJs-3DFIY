@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "scraped_models" (
+/*CREATE TABLE "scraped_models" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR NOT NULL,
     "description" VARCHAR NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE "scraped_models" (
 
     CONSTRAINT "scraped_models_pkey" PRIMARY KEY ("id")
 );
-
+*/
 -- CreateTable
 CREATE TABLE "ModelsSearchLog" (
     "search_id" SERIAL NOT NULL,
@@ -45,20 +45,21 @@ CREATE TABLE "PrintersSearchLog" (
 
     CONSTRAINT "PrintersSearchLog_pkey" PRIMARY KEY ("search_id")
 );
-
+/*
 -- CreateTable
 CREATE TABLE "alembic_version" (
     "version_num" VARCHAR(32) NOT NULL,
 
     CONSTRAINT "alembic_version_pkc" PRIMARY KEY ("version_num")
 );
-
+*/
 -- CreateIndex
+/*
 CREATE UNIQUE INDEX "scraped_models_file_path_key" ON "scraped_models"("file_path");
 
 -- CreateIndex
 CREATE INDEX "ix_scraped_models_id" ON "scraped_models"("id");
-
+*/
 -- CreateIndex
 CREATE INDEX "ModelsSearchLog_user_id_idx" ON "ModelsSearchLog"("user_id");
 

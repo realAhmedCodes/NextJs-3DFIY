@@ -38,6 +38,7 @@ model Models {
   Designers       Designers        @relation(fields: [designer_id], references: [designer_id])
   savedModels     SavedModels[]
   model_purchases model_purchase[]
+   reviews         Review[]
 
   @@index([category_id])
   @@index([designer_id])
@@ -53,7 +54,7 @@ model Likes {
   Models    Models   @relation(fields: [model_id], references: [model_id], onDelete: Cascade)
   Users     Users    @relation(fields: [user_id], references: [user_id])
 
-  @@unique([model_id, user_id])
+  @@unique([model_id, user_id], name: "model_user_unique", map: "model_user_unique")
   @@index([model_id])
   @@index([user_id])
 }
@@ -89,8 +90,12 @@ model Users {
   ChatsReceived           Chats[]                   @relation("ChatReceiver")
   ChatsSent               Chats[]                   @relation("ChatSender")
   designers               Designers[]
+  designersSearchLogs     DesignersSearchLog[]
   likes                   Likes[]
+  modelsSearchLogs        ModelsSearchLog[]
+  notifications           Notification[]            @relation("UserNotifications")
   printer_owners          Printer_Owners[]
+  printersSearchLogs      PrintersSearchLog[]
   savedModels             SavedModels[]
   model_order_purchases   model_order_purchases[]
   model_orders            model_orders[]
@@ -98,9 +103,7 @@ model Users {
   printed_model_purchases printed_model_purchases[]
   printed_models          printed_models[]          @relation("UserPrintedModels")
   printer_orders          printer_orders[]
-  modelsSearchLogs        ModelsSearchLog[]
-  designersSearchLogs     DesignersSearchLog[]
-  printersSearchLogs      PrintersSearchLog[]
+   reviews                 Review[]                  // Added relation to reviews
 
   @@index([user_id])
 }
@@ -155,6 +158,7 @@ model Printers {
   services         String[]
   Printer_Owners   Printer_Owners?  @relation(fields: [printer_owner_id], references: [printer_owner_id])
   printer_orders   printer_orders[]
+  reviews         Review[]
 
   @@index([printer_id])
   @@index([printer_owner_id])
@@ -204,6 +208,13 @@ model printer_orders {
   updated_at       DateTime        @updatedAt @db.Timestamptz(6)
   updates          String?
   reasons          String?
+
+  // Make these fields optional
+  name             String?         @db.VarChar(50)
+  address          String?         @db.VarChar(255)
+  phone_number     String?         @db.VarChar(15)
+
+  // Relations
   Printer_Owners   Printer_Owners? @relation(fields: [printer_owner_id], references: [printer_owner_id])
   Printers         Printers        @relation(fields: [printerid], references: [printer_id])
   Users            Users           @relation(fields: [user_id], references: [user_id])
@@ -324,44 +335,82 @@ model scraped_models {
 
   @@index([id], map: "ix_scraped_models_id")
 }
-model ModelsSearchLog {
-  search_id   Int      @id @default(autoincrement())
-  user_id     Int
-  tags        String[] // Tags from the Model search bar
-  timestamp   DateTime @default(now()) @db.Timestamptz(6)
 
-  Users       Users    @relation(fields: [user_id], references: [user_id])
+model ModelsSearchLog {
+  search_id Int      @id @default(autoincrement())
+  user_id   Int
+  tags      String[]
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  Users     Users    @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
   @@index([tags], type: Gin)
 }
 
 model DesignersSearchLog {
-  search_id   Int      @id @default(autoincrement())
-  user_id     Int
-  location    String   @db.VarChar(255) // Location from the Designer search bar
-  timestamp   DateTime @default(now()) @db.Timestamptz(6)
-
-  Users       Users    @relation(fields: [user_id], references: [user_id])
+  search_id Int      @id @default(autoincrement())
+  user_id   Int
+  location  String   @db.VarChar(255)
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  Users     Users    @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
   @@index([location])
 }
 
 model PrintersSearchLog {
-  search_id   Int      @id @default(autoincrement())
-  user_id     Int
-  location    String   @db.VarChar(255) // Location from the Printer search bar
-  materials   String[] // Materials from the Printer search bar
-  timestamp   DateTime @default(now()) @db.Timestamptz(6)
-
-  Users       Users    @relation(fields: [user_id], references: [user_id])
+  search_id Int      @id @default(autoincrement())
+  user_id   Int
+  location  String   @db.VarChar(255)
+  materials String[]
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  Users     Users    @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
   @@index([location])
   @@index([materials], type: Gin)
 }
 
+model Notification {
+  id            Int              @id @default(autoincrement())
+  recipientId   Int
+  type          NotificationType
+  message       String
+  isRead        Boolean          @default(false)
+  createdAt     DateTime         @default(now()) @db.Timestamptz(6)
+  relatedEntity String?
+  relatedId     Int?
+  recipient     Users            @relation("UserNotifications", fields: [recipientId], references: [user_id])
+
+  @@index([recipientId, isRead])
+}
+
 model alembic_version {
   version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+enum NotificationType {
+  NEW_PURCHASE
+  CUSTOM_ORDER
+  LIKE
+  COMMENT
+  ORDER_STATUS_UPDATE
+  PROMOTION
+  SYSTEM_ALERT
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  profileId   Int?
+  userId      Int
+  printerId   Int?
+  modelId     Int?
+  reviewText  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+ 
+  user        Users     @relation(fields: [userId], references: [user_id])
+  printer     Printers? @relation(fields: [printerId], references: [printer_id], onDelete: Cascade)
+  model       Models?   @relation(fields: [modelId], references: [model_id], onDelete: Cascade)
 }
