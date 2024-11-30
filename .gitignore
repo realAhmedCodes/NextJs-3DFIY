@@ -10,6 +10,8 @@
 # testing
 /coverage
 
+package-lock.json
+
 # next.js
 /.next/
 /out/
@@ -40,3 +42,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+.venv
+fastApiserver/.env
+fastApiserver/venv/
+fastApiserver/.venv/
+fastApiserver/uploaded_files
+fastApiserver/__pycache__/
+fastApiserver/routers/__pycache__/
+fastApiserver/services/__pycache__/
+fastApiserver/*.py[cod]
+
+
+
+fastApiserver/.env
+fastApiserver/.DS_Store

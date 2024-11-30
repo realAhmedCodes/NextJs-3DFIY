@@ -1,73 +1,81 @@
+"use client";
+
 import React from "react";
+import { navigationLinks } from "../utlits/navigationLinks";
+import { Separator } from "@/components/ui/separator";
 import {
   FaFacebookF,
-  FaTwitter,
   FaInstagram,
-  FaLinkedinIn,
+  FaTwitter,
+  FaGithub,
+  FaDribbble,
 } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          {/* Logo and Info */}
-          <div className="mb-4 md:mb-0">
-            <a href="/" className="text-2xl font-bold text-blue-400">
-              YourLogo
-            </a>
-            <p className="mt-2 text-gray-400">
-              Your trusted platform for [brief description]. Providing quality
-              services since [year].
-            </p>
-          </div>
+    <footer className="bg-primary">
+      <div className="max-w-screen-xl px-4 py-12 mx-auto space-y-8 overflow-hidden sm:px-6 lg:px-8">
+        {/* Navigation Links */}
+        <nav className="flex flex-wrap justify-center -mx-5 -my-2">
+          {navigationLinks.map((link, index) => (
+            <div key={index} className="px-5 py-2">
+              <a
+                href={link.href}
+                className="text-base leading-6 text-white hover:text-"
+              >
+                {link.label}
+              </a>
+            </div>
+          ))}
+        </nav>
 
-          {/* Navigation Links */}
-          <div className="flex space-x-6 mb-4 md:mb-0">
-            <a href="/" className="hover:text-blue-400">
-              Home
-            </a>
-            <a href="/about" className="hover:text-blue-400">
-              About Us
-            </a>
-            <a href="/services" className="hover:text-blue-400">
-              Services
-            </a>
-            <a href="/contact" className="hover:text-blue-400">
-              Contact
-            </a>
-          </div>
-
-          {/* Social Media Icons */}
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-blue-400">
-              <FaFacebookF />
-            </a>
-            <a href="#" className="hover:text-blue-400">
-              <FaTwitter />
-            </a>
-            <a href="#" className="hover:text-blue-400">
-              <FaInstagram />
-            </a>
-            <a href="#" className="hover:text-blue-400">
-              <FaLinkedinIn />
-            </a>
-          </div>
+        {/* Social Media Icons */}
+        <div className="flex justify-center mt-8 space-x-6">
+          <a
+            href="#"
+            className="text-white hover:text-white"
+            aria-label="Facebook"
+          >
+            <FaFacebookF className="w-6 h-6" />
+          </a>
+          <a
+            href="#"
+            className="text-white hover:text-white"
+            aria-label="Instagram"
+          >
+            <FaInstagram className="w-6 h-6" />
+          </a>
+          <a
+            href="#"
+            className="text-white hover:text-white"
+            aria-label="Twitter"
+          >
+            <FaTwitter className="w-6 h-6" />
+          </a>
+          <a
+            href="#"
+            className="text-white hover:text-white"
+            aria-label="GitHub"
+          >
+            <FaGithub className="w-6 h-6" />
+          </a>
+          <a
+            href="#"
+            className="text-white hover:text-white"
+            aria-label="Dribbble"
+          >
+            <FaDribbble className="w-6 h-6" />
+          </a>
         </div>
 
-        {/* Divider */}
-        <div className="my-6 border-t border-gray-700"></div>
+        {/* Separator */}
+        <Separator className="my-6 bg-gray-200" />
 
-        {/* Copyright Information */}
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} YourCompany. All rights reserved.
-          </p>
-          <p className="text-gray-400 text-sm">
-            Built with <span className="text-red-500">&hearts;</span> by
-            YourCompany
-          </p>
-        </div>
+        {/* Footer Text */}
+        <p className="mt-8 text-base leading-6 text-center text-white">
+          &copy; {new Date().getFullYear()} Mercurius Inc. All rights
+          reserved.
+        </p>
       </div>
     </footer>
   );

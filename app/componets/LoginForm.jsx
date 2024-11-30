@@ -1,40 +1,59 @@
-"use client"
+// components/LoginForm.jsx
+
+"use client";
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
-import { Typography, Input, Button } from "@material-tailwind/react";
-import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
+import { EyeIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import Link from "next/link";
+import { toast } from "sonner";
+import { EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const LoginForm = () => {
+  // State management for form inputs and UI states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const [passwordShown, setPasswordShown] = useState(false);
+  const [error, setError] = useState(null);
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const togglePasswordVisibility = () => setPasswordShown((cur) => !cur);
+  // Toggle password visibility
+  const togglePasswordVisibility = () => setPasswordShown(!passwordShown);
 
-  const submitBtn = async (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError(null); // Reset error state on each submission
-    setSuccess(null); // Reset success state on each submission
+    setError(null);
 
     try {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (data.detail) {
-        setError(data.detail);
+        toast.error(data.detail);
       } else {
-        // Save non-sensitive user data in Redux store
         dispatch(
           setUser({
             userId: data.user_id,
@@ -45,106 +64,132 @@ const LoginForm = () => {
           })
         );
 
-        console.log("Login successful");
-        router.push(`/`);
+        toast.success("Login successful!");
+        router.push(`/`); 
       }
     } catch (error) {
-      setOpen(true);
-      setError("Error during login, please try again.");
+      toast.error("Error during login, please try again.");
       console.error("Error during login:", error);
     }
   };
 
   return (
-    <section className="grid text-center h-screen items-center p-8">
-      <div className="w-[400px] mx-auto">
-        <Typography variant="h3" color="blue-gray" className="mb-2">
-          Sign In
-        </Typography>
-        <Typography className="mb-8 text-gray-600 font-normal text-[18px]">
-          Enter your email and password to sign in
-        </Typography>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>
+            Enter your email and password to sign in to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <p>{error}</p>
+            </Alert>
+          )}
 
-        {error && (
-          <Alert color="red" open={open} onClose={() => setOpen(false)} className="mb-4 max-w-96 absolute bottom-0 right-0 m-4">
-            {error}
-          </Alert>
-        )}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email Input */}
+            <div>
+              <Label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="email@example.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
 
-        {/* Alert for success */}
-        {success && (
-          <Alert color="green" open={open} onClose={() => setOpen(false)} className="mb-4">
-            {success}
-          </Alert>
-        )}
-
-        <form action="#" className="mx-auto max-w-[24rem] text-left">
-          <div className="mb-6">
-            <Input
-              id="email"
-              color="gray"
-              size="lg"
-              type="email"
-              label="Email"
-              name="email"
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
-              labelProps={{ className: "hidden" }}
-            />
-          </div>
-          <div className="mb-6">
-            <Input
-              size="lg"
-              placeholder="********"
-              labelProps={{ className: "hidden" }}
-              onChange={(e) => setPassword(e.target.value)}
-              label="Password"
-              className="w-full placeholder:opacity-100 focus:border-t-primary border-t-blue-gray-200"
-              type={passwordShown ? "text" : "password"}
-              icon={
-                <i onClick={togglePasswordVisibility}>
+            {/* Password Input */}
+            <div>
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </Label>
+                <Link
+                  href="#"
+                  className="text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <div className="mt-1 relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={passwordShown ? "text" : "password"}
+                  placeholder="********"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
+                  aria-label={passwordShown ? "Hide password" : "Show password"}
+                >
                   {passwordShown ? (
-                    <EyeIcon className="h-5 w-5" />
-                  ) : (
                     <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
                   )}
-                </i>
-              }
-            />
-          </div>
-          <Button
-            color="gray"
-            size="lg"
-            className="mt-6"
-            fullWidth
-            onClick={submitBtn}
-          >
-            Sign In
-          </Button>
-          <div className="!mt-4 flex justify-end">
-            <Typography
-              as="a"
-              href="#"
-              color="blue-gray"
-              variant="small"
-              className="font-medium"
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div>
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+            </div>
+
+            {/* Login with Google Button */}
+            <div>
+              <Button
+                variant="outline"
+                className="w-full py-3 px-6 rounded-lg shadow-lg transition duration-300"
+                disabled
+                onClick={() => {
+                  // Implement Google login functionality here
+                  console.log("Login with Google clicked");
+                }}
+              >
+                {/* You can add a Google icon here if desired */}
+                <span>Login with Google</span>
+              </Button>
+            </div>
+          </form>
+
+          {/* Register Link */}
+          <div className="mt-4 text-center text-sm">
+            Don't have an account?{" "}
+            <Link
+              href="/pages/register"
+              className="font-medium text-gray-700 hover:text-gray-800"
             >
-              Forgot password
-            </Typography>
+              Sign up
+            </Link>
           </div>
-          <Typography
-            variant="small"
-            color="gray"
-            className="!mt-4 text-center font-normal"
-          >
-            Not registered?{" "}
-            <a href="#" className="font-medium text-gray-900">
-              Create account
-            </a>
-          </Typography>
-        </form>
-      </div>
-    </section>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

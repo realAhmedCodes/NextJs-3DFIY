@@ -1,142 +1,56 @@
-/*"use client"
-import { useState, useEffect } from "react";
-import io from "socket.io-client";
-import ScrollToBottom from "react-scroll-to-bottom";
-
-const ChatComponent = ({ currentUser, otherUser }) => {
-  const [showChat, setShowChat] = useState(false);
-  const [room, setRoom] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [socket, setSocket] = useState(null);
-
-  const initiateChat = () => {
-    if (!currentUser) return;
-
-    const newSocket = io.connect("http://localhost:3001");
-    const sortedUserIds = [currentUser, otherUser].sort().join("-");
-    setRoom(sortedUserIds);
-
-    newSocket.emit("join_room", sortedUserIds);
-    setShowChat(true);
-
-    newSocket.on("previous_messages", (messages) => {
-      setMessages(messages);
-    });
-
-    newSocket.on("receive_message", (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    setSocket(newSocket);
-  };
-
-  const sendMessage = () => {
-    if (!currentUser || !socket) return;
-
-    const messageData = {
-      room,
-      sender_id: currentUser,
-      receiver_id: otherUser,
-      message,
-      time: new Date(),
-    };
-    socket.emit("send_message", messageData);
-    setMessages((prev) => [...prev, messageData]);
-    setMessage("");
-  };
-
-  useEffect(() => {
-    console.log("Current User:", currentUser);
-    console.log("Other User:", otherUser);
-    console.log("Room:", room);
-  }, [currentUser, otherUser, room]);
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      {!showChat ? (
-        <button
-          onClick={initiateChat}
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          Message
-        </button>
-      ) : (
-        <div className="flex flex-col w-full max-w-2xl p-4 bg-white rounded shadow-lg">
-          <div className="p-2 text-lg font-bold text-center text-white bg-blue-500 rounded">
-            Live Chat
-          </div>
-          <ScrollToBottom className="flex-1 p-2 my-2 overflow-y-auto bg-gray-50 rounded">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${
-                  msg.sender_id === currentUser
-                    ? "justify-end"
-                    : "justify-start"
-                } mb-2`}
-              >
-                <div
-                  className={`max-w-xs px-4 py-2 rounded ${
-                    msg.sender_id === currentUser
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-300 text-gray-800"
-                  }`}
-                >
-                  <p className="text-sm">{msg.message}</p>
-                  <div className="flex justify-between mt-1 text-xs">
-                    <p>{msg.createdat}</p>
-                    <p>{msg.sender_id === currentUser ? "You" : "Other"}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </ScrollToBottom>
-          <div className="flex items-center mt-2">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Type your message here..."
-              className="flex-1 px-4 py-2 mr-2 border rounded focus:outline-none focus:ring"
-            />
-            <button
-              onClick={sendMessage}
-              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-            >
-              &#9658;
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default ChatComponent;
-*/
+"use client";
 
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import useSWR from "swr";
 import ChatList from "./ChatList";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, X } from "lucide-react";
 
-// SWR fetcher function
+// Utility function to check if two dates are on the same day
+const isSameDay = (date1, date2) => {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+};
+
+// Component to display the date divider
+const DateDivider = ({ date }) => {
+  const formattedDate = new Date(date).toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return (
+    <div className="flex justify-center my-6">
+      <Badge variant="secondary" className="text-gray-600 font-normal">
+        {formattedDate}
+      </Badge>
+    </div>
+  );
+};
+
 const fetcher = (url) => fetch(url).then((res) => res.json());
-const ChatComponent = ({ currentUser, roomId, otherUser }) => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]); // Messages state
-  const [socket, setSocket] = useState(null);
-  const [activeRoomId, setActiveRoomId] = useState(roomId || null); // Active room ID
-  const [activeOtherUser, setActiveOtherUser] = useState(otherUser || null); // Active other user
 
-  // Use SWR to fetch the chat list when `currentUser` is available
-  const {
-    data: chatRooms,
-    error: chatListError,
-    mutate,
-  } = useSWR(
+const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [activeRoomId, setActiveRoomId] = useState(roomId || null);
+  const [activeOtherUser, setActiveOtherUser] = useState(otherUser || null);
+
+  // Use SWR to fetch the chat list
+  const { mutate } = useSWR(
     currentUser ? `/api/socketIo/${currentUser}/chatList` : null,
     fetcher
   );
@@ -151,7 +65,11 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
       setMessages([]); // Clear previous messages
 
       newSocket.on("previous_messages", (previousMessages) => {
-        setMessages(previousMessages);
+        // Sort messages by createdat in ascending order
+        const sortedMessages = previousMessages.sort(
+          (a, b) => new Date(a.createdat) - new Date(b.createdat)
+        );
+        setMessages(sortedMessages);
       });
 
       newSocket.on("receive_message", (message) => {
@@ -164,7 +82,7 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
         newSocket.disconnect(); // Clean up on component unmount
       };
     }
-  }, [activeRoomId]); // Trigger the effect when activeRoomId changes
+  }, [activeRoomId]);
 
   // Listen for real-time chat list updates
   useEffect(() => {
@@ -176,12 +94,12 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
   }, [socket, mutate]);
 
   const sendMessage = () => {
-    if (!currentUser || !socket) return;
+    if (!currentUser || !socket || message.trim() === "") return;
 
     const messageData = {
       room: activeRoomId,
       sender_id: currentUser,
-      receiver_id: activeOtherUser, // Use activeOtherUser for first-time chats
+      receiver_id: activeOtherUser,
       message,
       time: new Date(),
       createdat: new Date(),
@@ -198,189 +116,120 @@ const ChatComponent = ({ currentUser, roomId, otherUser }) => {
   };
 
   const handleSelectChat = (roomId, otherUserId) => {
-    setActiveRoomId(roomId); // Set the selected room ID
-    setActiveOtherUser(otherUserId); // Set the selected other user ID
-    setMessages([]); // Clear messages when changing chat
+    if (activeRoomId === roomId) {
+      setActiveRoomId(null);
+      setActiveOtherUser(null);
+      setMessages([]);
+    } else {
+      setActiveRoomId(roomId);
+      setActiveOtherUser(otherUserId);
+      setMessages([]);
+    }
   };
 
-  if (chatListError) return <p>Error loading chat list</p>;
-
   return (
-    <div className="flex w-full">
-      <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
-      <div className="flex-grow flex flex-col w-full max-w-2xl p-4 bg-white rounded shadow-lg">
-        <div className="p-2 text-lg font-bold text-center text-white bg-blue-500 rounded">
-          Live Chat
-        </div>
-        <div className="flex-1 p-2 my-2 overflow-y-auto bg-gray-50 rounded">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.sender_id === currentUser ? "justify-end" : "justify-start"
-              } mb-2`}
-            >
-              <div
-                className={`max-w-xs px-4 py-2 rounded ${
-                  msg.sender_id === currentUser
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-300 text-gray-800"
-                }`}
-              >
-                <p className="text-sm">{msg.message}</p>
-                <div className="flex justify-between mt-1 text-xs">
-                  <p>{new Date(msg.createdat).toLocaleTimeString()}</p>
-                  <p>{msg.sender_id === currentUser ? "You" : "Other"}</p>
+    // Only render the ChatComponent if a chat is active or if you want it always visible
+    <div className="fixed top-24 right-4 w-[600px] z-50">
+      {/* Close Button */}
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 text-gray-800 hover:text-gray-900"
+        aria-label="Close chat"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      <div className="flex w-full">
+        <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />
+        <Card className="w-full flex-grow rounded-l-none">
+          <CardHeader>
+            <CardTitle>Live Chat</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col h-[500px] p-4">
+            {activeRoomId ? (
+              <>
+                <ScrollArea className="flex-1 mb-4">
+                  {messages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-500">
+                      No messages yet
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {messages.map((msg, index) => {
+                        // Determine if a date divider should be shown before this message
+                        const showDateDivider =
+                          index === 0 ||
+                          !isSameDay(
+                            msg.createdat,
+                            messages[index - 1].createdat
+                          );
+
+                        return (
+                          <div key={index}>
+                            {showDateDivider && (
+                              <DateDivider date={msg.createdat} />
+                            )}
+                            <div
+                              className={`flex ${
+                                msg.sender_id === currentUser
+                                  ? "justify-end"
+                                  : "justify-start"
+                              }`}
+                            >
+                              <div
+                                className={`px-4 py-2 rounded-lg ${
+                                  msg.sender_id === currentUser
+                                    ? "bg-primary text-white"
+                                    : "bg-secondary text-gray-800"
+                                }`}
+                              >
+                                <p className="text-sm">{msg.message}</p>
+                                <div className="flex justify-between mt-1 text-xs opacity-70">
+                                  <p>
+                                    {new Date(msg.createdat).toLocaleTimeString(
+                                      [],
+                                      {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      }
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </ScrollArea>
+                <div className="flex items-center">
+                  <Input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                    placeholder="Type your message here..."
+                    className="mr-2 flex-grow"
+                  />
+                  <Button onClick={sendMessage} variant="default">
+                    Send
+                  </Button>
                 </div>
+              </>
+            ) : (
+              // Optionally, you can show a placeholder or keep it empty when no chat is active
+              <div className="w-full flex items-center justify-center">
+                <p className="text-gray-500">
+                  Select a chat to start messaging
+                </p>
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center mt-2">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Type your message here..."
-            className="flex-1 px-4 py-2 mr-2 border rounded focus:outline-none focus:ring"
-          />
-          <button
-            onClick={sendMessage}
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-          >
-            &#9658;
-          </button>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
 export default ChatComponent;
-
-
-
-
-
-
-
-
-
-
-
-/*
-import { useState, useEffect } from "react";
-import io from "socket.io-client";
-import ScrollToBottom from "react-scroll-to-bottom";
-
-const ChatComponent = ({
-  currentUser,
-  roomId,
-  otherUser,
-  onNewChatInitiate,
-}) => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [socket, setSocket] = useState(null);
-  const [isNewChat, setIsNewChat] = useState(true);
-
-  useEffect(() => {
-    const newSocket = io.connect("http://localhost:3001");
-
-    newSocket.emit("join_room", roomId);
-
-    newSocket.on("previous_messages", (messages) => {
-      if (messages.length > 0) {
-        setMessages(messages);
-        setIsNewChat(false);
-      }
-    });
-
-    newSocket.on("receive_message", (message) => {
-      setMessages((prev) => [...prev, message]);
-      setIsNewChat(false);
-    });
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [roomId]);
-
-  const sendMessage = () => {
-    if (!currentUser || !socket) return;
-
-    const messageData = {
-      room: roomId,
-      sender_id: currentUser,
-      receiver_id: otherUser,
-      message,
-      time: new Date(),
-    };
-    socket.emit("send_message", messageData);
-    setMessages((prev) => [...prev, messageData]);
-    setMessage("");
-    setIsNewChat(false);
-  };
-
-  return (
-    <div className="flex flex-col w-full max-w-2xl p-4 bg-white rounded shadow-lg">
-      <div className="p-2 text-lg font-bold text-center text-white bg-blue-500 rounded">
-        Live Chat
-      </div>
-      <ScrollToBottom className="flex-1 p-2 my-2 overflow-y-auto bg-gray-50 rounded">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.sender_id === currentUser ? "justify-end" : "justify-start"
-            } mb-2`}
-          >
-            <div
-              className={`max-w-xs px-4 py-2 rounded ${
-                msg.sender_id === currentUser
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-300 text-gray-800"
-              }`}
-            >
-              <p className="text-sm">{msg.message}</p>
-              <div className="flex justify-between mt-1 text-xs">
-                <p>{new Date(msg.createdat).toLocaleTimeString()}</p>
-                <p>{msg.sender_id === currentUser ? "You" : "Other"}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </ScrollToBottom>
-      <div className="flex items-center mt-2">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Type your message here..."
-          className="flex-1 px-4 py-2 mr-2 border rounded focus:outline-none focus:ring"
-        />
-        <button
-          onClick={sendMessage}
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          &#9658;
-        </button>
-      </div>
-      {isNewChat && (
-        <button
-          onClick={() => onNewChatInitiate(otherUser)}
-          className="px-4 py-2 mt-2 text-white bg-green-500 rounded hover:bg-green-600"
-        >
-          Start Chat
-        </button>
-      )}
-    </div>
-  );
-};
-
-export default ChatComponent;
-*/

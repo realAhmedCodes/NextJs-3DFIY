@@ -1,11 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCookies } from "react-cookie";
-//import { jwtDecode, InvalidTokenError } from "jwt-decode";
 import { useSelector } from "react-redux";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Plus, Minus } from "lucide-react";
+
 const printerOptions = {
   FDM: {
     name: "Fused Deposition Modeling",
@@ -50,25 +58,18 @@ const Page = () => {
   const [selectedMaterials, setSelectedMaterials] = useState([]);
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const [checkToken, setCheckToken] = useState("");
   const [printerOwnerId, setPrinterOwnerId] = useState(null);
   const [colors, setColors] = useState([""]);
   const [services, setServices] = useState([""]);
 
-  const { userId, email, sellerType, isVerified, sellerId } = useSelector(
-    (state) => state.user
-  );
+  const { sellerId } = useSelector((state) => state.user);
 
-useEffect(()=>{
-  if(sellerId){
-    setPrinterOwnerId(sellerId);
-  }
-},[sellerId])
+  useEffect(() => {
+    if (sellerId) {
+      setPrinterOwnerId(sellerId);
+    }
+  }, [sellerId]);
 
-
- 
-
-  
   useEffect(() => {
     if (printerType) {
       setMaterials(printerOptions[printerType]?.materials || []);
@@ -142,6 +143,16 @@ useEffect(()=>{
         console.log(data.error);
       } else {
         console.log("Printer uploaded successfully:", data);
+        // Optionally, reset the form after successful submission
+        setName("");
+        setDescription("");
+        setLocation("");
+        setPrinterType("");
+        setSelectedMaterials([]);
+        setPrice("");
+        setImage(null);
+        setColors([""]);
+        setServices([""]);
       }
     } catch (error) {
       console.error(error);
@@ -150,129 +161,247 @@ useEffect(()=>{
   };
 
   return (
-    <div className="main_div">
-      <div className="form_div">
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="name">Enter Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <Card className="w-full max-w-3xl shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">
+            Upload a New Printer
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Printer Name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enter Name
+              </label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter printer name"
+                required
+                className="mt-1 block w-full"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="description">Enter Description</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enter Description
+              </label>
+              <Input
+                id="description"
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description"
+                required
+                className="mt-1 block w-full"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="location">Enter Location</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
+            {/* Location */}
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enter Location
+              </label>
+              <Input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Enter location"
+                required
+                className="mt-1 block w-full"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="printerType">Select Printer Type</label>
-            <select
-              value={printerType}
-              onChange={(e) => setPrinterType(e.target.value)}
-            >
-              <option value="">Select a Printer Type</option>
-              {Object.keys(printerOptions).map((type) => (
-                <option key={type} value={type}>
-                  {printerOptions[type].name}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Printer Type */}
+            <div>
+              <label
+                htmlFor="printerType"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Select Printer Type
+              </label>
+              <Select
+                value={printerType}
+                onValueChange={(value) => setPrinterType(value)}
+                required
+              >
+                <SelectTrigger className="mt-1 text-left">
+                  <SelectValue placeholder="Select a printer type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(printerOptions).map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {printerOptions[type].name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div>
-            <label>Select Materials</label>
-            {materials.map((material, index) => (
-              <div key={index}>
-                <label>
-                  <input
-                    type="checkbox"
-                    value={material}
-                    checked={selectedMaterials.includes(material)}
-                    onChange={() => handleMaterialChange(material)}
-                  />
-                  {material}
-                </label>
+            {/* Materials */}
+            {materials.length > 0 && (
+              <div>
+                <span className="block text-sm font-medium text-gray-700">
+                  Select Materials
+                </span>
+                <div className="mt-2 grid grid-cols-2 gap-4">
+                  {materials.map((material) => (
+                    <label key={material} className="flex items-center space-x-3">
+                      <Checkbox
+                        checked={selectedMaterials.includes(material)}
+                        onCheckedChange={() => handleMaterialChange(material)}
+                      />
+                      <span className="text-sm text-gray-700">{material}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            )}
 
-          <div>
-            <label>Colors</label>
-            {colors.map((color, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  value={color}
-                  onChange={(e) => handleColorChange(index, e.target.value)}
-                  placeholder="Enter a color"
-                />
-                <button type="button" onClick={() => removeColor(index)}>
-                  Remove
-                </button>
+            {/* Colors */}
+            <div>
+              <span className="block text-sm font-medium text-gray-700">
+                Colors
+              </span>
+              <div className="mt-2 space-y-2">
+                {colors.map((color, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Input
+                      type="text"
+                      value={color}
+                      onChange={(e) => handleColorChange(index, e.target.value)}
+                      placeholder={`Color ${index + 1}`}
+                      required
+                      className="flex-1"
+                    />
+                    {colors.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeColor(index)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addColor}
+                  className="mt-2"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Color
+                </Button>
               </div>
-            ))}
-            <button type="button" onClick={addColor}>
-              Add Color
-            </button>
-          </div>
+            </div>
 
-          <div>
-            <label>Services</label>
-            {services.map((service, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  value={service}
-                  onChange={(e) => handleServiceChange(index, e.target.value)}
-                  placeholder="Enter a service"
-                />
-                <button type="button" onClick={() => removeService(index)}>
-                  Remove
-                </button>
+            {/* Services */}
+            <div>
+              <span className="block text-sm font-medium text-gray-700">
+                Services
+              </span>
+              <div className="mt-2 space-y-2">
+                {services.map((service, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Input
+                      type="text"
+                      value={service}
+                      onChange={(e) => handleServiceChange(index, e.target.value)}
+                      placeholder={`Service ${index + 1}`}
+                      required
+                      className="flex-1"
+                    />
+                    {services.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => removeService(index)}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addService}
+                  className="mt-2"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Service
+                </Button>
               </div>
-            ))}
-            <button type="button" onClick={addService}>
-              Add Service
-            </button>
-          </div>
+            </div>
 
-          <div>
-            <label htmlFor="price">Enter Price</label>
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </div>
+            {/* Price */}
+            <div>
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Enter Price
+              </label>
+              <Input
+                id="price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Enter price"
+                required
+                className="mt-1 block w-full"
+                min="0"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="image">Upload Image</label>
-            <input
-              accept="image/jpeg,image/png"
-              type="file"
-              onChange={(e) => setImage(e.target.files[0])}
-            />
-          </div>
+            {/* Image Upload */}
+            <div>
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Upload Image
+              </label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={(e) => setImage(e.target.files[0])}
+                required
+                className="mt-1 block w-full"
+              />
+            </div>
 
-          <button type="submit">Upload Printer</button>
-        </form>
-      </div>
+            {/* Submit Button */}
+            <div>
+              <Button type="submit" className="w-full">
+                Upload Printer
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

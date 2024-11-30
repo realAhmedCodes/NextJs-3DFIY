@@ -1,18 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
-import Printer_Orders from "@/app/componets/PlaceOrder/Printer_Orders";
 import { useSelector } from "react-redux";
+import PrinterOrder from "@/app/componets/PlaceOrder/SellerOrders/Printer_Orders";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
+import Reviews from "@/app/componets/Reviews/Reviews";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const Page = () => {
   const { printerId } = useParams();
-  const { userId, email, sellerType } = useSelector((state) => state.user);
+  const { sellerType } = useSelector((state) => state.user);
   const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: printer, error } = useSWR(
     printerId ? `/api/printers/${printerId}/printerDetail` : null,
@@ -26,59 +46,108 @@ const Page = () => {
   const delModelBtn = async () => {
     try {
       await axios.delete(`/api/printers/${printerId}/delete`);
-      // Optionally, you can redirect or update the UI after deletion
       router.push("/pages/printers");
     } catch (err) {
       console.error("Failed to delete model", err);
     }
   };
 
-  if (!printer && !error) return <div>Loading...</div>;
-  if (error) return <div>Error loading printer details</div>;
-  if (!printer) return <div>No model found</div>;
+  if (!printer && !error)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
+      </div>
+    );
 
-  const profilePicFilename = printer.profile_pic.split("\\").pop();
-  const profilePicPath = `/uploads/${profilePicFilename}`;
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          Error loading printer details
+        </div>
+      </div>
+    );
+
+  if (!printer)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>No printer found</p>
+      </div>
+    );
+
+  const profilePicPath = printer.profile_pic
+    ? `/uploads/${printer.profile_pic.split("\\").pop()}`
+    : null;
 
   return (
     <div className="container mx-auto p-8">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">{printer.user_name}</h1>
-            <div className="flex items-center">
-              {printer.profile_pic && (
-                <img
-                  src={profilePicPath}
-                  alt={printer.user_name}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-              )}
-              <h2 className="text-lg">{printer.user_location}</h2>
-            </div>
-          </div>
-
-          <p className="text-gray-700 mb-4">{printer.description}</p>
-          <div className="mb-4">
-            {printer.image && (
-              <img
-                src={`/uploads/${printer.image}`}
-                alt={printer.name}
-                className="w-full h-auto"
-              />
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            {sellerType === "Printer Owner" && (
-              <div>
-                <button onClick={updateModelBtn}>Update Model</button>
-                <button onClick={delModelBtn}>Delete Model</button>
+      <Card className="max-w-4xl mx-auto">
+        {printer.image && (
+          <img
+            src={`/uploads/${printer.image}`}
+            alt={printer.printer_name}
+            className="object-cover w-full h-96 rounded-t-lg"
+          />
+        )}
+        <CardContent>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <CardTitle className="text-3xl">{printer.printer_name}</CardTitle>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-600">{printer.user_location}</span>
               </div>
+            </div>
+            {printer.profile_pic && (
+              <Avatar className="w-16 h-16">
+                <AvatarImage src={profilePicPath} alt={printer.user_name} />
+                <AvatarFallback>
+                  {printer.user_name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
             )}
           </div>
-        </div>
-      </div>
-      <Printer_Orders printerId={printerId} />
+          <hr className="my-4" />
+          <CardDescription className="mb-4">
+            {printer.description}
+          </CardDescription>
+          {printer.materials && (
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold mb-2">Materials</h2>
+              <p className="text-gray-700">{printer.materials}</p>
+            </div>
+          )}
+          {printer.price && (
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold mb-2">Price</h2>
+              <p className="text-gray-700">${printer.price}</p>
+            </div>
+          )}
+          {sellerType === "Printer Owner" && (
+            <div className="mt-4 flex space-x-2">
+              <Button onClick={updateModelBtn} variant="primary">
+                Update Printer
+              </Button>
+              <Button onClick={delModelBtn} variant="destructive">
+                Delete Printer
+              </Button>
+            </div>
+          )}
+          <div className="mt-4">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>Place an Order</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Place an Order</DialogTitle>
+                </DialogHeader>
+                <PrinterOrder printerId={printerId} />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
+      <div><Reviews printerId={printerId}></Reviews></div>
     </div>
   );
 };

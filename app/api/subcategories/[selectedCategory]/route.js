@@ -1,28 +1,29 @@
-// app/api/subcategories/[selectedCategory]/route.js
-import pool from "@/app/lib/db"; // Adjust the path if needed
+// api/subcategories/[selectedCategory]/route.js
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+const prisma = new PrismaClient();
 export async function GET(request, { params }) {
   const { selectedCategory } = params;
 
   try {
-    const client = await pool.connect();
-    const subCategoryQuery = `
-      SELECT * FROM "Category"
-      WHERE parent_category_id = $1
-      ORDER BY "createdAt" DESC
-    `;
-    const result = await client.query(subCategoryQuery, [selectedCategory]);
-    client.release();
+    const subcategories = await prisma.category.findMany({
+      where: {
+        parent_category_id: Number(selectedCategory),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    if (result.rows.length === 0) {
+    if (subcategories.length === 0) {
       return NextResponse.json(
         { message: "No subcategories found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(result.rows);
+    return NextResponse.json(subcategories);
   } catch (err) {
     console.error("Database query error", err);
     return NextResponse.json(
