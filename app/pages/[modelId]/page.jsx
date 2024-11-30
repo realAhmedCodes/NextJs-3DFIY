@@ -46,6 +46,7 @@ import ReviewSection from "@/components/ReviewSection";
 
 // Import your PaymentModal component
 import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
+import Reviews from "@/app/componets/Reviews/Reviews";
 
 // Initialize Stripe
 const stripePromiseClient = loadStripe(
@@ -159,7 +160,7 @@ const ModelPage = () => {
   }, [userId, model, authToken]);
 
   // Handle like/unlike button
-  const handleLike = async () => {
+  /*const handleLike = async () => {
     try {
       if (isLiked) {
         await axios.delete(
@@ -175,8 +176,24 @@ const ModelPage = () => {
       console.error("Failed to update like status", err);
       setError("Unable to update like status. Please try again.");
     }
-  };
-
+  };*/
+const handleLike = async () => {
+  try {
+    if (isLiked) {
+      await axios.delete(`/api/models/${modelId}/modelLike`, {
+        params: { user_id: userId },
+      });
+    } else {
+      await axios.post(`/api/models/${modelId}/modelLike`, {
+        user_id: userId,
+      });
+    }
+    setIsLiked(!isLiked);
+  } catch (err) {
+    console.error("Failed to update like status", err);
+    setError("Unable to update like status. Please try again.");
+  }
+};
   // Handle save/unsave button
   const handleSave = async () => {
     try {

@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
-
+import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { FaLinkedin, FaTwitter } from "react-icons/fa";
+
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -127,10 +128,7 @@ const ProfilePage = () => {
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <Avatar className="w-16 h-16 border-2 border-primary-foreground">
-                <AvatarImage
-                  src={userDetail.profilePic}
-                  alt={userDetail.name}
-                />
+                
                 <AvatarFallback className="capitalize text-2xl font-bold text-primary">
                   {userDetail.name.charAt(0)}
                 </AvatarFallback>
@@ -185,13 +183,7 @@ const ProfilePage = () => {
             ) : models.length > 1 ? (
               models.map((model) => (
                 <Card key={model.id} className="overflow-hidden">
-                  <Image
-                    src={model.image}
-                    alt={model.name}
-                    width={400}
-                    height={300}
-                    className="w-full h-48 object-cover"
-                  />
+                 
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-2">{model.name}</h3>
                     <p className="text-sm text-muted-foreground mb-2">
@@ -288,7 +280,7 @@ const ProfilePage = () => {
                 {displayedUsers.slice(currentPage * 3, (currentPage + 1) * 3).map(designer => (
                   <Card key={designer.id} className="flex flex-col items-center p-4">
                     <Avatar className="w-20 h-20 mb-4">
-                      <AvatarImage src={designer.profile_pic} alt={designer.name} />
+                     
                       <AvatarFallback>{designer.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <h3 className="font-semibold text-center">{designer.name}</h3>

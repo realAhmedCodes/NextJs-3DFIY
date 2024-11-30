@@ -14,8 +14,8 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const ActiveOrder = ({ profileUserId }) => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const[openFileUploadModal, setOpenFileUploadModal ] = useState(false)
-   const [currentOrderId, setCurrentOrderId] = useState(null);
+  const [openFileUploadModal, setOpenFileUploadModal] = useState(false);
+  const [currentOrderId, setCurrentOrderId] = useState(null);
   const router = useRouter();
 
   // Get user info from Redux
@@ -24,7 +24,7 @@ export const ActiveOrder = ({ profileUserId }) => {
   // Fetch orders conditionally based on sellerType
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
     sellerType === "Regular"
-      ?  `/api/orders/userId/${userId}/printerActiveOrders`
+      ? `/api/orders/userId/${userId}/printerActiveOrders`
       : null,
     fetcher
   );
@@ -70,7 +70,51 @@ export const ActiveOrder = ({ profileUserId }) => {
     return <div>Loading...</div>;
   }
 
+  // Function to update order status to "Dispatched"
+  const handleDispatchOrder = async (orderId) => {
+    try {
+      // Update the order status to "Dispatched"
+      const statusResponse = await fetch(
+        `/api/orders/printerActiveOrders/dispatchOrder/${orderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const statusData = await statusResponse.json();
 
+      if (!statusData.success) {
+        alert("Failed to dispatch order.");
+        return;
+      }
+
+      // Create notification for the user
+      const notificationResponse = await fetch(
+        `/api/orders/ModelOrders/orderStatus/${orderId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const notificationData = await notificationResponse.json();
+
+      if (!notificationData.success) {
+        alert("Failed to send notification.");
+        return;
+      }
+
+      // Notify the user and update the UI
+      alert("Order dispatched and notification sent successfully!");
+    } catch (error) {
+      console.error("Error dispatching order:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
   const openModelFileUpload = (orderId) => {
     setCurrentOrderId(orderId);
@@ -107,6 +151,13 @@ export const ActiveOrder = ({ profileUserId }) => {
                     <p>
                       <strong>Client Name:</strong> {printerOrder.user_name}
                     </p>
+                    <Button
+                      onClick={() =>
+                        handleDispatchOrder(printerOrder.pending_order_id)
+                      }
+                    >
+                      Dispatch
+                    </Button>
                     <p>{printerOrder.created_at}</p>
                     {selectedOrderId === printerOrder.pending_order_id && (
                       <PrinterOrderData

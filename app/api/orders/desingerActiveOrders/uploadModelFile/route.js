@@ -1,8 +1,10 @@
 // File: /pages/api/orders/designerActiveOrders/uploadModelFile.js
+// File: /pages/api/orders/designerActiveOrders/uploadModelFile.js
 
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import fs from "fs/promises"; // Use the promise-based fs module for async operations
+import axios from "axios";
 
 const prisma = new PrismaClient();
 const uploadDir = path.join(process.cwd(), "public", "uploads");
@@ -24,9 +26,9 @@ export async function PUT(req, res) {
     const form = await req.formData();
     const order_file = form.get("order_file");
     const order_id = form.get("order_id");
-    const price = form.get("price")
+    const price = form.get("price");
     const order_file_price = parseFloat(price);
-console.log(order_file, order_id, order_file_price)
+
     if (!order_file || !order_id || !order_file_price) {
       return new Response(
         JSON.stringify({ error: "Missing File or Order ID" }),
@@ -54,20 +56,62 @@ console.log(order_file, order_id, order_file_price)
     const fileBuffer = Buffer.from(await order_file.arrayBuffer());
     await fs.writeFile(filePath, fileBuffer);
 
-    // Update the model_orders table with the file path and order_file_status
-    const updatedOrder = await prisma.model_orders.update({
-      where: { order_id: parseInt(order_id, 10) },
-      data: {
-        order_file: `/uploads/${filename}`, // Store the relative path
-        order_file_status: "Submitted", // Update the order_file_status to "Submitted"
-        status: "completed",
-        order_file_price: order_file_price,
-        updated_at: new Date(), // Ensure updated_at is refreshed
-      },
+    // Start a transaction to ensure atomicity
+    const currentTimestamp = new Date();
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Update the model_orders table with the file path and order_file_status
+      const updatedOrder = await tx.model_orders.update({
+        where: { order_id: parseInt(order_id, 10) },
+        data: {
+          order_file: `/uploads/${filename}`, // Store the relative path
+          order_file_status: "Submitted", // Update the order_file_status to "Submitted"
+          status: "completed",
+          order_file_price: order_file_price,
+          updated_at: currentTimestamp, // Ensure updated_at is refreshed
+        },
+      });
+
+      // Fetch the order details to identify the user (who placed the order)
+      const order = await tx.model_orders.findUnique({
+        where: { order_id: parseInt(order_id, 10) },
+        select: { user_id: true },
+      });
+
+      if (order) {
+        const userId = order.user_id; // User who made the order
+
+        // Create a notification for the designer (sender)
+        const notification = await tx.notification.create({
+          data: {
+            recipientId: userId, // Notify the user who placed the order
+            type: "ORDER_STATUS_UPDATE",
+            message: `Your 3D model file has been uploaded by the designer. Order ID: ${order_id}`,
+            relatedEntity: "order",
+            relatedId: parseInt(order_id),
+          },
+        });
+
+        // Emit the notification via Socket.io server (or any other service you use)
+        await axios.post(`${process.env.SOCKET_IO_SERVER_URL}/notify`, {
+          recipientId: userId,
+          notification: {
+            id: notification.id,
+            type: notification.type,
+            message: notification.message,
+            isRead: notification.isRead,
+            createdAt: notification.createdAt,
+            relatedEntity: notification.relatedEntity,
+            relatedId: notification.relatedId,
+          },
+        });
+      }
+
+      return updatedOrder; // Return the updated order as a response
     });
 
-    // Return success response
-    return new Response(JSON.stringify(updatedOrder), { status: 200 });
+    // Return success response with updated order details
+    return new Response(JSON.stringify(result), { status: 200 });
   } catch (error) {
     console.error("Error uploading model file:", error);
     return new Response(
@@ -82,7 +126,3 @@ export const config = {
     bodyParser: false, // Disable default body parsing
   },
 };
-
-
-
-
