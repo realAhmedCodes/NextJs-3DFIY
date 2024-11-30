@@ -18,8 +18,7 @@ export const PendingOrder = ({ profileUserId }) => {
 
   // Fetch pending orders conditionally based on sellerType
   const { data: usersPrinterOrders, error: usersPrinterError } = useSWR(
-    sellerType === "Regular" ?
-     `/api/orders/userId/${userId}` : null,
+    sellerType === "Regular" ? `/api/orders/userId/${userId}` : null,
     fetcher
   );
 
@@ -63,16 +62,16 @@ export const PendingOrder = ({ profileUserId }) => {
   ) {
     return <div>Loading...</div>;
   }
-console.log("id check",selectedOrderId);
+  console.log("id check", selectedOrderId);
   return (
     <div>
       {Number(userId) === Number(profileUserId) ? (
         <>
           <h1 className="text-xl font-bold mb-2">Your Pending Orders</h1>
 
-          {/* For Printer Owners */}
-          {sellerType === "Printer Owner" &&
-            ownersPrinterOrders?.length > 0 && (
+          <div>
+            {sellerType === "Printer Owner" &&
+            ownersPrinterOrders?.length > 0 ? (
               <div>
                 <h2>Printer Owner Pending Orders</h2>
                 {ownersPrinterOrders.map((printerOrder) => (
@@ -99,39 +98,41 @@ console.log("id check",selectedOrderId);
                   </div>
                 ))}
               </div>
+            ) : sellerType === "Designer" && ownersModelOrders?.length > 0 ? (
+              <div>
+                <h2>Designer Pending Orders</h2>
+                {ownersModelOrders.map((modelOrder) => (
+                  <div
+                    key={modelOrder.order_id}
+                    onClick={() => setSelectedOrderId(modelOrder.order_id)}
+                    className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
+                  >
+                    <p>
+                      <strong>Status:</strong> {modelOrder.status}
+                    </p>
+                    <p>
+                      <strong>Client Name:</strong> {modelOrder.user_name}
+                    </p>
+                    <p>{modelOrder.created_at}</p>
+                    <p>{modelOrder.order_id}</p>
+                    {Number(selectedOrderId) ===
+                      Number(modelOrder.order_id) && (
+                      <ModelOrderData orderId={modelOrder.order_id} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-600 text-sm">
+                No Orders Available
+              </div> // This can be your fallback content
             )}
-
-          {/* For Designers */}
-          {sellerType === "Designer" && ownersModelOrders?.length > 0 && (
-            <div>
-              <h2>Designer Pending Orders</h2>
-              {ownersModelOrders.map((modelOrder) => (
-                <div
-                  key={modelOrder.order_id}
-                  onClick={() => setSelectedOrderId(modelOrder.order_id)}
-                  className="border rounded-md p-2 cursor-pointer hover:bg-gray-200"
-                >
-                  <p>
-                    <strong>Status:</strong> {modelOrder.status}
-                  </p>
-                  <p>
-                    <strong>Client Name:</strong> {modelOrder.user_name}
-                  </p>
-                  <p>{modelOrder.created_at}</p>
-                  <p>{modelOrder.order_id}</p>
-                  {Number(selectedOrderId) ===
-                    Number(modelOrder.order_id) && (
-                    <ModelOrderData orderId={modelOrder.order_id} />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
 
           {/* For Regular Users */}
           {sellerType === "Regular" && (
             <>
-              {usersPrinterOrders?.length > 0 && (
+              {usersPrinterOrders?.length > 0 ? (
                 <div>
                   <h2>User Printer Pending Orders</h2>
                   {usersPrinterOrders.map((order) => (
@@ -149,9 +150,11 @@ console.log("id check",selectedOrderId);
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-center text-gray-600 text-sm">No User Printer Orders</p> // Fallback content for usersPrinterOrders
               )}
 
-              {usersModelOrders?.length > 0 && (
+              {usersModelOrders?.length > 0 ? (
                 <div>
                   <h2>User Model Pending Orders</h2>
                   {usersModelOrders.map((order) => (
@@ -168,6 +171,8 @@ console.log("id check",selectedOrderId);
                     </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-center text-gray-600 text-sm">No User Model Orders</p> // Fallback content for usersModelOrders
               )}
             </>
           )}

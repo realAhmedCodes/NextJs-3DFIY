@@ -302,9 +302,12 @@ const ModelPage = () => {
         )}
 
         {model.type === "scraped" && (
-          <h1 className="text-3xl font-bold text-gray-800">
-            {model.model_name}
-          </h1>
+          <div className="flex items-center space-x-4">
+            <h1 className="text-3xl font-bold text-gray-800">
+              {model.model_name}
+            </h1>
+            <Badge className="w-fit h-fit">External Models</Badge>
+          </div>
         )}
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="lg:w-2/3">

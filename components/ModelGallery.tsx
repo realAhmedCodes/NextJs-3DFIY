@@ -2,26 +2,19 @@ import { useState } from "react";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 export default function ModelGallery({ img }) {
   return (
     <Card className="p-2">
       <Dialog> 
         <DialogTrigger className="overflow-hidden">
-          <div className="relative rounded-lg w-full h-96">
+          <div className="relative rounded-lg  bg-black w-full h-96">
             <Image
               src={img}
               alt="Model"
-              width={800}
+              width={850}
               height={600}
-              className="object-cover rounded-lg"
+              className="object-cover rounded-lg hover:opacity-70 duration-200 ease-in-out"
             />
           </div>
         </DialogTrigger>

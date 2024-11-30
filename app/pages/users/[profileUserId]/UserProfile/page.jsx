@@ -121,8 +121,6 @@ const ProfilePage = () => {
     
   return (
     <TooltipProvider>
-      {" "}
-      {/* Wrap the component with TooltipProvider */}
       <div className="min-h-screen bg-background">
         {/* Header Section */}
         <header className="bg-primary h-32 text-primary-foreground p-6">

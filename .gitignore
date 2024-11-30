@@ -49,6 +49,7 @@ fastApiserver/.venv/
 fastApiserver/uploaded_files
 fastApiserver/__pycache__/
 fastApiserver/routers/__pycache__/
+fastApiserver/services/__pycache__/
 fastApiserver/*.py[cod]
 
 

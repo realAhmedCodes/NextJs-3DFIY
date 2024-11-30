@@ -47,7 +47,7 @@ export default function ModelDetails({ model }) {
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="font-medium text-gray-800"
+                  className="font-medium text-gray-800 mr-1"
                 >
                   {tag}
                 </Badge>

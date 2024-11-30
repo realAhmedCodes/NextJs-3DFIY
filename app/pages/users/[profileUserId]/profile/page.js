@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter
 } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Star, MessageCircle, Package, Zap, Award, DollarSign } from "lucide-react"
+
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -69,208 +75,139 @@ const ProfilePage = () => {
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
     : "";
-console.log(profileUserId);
+  console.log(profileUserId);
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* User Profile Card */}
-        <Card className="w-full md:w-1/3">
-          <CardHeader className="flex flex-col items-center">
-            {userDetail?.profile_pic && (
-              <Avatar className="w-24 h-24 mb-4">
-                <AvatarImage src={profilePicPath} alt={userDetail?.name} />
-                <AvatarFallback>
-                  {userDetail?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="lg:w-1/3 flex flex-col gap-4">
+
+          {/* User Profile Card */}
+          <Card>
+            <CardHeader className="text-center">
+              <Avatar className="w-32 h-32 mx-auto mb-4">
+                <AvatarImage src={userDetail.profile_pic} alt={userDetail.name} />
+                <AvatarFallback>{userDetail.name.charAt(0)}</AvatarFallback>
               </Avatar>
-            )}
-            <CardTitle className="text-3xl">{userDetail?.name}</CardTitle>
-            <CardDescription className="text-xl text-gray-600">
-              {userDetail?.location}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700 mb-4">{userDetail?.bio}</p>
-            <p className="text-lg font-bold text-blue-500 mb-2">
-              Rating: {userDetail?.ratings}
-            </p>
-            <p className="text-lg mb-2">
-              Seller Type: {userDetail?.sellerType}
-            </p>
-            {userDetail?.sellerType === "Designer" && (
-              <div>
-                <h2 className="text-xl font-semibold mt-6">Uploaded Models</h2>
-                {userDetail?.models?.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-4 mt-4">
-                    {userDetail.models.map((model) => (
-                      <Card key={model.model_id} className="shadow">
-                        <CardHeader>
-                          <CardTitle>{model.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p>{model.description}</p>
-                          <p className="font-bold mt-2">
-                            Price: ${model.price}
-                          </p>
-                          <img
-                            src={`/uploads/${model.image}`}
-                            alt={model.name}
-                            className="w-full h-auto rounded-md mt-2"
-                          />
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No models uploaded yet.</p>
-                )}
+              <CardTitle className="text-3xl">{userDetail.name}</CardTitle>
+              <CardDescription className="text-lg">{userDetail.location}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">{userDetail.bio}</p>
+              <div className="flex items-center justify-center space-x-2">
+                <Star className="text-yellow-400" />
+                <span className="text-xl font-semibold">{userDetail.ratings}</span>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Orders and Chat Section */}
-        <div className="flex-grow">
-          <Tabs defaultValue="pending">
-            <TabsList className="mb-4">
-              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-              <TabsTrigger value="active">Active Orders</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="pending">
-              <PendingOrder profileUserId={profileUserId} />
-            </TabsContent>
-            <TabsContent value="active">
-              <ActiveOrder profileUserId={profileUserId} />
-            </TabsContent>
-          </Tabs>
-
-          <div className="mt-6 flex space-x-4">
-            {userDetail?.sellerType === "Designer" && (
-              <Dialog open={ModelOrderShow} onOpenChange={setModelOrderShow}>
+              <Badge variant="secondary" className="w-full justify-center py-1 text-lg">
+                {userDetail.sellerType}
+              </Badge>
+            </CardContent>
+            <CardFooter className="justify-center space-x-4">
+              <Dialog>
                 <DialogTrigger asChild>
                   <Button>Place Order</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Place an Order</DialogTitle>
+                    <DialogDescription>Fill in the details to place your order with {userDetail.name}.</DialogDescription>
                   </DialogHeader>
-                  <ModelOrder
-                    sellerId={userDetail?.sellerId}
-                    userId={currentUser}
-                  />
+                  {/* Add order form here */}
                 </DialogContent>
               </Dialog>
-            )}
-            <Button onClick={() => setShowChat(!showChat)}>Message</Button>
-          </div>
+              <Button variant="outline" onClick={() => setShowChat(!showChat)}>
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Message
+              </Button>
+            </CardFooter>
+          </Card>
 
-          {showChat && currentUser && (
-            <div className="mt-6">
-              <ChatComponent
-                currentUser={currentUser}
-                roomId={generatedRoomId}
-                otherUser={otherUser}
-                onClose={() => setShowChat(false)}
-              />
-            </div>
-          )}
+          {/* Achievements Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Award className="mr-2" />
+                Achievements
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-4">
+                <Badge variant="secondary">...</Badge>
+                <Badge variant="secondary">...</Badge>
+                <Badge variant="secondary">...</Badge>
+                <Badge variant="secondary">...</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Orders and Models Section */}
+        <div className="flex-grow space-y-6">
+          <Tabs defaultValue="models">
+            <TabsList className={"grid w-full " + (userDetail?.sellerType === "Designer" ? "grid-cols-3" : "grid-cols-2")}>
+              {userDetail?.sellerType === "Designer" && (
+                <TabsTrigger value="models">Models</TabsTrigger>
+              )}
+              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+              <TabsTrigger value="active">Active Orders</TabsTrigger>
+            </TabsList>
+            <TabsContent value="models" className="space-y-4">
+              <h2 className="text-2xl font-semibold">Uploaded Models</h2>
+              <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {userDetail.models.map((model) => (
+                    <Card key={model.model_id} className="flex flex-col">
+                      <img src={model.image} alt={model.name} className="w-full h-40 object-cover rounded-t-lg" />
+                      <CardHeader>
+                        <CardTitle>{model.name}</CardTitle>
+                        <CardDescription>{model.description}</CardDescription>
+                      </CardHeader>
+                      <CardFooter className="mt-auto">
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-lg font-semibold">${model.price}</span>
+                          <Button size="sm">View Details</Button>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="pending">
+              <ScrollArea className="h-fit w-full rounded-md border p-4">
+                <div className="space-y-4">
+                  <PendingOrder profileUserId={profileUserId} />
+                </div>
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="active">
+              <ScrollArea className="h-fit w-full rounded-md border p-4">
+                <div className="space-y-4">
+                  <ActiveOrder profileUserId={profileUserId} />
+                </div>
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default ProfilePage;
 
-/* <ChatList
-              currentUser={currentUser}
-              onSelectChat={handleSelectChat}
-            /> */
 
-/*
-"use client";
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import {jwtDecode} from "jwt-decode";
-import ChatComponent from "@/componets/Chat";
-import ChatList from "@/componets/ChatList";
-
-const Page = () => {
-  const { roomId, userId } = useParams(); // Extract roomId and userId from URL if they exist
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [activeRoomId, setActiveRoomId] = useState(roomId || null); // Manage active roomId
-  const [otherUser, setOtherUser] = useState(userId || null); // Set otherUser from params or null for new chats
-
-  useEffect(() => {
-    const token = window.sessionStorage.getItem("token");
-
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const userId = decodedToken.user_id;
-        setCurrentUser(userId);
-      } catch (error) {
-        console.error("Invalid token");
-      }
-    }
-    setLoading(false);
-  }, []);
-
-  const handleStartNewChat = (otherUserId) => {
-    const generatedRoomId = [currentUser, otherUserId].sort().join("-");
-    setActiveRoomId(generatedRoomId);
-    setOtherUser(otherUserId); // Keep track of other user for first-time chat
-  };
-
-  if (loading) return <p>Loading...</p>;
-
-  return (
-    <div className="flex">
-      {currentUser && (
-        <>
-          <ChatList
-            currentUser={currentUser}
-            onSelectChat={(roomId, otherUserId) => {
-              setActiveRoomId(roomId);
-              setOtherUser(otherUserId);
-            }}
-          />
-          {activeRoomId && (
-            <ChatComponent
-              currentUser={currentUser}
-              roomId={activeRoomId}
-              otherUser={otherUser}
-              onNewChatInitiate={handleStartNewChat}
-            />
-          )}
-        </>
+      {/* Chat Component (placeholder) */}
+      {showChat && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Chat with {userDetail.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Chat interface would go here.</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 };
 
-export default Page;
-*/
-
-/* {showChat === false ? (
-        <></>
-      ) : (
-        <>
-         
-          {currentUser && (
-            <>
-              <ChatList
-                currentUser={currentUser}
-                onSelectChat={handleSelectChat}
-              />
-              <ChatComponent
-                currentUser={currentUser}
-                roomId={activeRoomId}
-                otherUser={otherUser}
-              />
-            </>
-          )}
-        </>
-      )}*/
+export default ProfilePage;

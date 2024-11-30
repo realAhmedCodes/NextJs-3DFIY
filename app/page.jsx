@@ -113,17 +113,17 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
-                { name: "Alice Designer", role: "3D Artist", rating: 4.9 },
-                { name: "Bob Printer", role: "3D Printer", rating: 4.8 },
-                { name: "Charlie Modeler", role: "3D Modeler", rating: 4.7 },
-                { name: "Diana Creator", role: "Custom Designer", rating: 4.9 },
+                { name: "Alice", role: "Designer", rating: 4.9 },
+                { name: "Bob", role: "Printer Owner", rating: 4.8 },
+                { name: "Charlie", role: "Designer", rating: 4.7 },
+                { name: "Diana", role: "Printer Owner", rating: 4.9 },
               ].map((seller, index) => (
                 <Card key={index} className="flex flex-col items-center p-6">
                   <Image
                     alt={`${seller.name}'s profile`}
                     className="rounded-full mb-4"
                     height={100}
-                    src={`/placeholder.svg?height=100&width=100`}
+                    src={`/placeholder.svg`}
                     style={{
                       aspectRatio: "1 / 1",
                       objectFit: "cover",
@@ -196,9 +196,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="space-x-4">
-                <Button className="bg-white text-primary hover:bg-gray-100">
-                  Sign Up Now
-                </Button>
+                <Link href="/pages/register">
+                  <Button className="bg-white text-primary hover:bg-gray-100">
+                    Sign Up Now
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   className="bg-primary text-white border-white hover:bg-white/90"

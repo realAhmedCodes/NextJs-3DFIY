@@ -75,7 +75,7 @@ const Navbar = () => {
   } else if (sellerType === "Printer Owner") {
     profileMenuItems.push({
       label: "Upload Printer",
-      href: `/pages/printers/UploadPrinter`,
+      href: `/pages/printers/Printer_Upload`,
     });
   }
 

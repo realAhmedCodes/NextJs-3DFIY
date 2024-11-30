@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/features/userSlice";
 import { useRouter } from "next/navigation";
-import { EyeIcon, EyeSlashIcon } from "lucide-react";
+import { EyeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ import {
 import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
 import { toast } from "sonner";
+import { EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const LoginForm = () => {
   // State management for form inputs and UI states

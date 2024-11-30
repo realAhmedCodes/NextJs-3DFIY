@@ -14,35 +14,6 @@ import PaymentModal from '@/components/PaymentModal'
 
 const stripePromiseClient = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!)
 
-// Dummy data
-const dummyModel = {
-  model_id: '123',
-  model_name: 'Futuristic City Model',
-  description: 'A detailed 3D model of a futuristic cityscape, perfect for sci-fi projects and urban planning visualizations.',
-  image_url: '/placeholder.svg?height=400&width=600',
-  images: [
-    { url: '/placeholder.svg?height=400&width=600' },
-    { url: '/placeholder.svg?height=400&width=600' },
-    { url: '/placeholder.svg?height=400&width=600' },
-  ],
-  price: 49.99,
-  is_free: false,
-  specifications: 'Poly count: 1M, Textures: 4K, File formats: FBX, OBJ, GLTF',
-  formats: 'FBX, OBJ, GLTF',
-  tags: ['Futuristic', 'City', 'Sci-Fi', 'Urban', '3D'],
-  user: {
-    name: 'Jane Doe',
-    profile_pic: '/placeholder.svg?height=100&width=100',
-    location: 'New York, USA'
-  },
-  designer_id: '456',
-  type: 'designer',
-  relatedModels: [
-    { model_id: '789', model_name: 'Cyberpunk Vehicle', image_url: '/placeholder.svg?height=200&width=200', price: 29.99, is_free: false },
-    { model_id: '101', model_name: 'Neon Sign Pack', image_url: '/placeholder.svg?height=200&width=200', price: 19.99, is_free: false },
-    { model_id: '102', model_name: 'Holographic Interface', image_url: '/placeholder.svg?height=200&width=200', price: 0, is_free: true },
-  ]
-}
 
 export default function ModelPage({ params }: { params: { modelId: string } }) {
   const router = useRouter()

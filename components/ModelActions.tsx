@@ -17,14 +17,14 @@ export default function ModelActions({
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-700">Pricing</h2>
-          {model.is_free && <Badge className="text-lg mt-2">Free</Badge>}{" "}
-          {model.type == "scraped" && (
+          {model.is_free && <Badge className="text-md py-0 font-medium mt-2">Free</Badge>}{" "}
+          {model.type != "scraped" && (
             <p className="text-2xl font-bold text-gray-800">${model.price}</p>
           )}
         </div>
-        <div>
+        <div className="self-end">
           {model.is_free || hasPurchased ? (
-            <Button onClick={onDownload}>Download</Button>
+            <Button onClick={onDownload}> {model.type == "scraped" ? "View Source" : "Download"}</Button>
           ) : (
             <Button onClick={onBuy}>Buy Now</Button>
           )}

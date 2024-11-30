@@ -17,11 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -40,6 +42,7 @@ const RegisterForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isOtpDialogOpen, setIsOtpDialogOpen] = useState(false);
   const [otpValues, setOtpValues] = useState(Array(6).fill(""));
+  const [submitting, setSubmiting] = useState(false);
 
   const router = useRouter();
 
@@ -91,6 +94,8 @@ const RegisterForm = () => {
   const SubmitBtn = async (e) => {
     e.preventDefault();
 
+    setSubmiting(true);
+
     const {
       name,
       username,
@@ -121,7 +126,9 @@ const RegisterForm = () => {
       (sellerType === "Designer" || sellerType === "Printer Owner") &&
       !profile_pic
     ) {
-      toast.warning("Profile picture is required for Designer and Printer Owner.");
+      toast.warning(
+        "Profile picture is required for Designer and Printer Owner."
+      );
       return;
     }
 
@@ -139,13 +146,14 @@ const RegisterForm = () => {
 
     try {
       // Generate OTP
-      await axios.post("/api/otp/generate", { email });
+      await axios.post("/api/otp/generate", { email, name });
 
       // Sign up the user
       await axios.post("/api/signup", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      setSubmiting(false);
       // Open OTP dialog
       setIsOtpDialogOpen(true);
     } catch (error) {
@@ -198,7 +206,7 @@ const RegisterForm = () => {
       if (response.status === 200) {
         toast.success("Registration Completed. Please login to continue.");
         setIsOtpDialogOpen(false);
-        router.push("/pages/Login"); 
+        router.push("/pages/Login");
       } else {
         toast.warning("OTP verification failed. Please try again.");
       }
@@ -251,7 +259,13 @@ const RegisterForm = () => {
         </CardHeader>
         <CardContent>
           {currentStep === 1 && (
-            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+            <form
+              className="space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleNext();
+              }}
+            >
               {/* Name */}
               <div>
                 <Label htmlFor="name">Name</Label>
@@ -283,7 +297,8 @@ const RegisterForm = () => {
                 />
                 {touched.username && !validUsername && (
                   <p className="text-red-500 text-sm">
-                    Username must be 4-24 characters, start with a letter, and can include letters, numbers, underscores, and hyphens.
+                    Username must be 4-24 characters, start with a letter, and
+                    can include letters, numbers, underscores, and hyphens.
                   </p>
                 )}
               </div>
@@ -327,7 +342,13 @@ const RegisterForm = () => {
           )}
 
           {currentStep === 2 && (
-            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+            <form
+              className="space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleNext();
+              }}
+            >
               {/* Password */}
               <div>
                 <Label htmlFor="pwd">Password</Label>
@@ -490,8 +511,8 @@ const RegisterForm = () => {
       </Card>
 
       {/* OTP Verification Dialog */}
-      <Dialog open={isOtpDialogOpen} onOpenChange={setIsOtpDialogOpen}>
-        <DialogContent>
+      <Dialog open={isOtpDialogOpen}>
+        <DialogContent className={isOtpDialogOpen && "fixed"}>
           <DialogHeader>
             <DialogTitle>OTP Verification</DialogTitle>
           </DialogHeader>
