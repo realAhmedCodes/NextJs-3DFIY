@@ -127,7 +127,7 @@ export async function GET(request: Request) {
 // pages/api/search/allModels.ts
 // pages/api/search/searchModels.ts
 
-import { PrismaClient } from '@prisma/client';
+import { Models, PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();

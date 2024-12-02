@@ -13,6 +13,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { toast } from 'sonner';
 
 import { useRouter } from "next/navigation";
 
@@ -58,12 +59,15 @@ const PrintedModelUpload = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const toast = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
+  
 
   const handleDimensionChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -95,25 +99,14 @@ const PrintedModelUpload = () => {
 
       if (response.ok) {
         const result = await response.json();
-        toast({
-          title: "Success",
-          description: "Uploaded successfully!",
-        });
+        toast.success("Uploaded successfully!");
         router.push("/models"); // Redirect to models page after upload
       } else {
         const errorData = await response.json();
-        toast({
-          title: "Error",
-          description: errorData.error || "Invalid data!",
-          variant: "destructive",
-        });
+        toast.warning(errorData.error || "Invalid data!");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

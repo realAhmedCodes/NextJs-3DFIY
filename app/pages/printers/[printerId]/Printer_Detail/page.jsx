@@ -124,7 +124,7 @@ const Page = () => {
           )}
           {sellerType === "Printer Owner" && (
             <div className="mt-4 flex space-x-2">
-              <Button onClick={updateModelBtn} variant="primary">
+              <Button onClick={updateModelBtn} >
                 Update Printer
               </Button>
               <Button onClick={delModelBtn} variant="destructive">

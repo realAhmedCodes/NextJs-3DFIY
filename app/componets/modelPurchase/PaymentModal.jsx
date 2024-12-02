@@ -7,8 +7,15 @@ import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-
-const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
+import {
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+const PaymentModal = ({ model, userId, authToken, onSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState("");
@@ -16,7 +23,6 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    // Fetch the clientSecret from your backend
     const createPaymentIntent = async () => {
       try {
         const response = await axios.post(
@@ -41,6 +47,8 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
     createPaymentIntent();
   }, [model.model_id, userId, authToken]);
 
+  
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -51,6 +59,9 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
     }
 
     const cardElement = elements.getElement(CardElement);
+
+    console.log("Card element:", clientSecret);
+    
 
     try {
       const { paymentIntent, error } = await stripe.confirmCardPayment(
@@ -97,43 +108,44 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-md w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Complete Your Purchase</h2>
-        {errorMessage && (
-          <Alert variant="destructive" className="mb-4">
-            {errorMessage}
-          </Alert>
-        )}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <CardElement
-              options={{
-                style: {
-                  base: {
-                    fontSize: "16px",
-                    color: "#424770",
-                    "::placeholder": {
-                      color: "#aab7c4",
+    <div>
+      <DrawerContent>
+        <div className="p-4 mb-6 max-w-lg w-full mx-auto">
+          <form onSubmit={handleSubmit}>
+            <DrawerHeader>
+              <DrawerTitle>Complete Purchase</DrawerTitle>
+              <DrawerDescription>Enter payment details</DrawerDescription>
+            </DrawerHeader>
+            <div className="mb-4 p-4">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "16px",
+                      color: "#424770",
+                      "::placeholder": {
+                        color: "#aab7c4",
+                      },
+                    },
+                    invalid: {
+                      color: "#9e2146",
                     },
                   },
-                  invalid: {
-                    color: "#9e2146",
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={!stripe || loading}>
-              {loading ? "Processing..." : `Pay $${model.price}`}
-            </Button>
-          </div>
-        </form>
-      </div>
+                }}
+              />
+            </div>
+            <div className="flex justify-end space-x-2"></div>
+            <DrawerFooter>
+              <Button type="submit" disabled={!stripe || loading}>
+                {loading ? "Processing..." : `Pay $${model.price}`}
+              </Button>
+              <DrawerClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </form>
+        </div>
+      </DrawerContent>
     </div>
   );
 };

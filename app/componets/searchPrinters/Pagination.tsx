@@ -81,7 +81,7 @@ const Pagination: React.FC<PaginationProps> = ({
           return (
             <Button
               key={index}
-              variant={page === currentPage ? "solid" : "outline"}
+              variant={page === currentPage ? "ghost" : "outline"}
               onClick={() => onPageChange(page)}
               className={`px-3 py-2 ${
                 page === currentPage
