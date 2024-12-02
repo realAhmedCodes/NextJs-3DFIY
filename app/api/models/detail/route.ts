@@ -2,8 +2,13 @@
 
 // Not using this api
 import pool from "@/app/lib/db";
+import type { NextRequest } from "next/server";
 
-export async function GET({ params }) {
+interface PageParams {
+  modelId: string;
+}
+export const dynamic = 'force-dynamic';
+export async function GET(req: NextRequest, { params }: { params: PageParams }) {
   const { modelId } = params;
 
   try {

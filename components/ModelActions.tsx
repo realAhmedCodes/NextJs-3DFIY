@@ -2,8 +2,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash } from "lucide-react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
+import Reviews from "@/app/componets/Reviews/Reviews";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+// Initialize Stripe
+const stripePromiseClient = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+);
 
 export default function ModelActions({
+  userId,
   model,
   hasPurchased,
   onBuy,
@@ -11,22 +25,47 @@ export default function ModelActions({
   isCurrentUserSeller,
   onUpdateModel,
   onDeleteModel,
+  authToken,
+  handlePurchaseSuccess,
 }) {
+
+  console.log(model.model_id, userId, authToken);
+  
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-700">Pricing</h2>
-          {model.is_free && <Badge className="text-md py-0 font-medium mt-2">Free</Badge>}{" "}
+          {model.is_free && (
+            <Badge className="text-md py-0 font-medium mt-2">Free</Badge>
+          )}{" "}
           {model.type != "scraped" && (
             <p className="text-2xl font-bold text-gray-800">${model.price}</p>
           )}
         </div>
         <div className="self-end">
           {model.is_free || hasPurchased ? (
-            <Button onClick={onDownload}> {model.type == "scraped" ? "View Source" : "Download"}</Button>
+            <Button onClick={onDownload}>
+              {model.type == "scraped" ? "View Source" : "Download"}
+            </Button>
           ) : (
-            <Button onClick={onBuy}>Buy Now</Button>
+            <>
+              <Drawer>
+                <DrawerTrigger>
+                  <Button onClick={onBuy}>Buy Now</Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <Elements stripe={stripePromiseClient}>
+                    <PaymentModal
+                      model={model}
+                      userId={userId}
+                      authToken={authToken}
+                      onSuccess={handlePurchaseSuccess}
+                    />
+                  </Elements>
+                </DrawerContent>
+              </Drawer>
+            </>
           )}
         </div>
       </div>

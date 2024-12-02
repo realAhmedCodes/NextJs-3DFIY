@@ -61,7 +61,7 @@ const SearchModelsPage = () => {
     };
 
     fetchSearchResults();
-  }, [searchParams]);
+  }, [searchParams, currentSearchParams]);
 
   const handleModelClick = (modelId: number) => {
     router.push(`/pages/${modelId}`); 

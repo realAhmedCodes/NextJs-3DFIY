@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Cart = () => {
   const router= useRouter()
@@ -84,8 +85,7 @@ const Cart = () => {
               </p>
             </div>
             <div className="mt-4">
-              <Button variant="primary" className="w-full">
-                router.push("/pages/checkout")
+              <Button className="w-full" onClick={() => router.push(`/pages/checkout`)}>
                  Proceed to Checkout
               </Button>
               <Button

@@ -66,16 +66,16 @@ const RegisterForm = () => {
 
   useEffect(() => {
     setValidUsername(USER_REGEX.test(formData.username));
-  }, [formData.username]);
+  }, [formData.username, USER_REGEX]);
 
   useEffect(() => {
     setValidEmail(EMAIL_REGEX.test(formData.email));
-  }, [formData.email]);
+  }, [formData.email, EMAIL_REGEX]);
 
   useEffect(() => {
     setValidPwd(PWD_REGEX.test(formData.pwd));
     setValidMatch(formData.pwd === formData.matchPwd);
-  }, [formData.pwd, formData.matchPwd]);
+  }, [formData.pwd, formData.matchPwd, PWD_REGEX]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

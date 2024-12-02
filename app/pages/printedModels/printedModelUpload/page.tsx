@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 import { useRouter } from "next/navigation";
 
@@ -54,7 +54,6 @@ const PrintedModelUpload = () => {
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const toast = useToast();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -117,25 +116,14 @@ const PrintedModelUpload = () => {
 
       if (response.ok) {
         const result = await response.json();
-        toast({
-          title: "Success",
-          description: "Uploaded successfully!",
-        });
+        toast("Uploaded successfully!");
         router.push("/models");
       } else {
         const errorData = await response.json();
-        toast({
-          title: "Error",
-          description: errorData.error || "Invalid data!",
-          variant: "destructive",
-        });
+        toast.warning(errorData.error || "Invalid data!");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      toast.warning("An unexpected error occurred. Please try again.");
     }
   };
 

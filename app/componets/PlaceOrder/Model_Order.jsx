@@ -88,122 +88,108 @@ const ModelOrder = ({ sellerId, userId }) => {
   };
 
   return (
-    <Card className="max-w-lg mx-auto">
-      <CardHeader>
-        <CardTitle>3D Model Order Form</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            {error}
-          </Alert>
+    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <div>
+        <Label htmlFor="modelName">Model Name</Label>
+        <Input
+          type="text"
+          id="modelName"
+          value={modelName}
+          onChange={(e) => setModelName(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label>Dimensions (in cm)</Label>
+        <div className="grid grid-cols-3 gap-2">
+          <Input
+            type="number"
+            placeholder="Length"
+            value={dimensions.length}
+            onChange={(e) =>
+              setDimensions({ ...dimensions, length: e.target.value })
+            }
+            required
+          />
+          <Input
+            type="number"
+            placeholder="Width"
+            value={dimensions.width}
+            onChange={(e) =>
+              setDimensions({ ...dimensions, width: e.target.value })
+            }
+            required
+          />
+          <Input
+            type="number"
+            placeholder="Height"
+            value={dimensions.height}
+            onChange={(e) =>
+              setDimensions({ ...dimensions, height: e.target.value })
+            }
+            required
+          />
+        </div>
+      </div>
+      <div>
+        <Label htmlFor="fileFormat">Preferred File Format</Label>
+        <Select
+          id="fileFormat"
+          value={fileFormat}
+          onValueChange={(value) => setFileFormat(value)}
+          required
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select File Format" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="stl">STL</SelectItem>
+            <SelectItem value="obj">OBJ</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label htmlFor="referenceFile">Upload Reference File (optional)</Label>
+        <Input
+          type="file"
+          id="referenceFile"
+          onChange={handleFileChange}
+          accept=".stl,.obj"
+        />
+        {referenceFile && (
+          <div className="mt-2 text-sm text-gray-600">
+            Selected File: {referenceFile.name}
+          </div>
         )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="modelName">Model Name</Label>
-            <Input
-              type="text"
-              id="modelName"
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label>Dimensions (in cm)</Label>
-            <div className="grid grid-cols-3 gap-2">
-              <Input
-                type="number"
-                placeholder="Length"
-                value={dimensions.length}
-                onChange={(e) =>
-                  setDimensions({ ...dimensions, length: e.target.value })
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Width"
-                value={dimensions.width}
-                onChange={(e) =>
-                  setDimensions({ ...dimensions, width: e.target.value })
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Height"
-                value={dimensions.height}
-                onChange={(e) =>
-                  setDimensions({ ...dimensions, height: e.target.value })
-                }
-                required
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="fileFormat">Preferred File Format</Label>
-            <Select
-              id="fileFormat"
-              value={fileFormat}
-              onValueChange={(value) => setFileFormat(value)}
-              required
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select File Format" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="stl">STL</SelectItem>
-                <SelectItem value="obj">OBJ</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="referenceFile">
-              Upload Reference File (optional)
-            </Label>
-            <Input
-              type="file"
-              id="referenceFile"
-              onChange={handleFileChange}
-              accept=".stl,.obj"
-            />
-            {referenceFile && (
-              <div className="mt-2 text-sm text-gray-600">
-                Selected File: {referenceFile.name}
-              </div>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="additionalNotes">Additional Notes</Label>
-            <Textarea
-              id="additionalNotes"
-              value={additionalNotes}
-              onChange={(e) => setAdditionalNotes(e.target.value)}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Order"
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      </div>
+      <div>
+        <Label htmlFor="additionalNotes">Additional Notes</Label>
+        <Textarea
+          id="additionalNotes"
+          value={additionalNotes}
+          onChange={(e) => setAdditionalNotes(e.target.value)}
+        />
+      </div>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Submit Order"
+        )}
+      </Button>
+    </form>
   );
 };
 

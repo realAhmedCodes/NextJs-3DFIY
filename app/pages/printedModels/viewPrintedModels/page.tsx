@@ -130,7 +130,7 @@ const PrintedModelsPage = () => {
                 <Link
                   href={`/pages/printedModels/${model.printed_model_id}/detail`}
                 >
-                  <Button variant="primary" className="w-full">
+                  <Button className="w-full">
                     View Details
                   </Button>
                 </Link>

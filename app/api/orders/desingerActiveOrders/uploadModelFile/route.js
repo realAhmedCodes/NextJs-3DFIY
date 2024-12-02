@@ -18,6 +18,8 @@ const ensureUploadDir = async () => {
   }
 };
 
+export const runtime = "nodejs";
+
 export async function PUT(req, res) {
   try {
     await ensureUploadDir();
@@ -120,9 +122,3 @@ export async function PUT(req, res) {
     );
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false, // Disable default body parsing
-  },
-};
