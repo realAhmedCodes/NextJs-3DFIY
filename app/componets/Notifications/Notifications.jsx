@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { Bell } from "lucide-react"; // Replace with your preferred icon
+import { Card } from "@/components/ui/card";
 
 let socket;
 
@@ -106,7 +107,7 @@ const Notifications = () => {
       <Button onClick={toggleDropdown} className="relative">
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
-          <Badge className="absolute top-0 right-0 bg-red-500 text-white">
+          <Badge className="absolute rounded-full w-5 h-5 p-0 text-xs flex items-center justify-center -top-2 -right-2 bg-red-500 text-white">
             {unreadCount}
           </Badge>
         )}
@@ -127,21 +128,21 @@ const Notifications = () => {
             {notifications.length === 0 ? (
               <p className="text-gray-500">No notifications.</p>
             ) : (
-              <ul>
+              <>
                 {notifications.map((notif) => (
-                  <li
+                  <Card
                     key={notif.id}
                     className={`p-2 mb-2 rounded ${
-                      notif.isRead ? "bg-gray-100" : "bg-blue-50"
+                      notif.isRead ? "bg-white" : "bg-secondary"
                     }`}
                   >
                     <p className="text-sm">{notif.message}</p>
                     <small className="text-xs text-gray-400">
                       {new Date(notif.createdAt).toLocaleString()}
                     </small>
-                  </li>
+                  </Card>
                 ))}
-              </ul>
+              </>
             )}
           </div>
         </div>

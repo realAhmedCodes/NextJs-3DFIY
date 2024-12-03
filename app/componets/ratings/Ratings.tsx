@@ -35,14 +35,14 @@ const RatingComponent: React.FC<RatingComponentProps> = ({
 
    for (let i = 1; i <= totalStars; i++) {
      const isFilled = i <= currentRating;
-     const starClass = isFilled ? "text-yellow-400" : "text-gray-300";
+     const starClass = isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300";
 
      stars.push(
        <Star
          key={i}
          className={`${starClass} ${isEditable ? "cursor-pointer" : ""}`}
          size={24}
-         onClick={isEditable ? () => handleStarClick(i) : undefined}
+         onMouseEnter={isEditable ? () => handleStarClick(i) : undefined}
        />
      );
    }
