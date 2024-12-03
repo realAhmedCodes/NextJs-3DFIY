@@ -1,163 +1,176 @@
 //api/notifications/getNotifications/route.js
-// api/notifications/getNotifications/route.js
-// api/notifications/getNotifications/route.js
-// api/notifications/getNotifications/route.js
-// api/notifications/getNotifications/route.js
+// app/api/notifications/getNotifications/route.js
 
-// api/notifications/getNotifications/route.js
-
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, NotificationType } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
 export async function GET(req) {
   try {
-    const url = new URL(req.url);
-    const searchParams = url.searchParams;
+    // Extract query parameters
+    const { searchParams } = new URL(req.url);
+    const sellerType = searchParams.get("sellerType");
+    const userId = parseInt(searchParams.get("userId"), 10);
+    const sellerId = parseInt(searchParams.get("sellerId"), 10);
 
-    const userId = parseInt(searchParams.get("user_id"));
-    if (isNaN(userId)) {
-      return new Response(
-        JSON.stringify({ error: "User ID is required and must be an integer" }),
+    // Validate parameters
+    if (isNaN(userId) || isNaN(sellerId) || !sellerType) {
+      return NextResponse.json(
+        { error: "sellerType, userId, and sellerId are required." },
         { status: 400 }
       );
     }
 
-    // Pagination parameters
-    const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
-    const skip = (page - 1) * limit;
+    let recipientId;
 
-    // Filtering parameters
-    const isReadParam = searchParams.get("isRead");
-    const typeParam = searchParams.get("type");
-
-    // Build the 'where' condition
-    const whereCondition = { recipientId: userId };
-    if (isReadParam !== null) {
-      // Convert 'isRead' to boolean
-      if (isReadParam.toLowerCase() === "true") {
-        whereCondition.isRead = true;
-      } else if (isReadParam.toLowerCase() === "false") {
-        whereCondition.isRead = false;
-      }
+    switch (sellerType) {
+      case "Regular":
+        // For regular users, recipientId is userId
+        recipientId = userId;
+        break;
+      case "Designer":
+        // For designers, recipientId is the associated Users.user_id
+        const designer = await prisma.designers.findUnique({
+          where: { designer_id: sellerId },
+          include: { Users: true },
+        });
+        if (!designer) {
+          return NextResponse.json(
+            { error: "Designer not found." },
+            { status: 404 }
+          );
+        }
+        recipientId = designer.Users.user_id;
+        break;
+      case "Printer Owner":
+        // For printer owners, recipientId is the associated Users.user_id
+        const printerOwner = await prisma.printer_Owners.findUnique({
+          where: { printer_owner_id: sellerId },
+          include: { Users: true },
+        });
+        if (!printerOwner) {
+          return NextResponse.json(
+            { error: "Printer Owner not found." },
+            { status: 404 }
+          );
+        }
+        recipientId = printerOwner.Users.user_id;
+        break;
+      default:
+        return NextResponse.json(
+          { error: "Invalid sellerType provided." },
+          { status: 400 }
+        );
     }
-    if (typeParam) {
-      whereCondition.type = typeParam.toUpperCase();
-    }
 
-    // Fetch total count for pagination
-    const totalCount = await prisma.notification.count({
-      where: whereCondition,
-    });
-
-    // Calculate total pages
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // Fetch notifications with pagination and filtering
+    // Fetch notifications for the mapped recipientId
     const notifications = await prisma.notification.findMany({
-      where: whereCondition,
+      where: { recipientId },
       orderBy: { createdAt: "desc" },
-      skip: skip,
-      take: limit,
-      include: {
-        // Include related data if needed, e.g., related model
-        // Uncomment and adjust the following lines based on your schema
-        // Models: {
-        //   select: {
-        //     name: true,
-        //     // Add other fields as needed
-        //   },
-        // },
-      },
     });
 
-    // Return paginated response
-    return new Response(
-      JSON.stringify({
-        page,
-        limit,
-        totalPages,
-        totalCount,
-        notifications,
-      }),
-      { status: 200 }
+    return NextResponse.json({ notifications }, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
     );
-  } catch (err) {
-    console.error("Error fetching notifications:", err);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
   }
 }
 
 export async function PATCH(req) {
   try {
-    const url = new URL(req.url);
-    const searchParams = url.searchParams;
+    // Extract query parameters
+    const { searchParams } = new URL(req.url);
+    const sellerType = searchParams.get("sellerType");
+    const userId = parseInt(searchParams.get("userId"), 10);
+    const sellerId = parseInt(searchParams.get("sellerId"), 10);
 
-    const userId = parseInt(searchParams.get("user_id"));
-
-    if (isNaN(userId)) {
-      return new Response(
-        JSON.stringify({ error: "User ID is required and must be an integer" }),
+    // Validate parameters
+    if (isNaN(userId) || isNaN(sellerId) || !sellerType) {
+      return NextResponse.json(
+        { error: "sellerType, userId, and sellerId are required." },
         { status: 400 }
       );
     }
 
-    let body;
-    try {
-      body = await req.json();
-    } catch (error) {
-      return new Response(JSON.stringify({ error: "Invalid request body" }), {
-        status: 400,
-      });
-    }
-
+    // Parse the request body
+    const body = await req.json();
     const { notificationIds } = body;
 
-    if (!Array.isArray(notificationIds)) {
-      return new Response(
-        JSON.stringify({ error: "notificationIds must be an array of integers" }),
+    if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
+      return NextResponse.json(
+        { error: "notificationIds must be a non-empty array." },
         { status: 400 }
       );
     }
 
-    // Validate that all elements in notificationIds are integers
-    const invalidIds = notificationIds.filter(
-      (id) => typeof id !== "number" || !Number.isInteger(id)
-    );
-    if (invalidIds.length > 0) {
-      return new Response(
-        JSON.stringify({
-          error: "All notificationIds must be integers",
-          invalidIds,
-        }),
-        { status: 400 }
-      );
+    let recipientId;
+
+    switch (sellerType) {
+      case "Regular":
+        // For regular users, recipientId is userId
+        recipientId = userId;
+        break;
+      case "Designer":
+        // For designers, recipientId is the associated Users.user_id
+        const designer = await prisma.designers.findUnique({
+          where: { designer_id: sellerId },
+          include: { Users: true },
+        });
+        if (!designer) {
+          return NextResponse.json(
+            { error: "Designer not found." },
+            { status: 404 }
+          );
+        }
+        recipientId = designer.Users.user_id;
+        break;
+      case "Printer Owner":
+        // For printer owners, recipientId is the associated Users.user_id
+        const printerOwner = await prisma.printer_Owners.findUnique({
+          where: { printer_owner_id: sellerId },
+          include: { Users: true },
+        });
+        if (!printerOwner) {
+          return NextResponse.json(
+            { error: "Printer Owner not found." },
+            { status: 404 }
+          );
+        }
+        recipientId = printerOwner.Users.user_id;
+        break;
+      default:
+        return NextResponse.json(
+          { error: "Invalid sellerType provided." },
+          { status: 400 }
+        );
     }
 
-    const updateResult = await prisma.notification.updateMany({
+    // Update notifications to mark them as read
+    const updatedNotifications = await prisma.notification.updateMany({
       where: {
         id: { in: notificationIds },
-        recipientId: userId,
+        recipientId,
+        isRead: false,
       },
       data: { isRead: true },
     });
 
-    return new Response(
-      JSON.stringify({
-        message: "Notifications marked as read.",
-        count: updateResult.count,
-      }),
+    return NextResponse.json(
       {
-        status: 200,
-      }
+        message: "Notifications marked as read.",
+        count: updatedNotifications.count,
+      },
+      { status: 200 }
     );
-  } catch (err) {
-    console.error("Error updating notifications:", err);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+  } catch (error) {
+    console.error("Error marking notifications as read:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
