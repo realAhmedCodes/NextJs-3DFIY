@@ -1,12 +1,6 @@
 // app/components/Notifications.js
 // app/components/Notifications.js
 
-// app/components/Notifications.js
-// app/components/Notifications.js
-// app/components/Notifications.js
-
-// app/components/Notifications.js
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -22,7 +16,7 @@ import { Bell } from "lucide-react"; // Replace with your preferred icon
 let socket;
 
 const Notifications = () => {
-  const { userId } = useSelector((state) => state.user);
+  const { userId, sellerType, sellerId } = useSelector((state) => state.user);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -49,14 +43,14 @@ const Notifications = () => {
         });
       }
 
-      // Join the user's specific room
+      // Join the user's specific room using template literals
       socket.emit("join_room", `user_${userId}`);
 
       // Fetch initial notifications
       const fetchNotifications = async () => {
         try {
           const response = await axios.get("/api/notifications/getNotifications", {
-            params: { user_id: userId },
+            params: { sellerType, userId, sellerId },
           });
           setNotifications(response.data.notifications);
           const unread = response.data.notifications.filter((notif) => !notif.isRead).length;
@@ -76,7 +70,7 @@ const Notifications = () => {
         socket = null;
       };
     }
-  }, [userId]);
+  }, [userId, sellerType, sellerId]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -92,7 +86,7 @@ const Notifications = () => {
       await axios.patch(
         "/api/notifications/getNotifications",
         { notificationIds: unreadIds },
-        { params: { user_id: userId } } // Include user_id as query parameter
+        { params: { sellerType, userId, sellerId } } // Include all three params
       );
       // Update local state
       setNotifications((prev) =>
