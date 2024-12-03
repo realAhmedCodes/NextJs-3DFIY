@@ -43,9 +43,16 @@ import ModelGallery from "@/components/ModelGallery";
 import RelatedModels from "@/components/RelatedModels";
 import ReviewSection from "@/components/ReviewSection";
 // import PaymentModal from '@/components/PaymentModal'
-import { toast } from "sonner";
 
 // Import your PaymentModal component
+import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
+import Reviews from "@/app/componets/Reviews/Reviews";
+import { toast } from "sonner";
+
+// Initialize Stripe
+const stripePromiseClient = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+);
 
 const ModelPage = () => {
   const { modelId } = useParams(); // Extract modelId from the URL
@@ -98,7 +105,9 @@ const ModelPage = () => {
           );
           setIsLiked(response.data.liked);
         } catch (err) {
-          setError(err.response?.data?.message);
+          setError(
+            err.response?.data?.message || "Failed to fetch like status"
+          );
         }
       }
     };
@@ -200,9 +209,10 @@ const ModelPage = () => {
         });
       }
       setIsSaved(!isSaved);
+      toast.success(`Model ${isSaved ? "unsaved" : "saved"} successfully.`);
     } catch (err) {
-      console.error("Failed to update save status", err);
-      setError("Unable to update save status. Please try again.");
+      console.error("Failed to update like status", err);
+      toast.error("Unable to save model. Please try again.");
     }
   };
 
@@ -247,37 +257,15 @@ const ModelPage = () => {
   const handleDownload = async () => {
     try {
       if (model.type === "scraped" && model.downloadLink) {
-        // For scraped models, open the external download link
         window.open(model.downloadLink, "_blank");
       } else if (model.type === "designer") {
-        const response = await fetch(`/api/models/${model.model_id}/download`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "user-id": userId,
-          },
-        });
-
-        const data = await response.json;
-
-        if (response.ok) {
-          // The file download is handled by the browser automatically when the file is streamed
-          const fileBlob = await response.blob(); // Get the blob from the response
-          const fileURL = window.URL.createObjectURL(fileBlob); // Create a download URL
-          const a = document.createElement("a");
-          a.href = fileURL;
-          a.download = model.model_name || "model.obj"; // Set default file name
-          a.click(); // Trigger the download
-        } else {
-          // Handle errors (e.g., file not found or user not authorized)
-          throw new Error(data.error || "Failed to download the model.");
-        }
+        router.push(`/api/download?modelId=${model.model_id}`);
       } else {
         throw new Error("Invalid model type for download");
       }
     } catch (error) {
       console.error("Error downloading model:", error);
-      // setError("Failed to download the model. Please try again.");
+      setError("Failed to download the model. Please try again.");
     }
   };
 
@@ -288,10 +276,9 @@ const ModelPage = () => {
   };
 
   // Handle purchase success
-  const handlePurchaseSuccess = () => {    
+  const handlePurchaseSuccess = () => {
     setHasPurchased(true);
-    toast("Purchase successful!");
-    window.location.reload();
+    setIsModalOpen(false);
   };
 
   // Error State
@@ -344,7 +331,11 @@ const ModelPage = () => {
         )}
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="lg:w-2/3">
-            <ModelGallery img={model.image_url} />
+            <ModelGallery
+              img={
+                model.type === "designer" ? model.image_url : model.image_url
+              }
+            />
           </div>
           <div className="lg:w-1/3">
             <ModelActions
@@ -353,9 +344,6 @@ const ModelPage = () => {
               onBuy={() => setIsModalOpen(true)}
               onDownload={() => handleDownload()}
               isCurrentUserSeller={false}
-              authToken={authToken}
-              userId={userId}
-              handlePurchaseSuccess={handlePurchaseSuccess}
               onUpdateModel={() =>
                 router.push(`/models/${params.modelId}/updateModel`)
               }
@@ -365,7 +353,19 @@ const ModelPage = () => {
           </div>
         </div>
         <ModelDetails model={model} />
-
+      </div>
+      {isModalOpen && (
+        <Elements stripe={stripePromiseClient}>
+          <PaymentModal
+            model={model}
+            userId="dummy-user-id"
+            authToken="dummy-auth-token"
+            onClose={() => setIsModalOpen(false)}
+            onSuccess={handlePurchaseSuccess}
+          />
+        </Elements>
+      )}
+      <div className="container mx-auto px-4">
         <ReviewSection modelId={model.model_id} />
       </div>
     </div>

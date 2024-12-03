@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const Cart = () => {
-  const router= useRouter()
+  const router = useRouter();
   const { cartItems, removeFromCart, updateQuantity, clearCart } =
     useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
@@ -85,8 +85,11 @@ const Cart = () => {
               </p>
             </div>
             <div className="mt-4">
-              <Button className="w-full" onClick={() => router.push(`/pages/checkout`)}>
-                 Proceed to Checkout
+              <Button
+                className="w-full"
+                onClick={() => console.log("Proceed to Checkout")}
+              >
+                Proceed to Checkout
               </Button>
               <Button
                 variant="outline"

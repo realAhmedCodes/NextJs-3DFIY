@@ -1,12 +1,6 @@
 // app/components/Notifications.js
 // app/components/Notifications.js
 
-// app/components/Notifications.js
-// app/components/Notifications.js
-// app/components/Notifications.js
-
-// app/components/Notifications.js
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -18,11 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { Bell } from "lucide-react"; // Replace with your preferred icon
+import { Card } from "@/components/ui/card";
 
 let socket;
 
 const Notifications = () => {
-  const { userId } = useSelector((state) => state.user);
+  const { userId, sellerType, sellerId } = useSelector((state) => state.user);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -49,14 +44,14 @@ const Notifications = () => {
         });
       }
 
-      // Join the user's specific room
+      // Join the user's specific room using template literals
       socket.emit("join_room", `user_${userId}`);
 
       // Fetch initial notifications
       const fetchNotifications = async () => {
         try {
           const response = await axios.get("/api/notifications/getNotifications", {
-            params: { user_id: userId },
+            params: { sellerType, userId, sellerId },
           });
           setNotifications(response.data.notifications);
           const unread = response.data.notifications.filter((notif) => !notif.isRead).length;
@@ -76,7 +71,7 @@ const Notifications = () => {
         socket = null;
       };
     }
-  }, [userId]);
+  }, [userId, sellerType, sellerId]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -92,7 +87,7 @@ const Notifications = () => {
       await axios.patch(
         "/api/notifications/getNotifications",
         { notificationIds: unreadIds },
-        { params: { user_id: userId } } // Include user_id as query parameter
+        { params: { sellerType, userId, sellerId } } // Include all three params
       );
       // Update local state
       setNotifications((prev) =>
@@ -112,7 +107,7 @@ const Notifications = () => {
       <Button onClick={toggleDropdown} className="relative">
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
-          <Badge className="absolute top-0 right-0 bg-red-500 text-white">
+          <Badge className="absolute rounded-full w-5 h-5 p-0 text-xs flex items-center justify-center -top-2 -right-2 bg-red-500 text-white">
             {unreadCount}
           </Badge>
         )}
@@ -133,21 +128,21 @@ const Notifications = () => {
             {notifications.length === 0 ? (
               <p className="text-gray-500">No notifications.</p>
             ) : (
-              <ul>
+              <>
                 {notifications.map((notif) => (
-                  <li
+                  <Card
                     key={notif.id}
                     className={`p-2 mb-2 rounded ${
-                      notif.isRead ? "bg-gray-100" : "bg-blue-50"
+                      notif.isRead ? "bg-white" : "bg-secondary"
                     }`}
                   >
                     <p className="text-sm">{notif.message}</p>
                     <small className="text-xs text-gray-400">
                       {new Date(notif.createdAt).toLocaleString()}
                     </small>
-                  </li>
+                  </Card>
                 ))}
-              </ul>
+              </>
             )}
           </div>
         </div>

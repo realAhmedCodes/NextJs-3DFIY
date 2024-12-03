@@ -14,14 +14,13 @@ const PrinterOrderData = ({ orderId }) => {
   const [reason, setReason] = useState("");
   const [isDeclining, setIsDeclining] = useState(false);
   const [error, setError] = useState(null);
-const { userId, email, profile_pic, sellerType } = useSelector(
-  (state) => state.user
-);
+  const { userId, email, profile_pic, sellerType } = useSelector(
+    (state) => state.user
+  );
   const { data: orderData, error: fetchError } = useSWR(
     orderId ? `/api/orders/orderData/printerOrderData/${orderId}` : null,
     fetcher
   );
-  
 
   const handleAction = async (action) => {
     if (action === "denied" && !reason) {
@@ -85,6 +84,9 @@ const { userId, email, profile_pic, sellerType } = useSelector(
           <p>
             <strong>Order Date:</strong>{" "}
             {new Date(orderData.created_at).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Address:</strong> {orderData.address}
           </p>
           <p>
             <strong>Instructions:</strong> {orderData.instructions}

@@ -27,15 +27,7 @@ export async function POST(req, { params }) {
     const additionalNotes = form.get("additionalNotes");
     const userId = parseInt(form.get("userId"), 10);
 
-    console.log(
-      modelName,
-      description,
-      dimensions,
-      fileFormat,
-      sellerId,
-      userId
-    );
-
+  
     // Validate required fields
     if (
       !modelName ||
@@ -117,7 +109,7 @@ export async function POST(req, { params }) {
       },
     });
 
-    // Emit the notification via Socket.io without API Key
+   
     try {
       await axios.post(`${process.env.SOCKET_IO_SERVER_URL}/notify`, {
         recipientId: parseInt(sellerId, 10),

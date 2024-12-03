@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -11,6 +10,9 @@ import FilterForm from "@/app/componets/searchPrinters/FilterForm";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pagination from "@/app/componets/searchPrinters/Pagination";
+import { Printer, Tag, DollarSign } from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface Printer {
   printer_id: number;
@@ -191,55 +193,63 @@ const PrintersListPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {printers.map((printer) => (
                 <Card
+                  className="flex overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow duration-300"
                   key={printer.printer_id}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
-                  {/* Printer Image */}
-                  {printer.image ? (
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={`/uploads/${printer.image}`}
-                        alt={printer.name}
-                        fill
-                        className="object-cover rounded-t-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-48 w-full bg-gray-200 rounded-t-lg">
-                      <span className="text-gray-500">No Image Available</span>
-                    </div>
-                  )}
-
-                  {/* Printer Info */}
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {printer.name}
-                    </h3>
-                    <p className="text-gray-600 mt-1">{printer.printer_type}</p>
-                    <div className="flex items-center space-x-3 mb-3">
-                      {printer.materials &&
-                        printer.materials.map((material, index) => (
-                          <Badge key={index} variant="secondary">
-                            {material}
-                          </Badge>
-                        ))}
-                    </div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-lg font-bold text-green-500">
-                        ${printer.price}
-                      </span>
+                  <div className="flex flex-col flex-grow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4"> 
+                        <div>
+                          <h3 className="text-2xl font-bold text-primary">
+                            {printer.name}
+                          </h3>
+                          <p className="text-muted-foreground flex items-center mt-1">
+                            <Printer className="w-4 h-4 mr-2" />
+                            {printer.printer_type}
+                          </p>
+                        </div>
+                        {printer.image ? (
+                          <div className="relative h-20 w-20 rounded-md overflow-hidden">
+                            <Image
+                              src={"/uploads/" + printer.image}
+                              alt={printer.name}
+                              width={80}
+                              height={80}
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-20 w-20 bg-secondary rounded-md">
+                            <Printer className="w-8 h-8 text-secondary-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <Separator className="my-4" />
+                      <div className="flex items-center space-x-2 mb-4">
+                        <Tag className="w-4 h-4 text-primary" />
+                        <div className="flex flex-wrap gap-2">
+                          {printer.materials?.map((material, index) => (
+                            <Badge key={index} variant="secondary">
+                              {material}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center text-2xl font-bold text-primary">
+                        $ {printer.price.toFixed(2)}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-6 pt-0 mt-auto">
                       <Link
                         href={`/pages/printers/${printer.printer_id}/Printer_Detail`}
                         passHref
+                        className="w-full"
                       >
-                        <Button
-                          variant="outline"
-                          className="bg-gray-700 text-white hover:bg-green-700 transition-colors duration-300"
-                        >
-                          View Printer
+                        <Button className="w-full" variant="default">
+                          View Printer Details
                         </Button>
                       </Link>
-                    </div>
+                    </CardFooter>
                   </div>
                 </Card>
               ))}

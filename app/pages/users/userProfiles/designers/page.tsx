@@ -13,7 +13,7 @@ import DesignerFilterForm from "@/app/componets/searchDesigners/FilterForm";
 import Pagination from "@/app/componets/searchDesigners/Pagination";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 
 interface PaginationInfo {
   total: number;
@@ -131,7 +131,9 @@ const DesignersPage: React.FC = () => {
       queryParams.append("limit", pagination.limit.toString());
     if (pagination.page) queryParams.append("page", newPage.toString());
 
-    router.push(`/pages/users/userProfiles/designers?${queryParams.toString()}`);
+    router.push(
+      `/pages/users/userProfiles/designers?${queryParams.toString()}`
+    );
   };
 
   if (loading)
@@ -140,7 +142,7 @@ const DesignersPage: React.FC = () => {
         <Loader2 className="animate-spin h-12 w-12 text-gray-500" />
       </div>
     );
-console.log(designers)
+  console.log(designers);
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="container mx-auto">
@@ -172,9 +174,9 @@ console.log(designers)
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {designers.map((designer) => {
                 const { Users, cnic_number, bio, ratings } = designer;
-               const profilePicPath = Users.profile_pic
-                 ? `${Users.profile_pic}` 
-                 : null;
+                const profilePicPath = Users.profile_pic
+                  ? `${Users.profile_pic}`
+                  : null;
 
                 return (
                   <Card
@@ -218,33 +220,18 @@ console.log(designers)
                     {ratings !== null && (
                       <div className="flex items-center justify-center -mt-4 mb-8">
                         {[...Array(ratings)].map((_, index) => (
-                          <svg
-                            key={`filled-${index}`}
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-yellow-600 mr-1"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.37-2.45a1 1 0 00-1.176 0l-3.37 2.45c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.611 9.397c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.97z" />
-                          </svg>
+                          <Star
+                            className={"fill-yellow-400 text-yellow-400 mr-1"}
+                            size={24}
+                          />
                         ))}
 
                         {[...Array(5 - ratings)].map((_, index) => (
-                          <svg
-                            key={`outlined-${index}`}
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 text-gray-300 mr-1"
-                            viewBox="0 0 20 20"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.37-2.45a1 1 0 00-1.176 0l-3.37 2.45c-.785.57-1.84-.197-1.54-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.611 9.397c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.97z" />
-                          </svg>
+                          <Star
+                          className={"mr-1 text-gray-300"}
+                          size={24}
+                        />
                         ))}
-
                       </div>
                     )}
 

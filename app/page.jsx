@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,40 @@ import { BoomBox, Star, Box, PenTool, TrendingUp, Boxes } from "lucide-react";
 import PriceEstimate from "./componets/PriceEstimate";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   const [file, setFile] = useState(null);
   const router = useRouter();
+  const [data, setData] = useState({
+    topDesigners: [],
+    topPrinterOwners: [],
+    topModels: [],
+  });
 
   const { userId, email, sellerType, isVerified, sellerId } = useSelector(
     (state) => state.user
   );
+
+  const fetchTopData = async () => {
+    try {
+      const response = await fetch("/api/getLandingPageData");
+      if (!response.ok) {
+        console.error("Failed to fetch data");
+        throw new Error("Failed to fetch data");
+      }
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchTopData();
+  }, []);
+
+  console.log(data);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -37,8 +63,6 @@ export default function Home() {
       );
     }
   };
-
-  console.log(userId, email, sellerType, isVerified, sellerId);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -84,7 +108,7 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
           <div className="container  mx-auto px-4 md:px-6">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
-              Popular Categories
+              Popular Features
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
@@ -109,35 +133,152 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
-              Top Sellers
+              Top Designers
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[
-                { name: "Alice", role: "Designer", rating: 4.9 },
-                { name: "Bob", role: "Printer Owner", rating: 4.8 },
-                { name: "Charlie", role: "Designer", rating: 4.7 },
-                { name: "Diana", role: "Printer Owner", rating: 4.9 },
-              ].map((seller, index) => (
+              {data.topDesigners.map((seller, index) => (
                 <Card key={index} className="flex flex-col items-center p-6">
                   <Image
-                    alt={`${seller.name}'s profile`}
+                    alt={`${seller.Users.name}'s profile`}
                     className="rounded-full mb-4"
                     height={100}
-                    src={`/placeholder.svg`}
+                    src={
+                      seller.Users.profile_pic
+                        ? seller.Users.profile_pic
+                        : `/placeholder.svg`
+                    }
                     style={{
                       aspectRatio: "1 / 1",
                       objectFit: "cover",
                     }}
                     width={100}
                   />
-                  <h3 className="text-lg font-semibold">{seller.name}</h3>
-                  <p className="text-sm text-gray-500 mb-2">{seller.role}</p>
+                  <h3 className="text-lg font-semibold capitalize">
+                    {seller.Users.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    {seller.Users.sellerType}
+                  </p>
                   <div className="flex items-center">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                     <span className="ml-1 text-sm font-medium">
-                      {seller.rating}
+                      {seller.ratings !== null && (
+                        <div className="flex items-center justify-center">
+                          {[...Array(seller.ratings)].map((_, index) => (
+                            <Star
+                              className={"fill-yellow-400 text-yellow-400 mr-1"}
+                              size={20}
+                            />
+                          ))}
+
+                          {[...Array(5 - seller.ratings)].map((_, index) => (
+                            <Star className={"mr-1 text-gray-300"} size={20} />
+                          ))}
+                        </div>
+                      )}
                     </span>
                   </div>
+                  <Link href={`/pages/users/${seller.user_id}/profile`}>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">View Profile</Button>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Top Sellers */}
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
+              Top Printer Owners
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {data.topPrinterOwners.map((seller, index) => (
+                <Card key={index} className="flex flex-col items-center p-6">
+                  <Image
+                    alt={`${seller.Users.name}'s profile`}
+                    className="rounded-full mb-4"
+                    height={100}
+                    src={
+                      seller.Users.profile_pic
+                        ? seller.Users.profile_pic
+                        : `/placeholder.svg`
+                    }
+                    style={{
+                      aspectRatio: "1 / 1",
+                      objectFit: "cover",
+                    }}
+                    width={100}
+                  />
+                  <h3 className="text-lg font-semibold capitalize">
+                    {seller.Users.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {seller.Users.sellerType}
+                  </p>
+                  <div className="flex items-center">
+                    <span className="ml-1 text-sm font-medium">
+                      {seller.ratings !== null && (
+                        <div className="flex items-center justify-center  mt-2">
+                          {[...Array(seller.ratings)].map((_, index) => (
+                            <Star
+                              className={"fill-yellow-400 text-yellow-400 mr-1"}
+                              size={20}
+                            />
+                          ))}
+
+                          {[...Array(5 - seller.ratings)].map((_, index) => (
+                            <Star className={"mr-1 text-gray-300"} size={20} />
+                          ))}
+                        </div>
+                      )}
+                    </span>
+                  </div>
+                  <Link href={`/pages/users/${seller.user_id}/profile`}>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">View Profile</Button>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Top Sellers */}
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
+              Popular 3D Models
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {data.topModels.map((seller, index) => (
+                <Card key={index} className="flex flex-col items-center p-6">
+                  <Image
+                    alt={`${seller.name}'s profile`}
+                    className="rounded-full mb-4"
+                    height={100}
+                    src={
+                      seller.image
+                        ? `/uploads/${seller.image}`
+                        : `/placeholder.svg`
+                    }
+                    style={{
+                      aspectRatio: "1 / 1",
+                      objectFit: "cover",
+                    }}
+                    width={100}
+                  />
+                  <h3 className="text-lg font-semibold capitalize">
+                    {seller.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    ${seller.price}
+                  </p>
+                  <div className="flex items-center">
+                    
+                  </div>
+                  <Link href={`/pages/users/${seller.user_id}/profile`}>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">View Model</Button>
+                  </Link>
                 </Card>
               ))}
             </div>

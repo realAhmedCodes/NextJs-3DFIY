@@ -503,7 +503,9 @@ const RegisterForm = () => {
                 <Button type="button" variant="outline" onClick={handleBack}>
                   Back
                 </Button>
-                <Button type="submit">Submit</Button>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Submitting..." : "Submit"}
+                </Button>
               </div>
             </form>
           )}
