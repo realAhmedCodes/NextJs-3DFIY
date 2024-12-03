@@ -129,15 +129,8 @@ const ChatComponent = ({ currentUser, roomId, otherUser, onClose }) => {
 
   return (
     // Only render the ChatComponent if a chat is active or if you want it always visible
-    <div className="fixed top-24 right-4 w-[600px] z-50">
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-6 right-6 text-gray-800 hover:text-gray-900"
-        aria-label="Close chat"
-      >
-        <X className="w-6 h-6" />
-      </button>
+    <div className="">
+      
 
       <div className="flex w-full">
         <ChatList currentUser={currentUser} onSelectChat={handleSelectChat} />

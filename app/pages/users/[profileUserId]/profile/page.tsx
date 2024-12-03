@@ -127,12 +127,10 @@ const ProfilePage = () => {
   console.log(userDetail);
 
   console.log(currentUser);
-  
 
   console.log(userDetail);
 
   console.log(currentUser);
-  
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -189,46 +187,29 @@ const ProfilePage = () => {
                       />
                     </DialogContent>
                   </Dialog>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowChat(!showChat)}
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Message
-                  </Button>
-                  <Button onClick={() => setIsRatingModalOpen(true)}>
-                    Rate Seller
-                  </Button>
-                </CardFooter>
-              </>
-            )}
-            {currentUser != userDetail.user_id && (
-              <>
-                <CardFooter className="justify-center space-x-4">
+
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button>Place Order</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowChat(!showChat)}
+                      >
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Message
+                      </Button>
                     </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Place an Order</DialogTitle>
-                      </DialogHeader>
-                      <ModelOrder
-                        sellerId={
-                          userDetail?.designer_id ||
-                          userDetail?.printer_owner_id
-                        }
-                        userId={currentUser}
-                      />
+                    <DialogContent className="p-0 lg:max-w-3xl md:max-w-xl ">
+                      <div >
+                        <ChatComponent
+                          currentUser={currentUser}
+                          roomId={generatedRoomId}
+                          otherUser={otherUser}
+                          onClose={() => setShowChat(false)}
+                        />
+                      </div>
                     </DialogContent>
                   </Dialog>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowChat(!showChat)}
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Message
-                  </Button>
+
                   <Button onClick={() => setIsRatingModalOpen(true)}>
                     Rate Seller
                   </Button>
@@ -335,22 +316,6 @@ const ProfilePage = () => {
           </Tabs>
         </div>
       </div>
-
-      {showChat && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Chat with {userDetail.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChatComponent
-              currentUser={currentUser}
-              roomId={generatedRoomId}
-              otherUser={otherUser}
-              onClose={() => setShowChat(false)}
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Rating Modal */}
       <Dialog open={isRatingModalOpen} onOpenChange={setIsRatingModalOpen}>
