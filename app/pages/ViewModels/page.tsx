@@ -394,7 +394,7 @@ const ModelsListPage: React.FC = () => {
 
                       {/* Action Buttons */}
                       <div className="m-6 mt-3 rounded-b-xl space-y-2">
-                        <Link href={`/pages/${model.model_id}`}>
+                        <Link href={`/pages/ModelDetail/${model.model_id}`}>
                           <Button className="w-full">View Model</Button>
                         </Link>
                         <Button

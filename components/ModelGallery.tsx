@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 
 export default function ModelGallery({ img }) {
+  console.log(img, "model image" )
   return (
     <Card className="p-2">
       <Dialog> 
