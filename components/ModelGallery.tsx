@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 
 export default function ModelGallery({ img }) {
-  console.log(img, "model image" )
+  console.log(img);
+  
   return (
     <Card className="p-2">
       <Dialog> 
@@ -13,7 +14,7 @@ export default function ModelGallery({ img }) {
             <Image
               src={img}
               alt="Model"
-              width={850}
+              width={960}
               height={600}
               className="object-cover rounded-lg hover:opacity-70 duration-200 ease-in-out"
             />

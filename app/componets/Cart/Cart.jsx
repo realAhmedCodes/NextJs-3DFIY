@@ -100,7 +100,6 @@ const Cart = () => {
             </div>
             <div className="mt-4 space-y-2">
               <Button
-                variant="primary"
                 className="w-full"
                 onClick={closeCart}
                 as={Link}

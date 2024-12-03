@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
@@ -31,6 +32,7 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Star, MessageCircle, Package, Zap, Award, DollarSign } from "lucide-react"
+import Image from "next/image";
 
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -43,7 +45,7 @@ const ProfilePage = () => {
   const [ModelOrderShow, setModelOrderShow] = useState(false);
 
   const { userId } = useSelector((state) => state.user);
-
+  const router = useRouter();
   useEffect(() => {
     setCurrentUser(userId);
   }, [userId]);
@@ -69,35 +71,47 @@ const ProfilePage = () => {
         <p className="text-red-500">Failed to load user details.</p>
       </div>
     );
-
+  const handleButtonClick = (model_id) => {
+    console.log("deskh", model_id)
+    router.push(`/pages/ModelDetail/${model_id}`);
+  };
   const generatedRoomId = [currentUser, otherUser].sort().join("-");
 
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
     : "";
-  console.log(profileUserId);
+  console.log(userDetail);
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-1/3 flex flex-col gap-4">
-
           {/* User Profile Card */}
           <Card>
             <CardHeader className="text-center">
               <Avatar className="w-32 h-32 mx-auto mb-4">
-                <AvatarImage src={userDetail.profile_pic} alt={userDetail.name} />
+                <AvatarImage
+                  src={userDetail.profile_pic}
+                  alt={userDetail.name}
+                />
                 <AvatarFallback>{userDetail.name.charAt(0)}</AvatarFallback>
               </Avatar>
               <CardTitle className="text-3xl">{userDetail.name}</CardTitle>
-              <CardDescription className="text-lg">{userDetail.location}</CardDescription>
+              <CardDescription className="text-lg">
+                {userDetail.location}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">{userDetail.bio}</p>
               <div className="flex items-center justify-center space-x-2">
                 <Star className="text-yellow-400" />
-                <span className="text-xl font-semibold">{userDetail.ratings}</span>
+                <span className="text-xl font-semibold">
+                  {userDetail.ratings}
+                </span>
               </div>
-              <Badge variant="secondary" className="w-full justify-center py-1 text-lg">
+              <Badge
+                variant="secondary"
+                className="w-full justify-center py-1 text-lg"
+              >
                 {userDetail.sellerType}
               </Badge>
             </CardContent>
@@ -109,9 +123,11 @@ const ProfilePage = () => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Place an Order</DialogTitle>
-                    <DialogDescription>Fill in the details to place your order with {userDetail.name}.</DialogDescription>
                   </DialogHeader>
-                  {/* Add order form here */}
+                  <ModelOrder
+                    sellerId={userDetail?.sellerId}
+                    userId={currentUser}
+                  />
                 </DialogContent>
               </Dialog>
               <Button variant="outline" onClick={() => setShowChat(!showChat)}>
@@ -143,28 +159,46 @@ const ProfilePage = () => {
         {/* Orders and Models Section */}
         <div className="flex-grow space-y-6">
           <Tabs defaultValue="models">
-            <TabsList className={"grid w-full " + (userDetail?.sellerType === "Designer" ? "grid-cols-3" : "grid-cols-2")}>
+            <TabsList
+              className={
+                "grid w-full " +
+                (userDetail?.sellerType === "Designer"
+                  ? "grid-cols-3"
+                  : "grid-cols-2")
+              }
+            >
               {userDetail?.sellerType === "Designer" && (
                 <TabsTrigger value="models">Models</TabsTrigger>
               )}
               <TabsTrigger value="pending">Pending Orders</TabsTrigger>
               <TabsTrigger value="active">Active Orders</TabsTrigger>
             </TabsList>
+
             <TabsContent value="models" className="space-y-4">
               <h2 className="text-2xl font-semibold">Uploaded Models</h2>
               <ScrollArea className="h-[400px] w-full rounded-md border p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {userDetail.models.map((model) => (
                     <Card key={model.model_id} className="flex flex-col">
-                      <img src={model.image} alt={model.name} className="w-full h-40 object-cover rounded-t-lg" />
+                      <Image
+                        src={`/uploads/${model.image}`}
+                        alt={model.name}
+                        width={240}
+                        height={160}
+                        className="w-full h-40 object-cover rounded-t-lg"
+                      />
                       <CardHeader>
                         <CardTitle>{model.name}</CardTitle>
                         <CardDescription>{model.description}</CardDescription>
                       </CardHeader>
                       <CardFooter className="mt-auto">
                         <div className="flex items-center justify-between w-full">
-                          <span className="text-lg font-semibold">${model.price}</span>
-                          <Button size="sm">View Details</Button>
+                          <span className="text-lg font-semibold">
+                            ${model.price}
+                          </span>
+                          <Button size="sm" onClick={() => handleButtonClick(model.model_id)}>
+                            View Details
+                          </Button>
                         </div>
                       </CardFooter>
                     </Card>
@@ -190,23 +224,21 @@ const ProfilePage = () => {
               </ScrollArea>
             </TabsContent>
           </Tabs>
+
         </div>
       </div>
 
-
-
-      {/* Chat Component (placeholder) */}
       {showChat && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Chat with {userDetail.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Chat interface would go here.</p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+
+        <ChatComponent
+          currentUser={currentUser}
+          roomId={generatedRoomId}
+          otherUser={otherUser}
+          onClose={() => setShowChat(false)}
+        />
+      )
+      }
+    </div >
   );
 };
 

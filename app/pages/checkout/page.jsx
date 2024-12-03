@@ -28,7 +28,7 @@ const CheckoutPage = () => {
     return (
       <div className="container mx-auto p-4">
         <p>Your cart is empty.</p>
-        <Button variant="primary" onClick={() => router.push("/")}>
+        <Button onClick={() => router.push("/")}>
           Continue Shopping
         </Button>
       </div>

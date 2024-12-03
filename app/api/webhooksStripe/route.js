@@ -2,16 +2,12 @@
 
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import prisma from "@/lib/prisma"; // Adjust the import path as needed
+import prisma from "@prisma/client";
 import { buffer } from "micro";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable body parsing, so we can access the raw body
-  },
-};
+export const runtime = "nodejs";
 
 export async function POST(req) {
   const buf = await req.text();

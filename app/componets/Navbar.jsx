@@ -93,7 +93,7 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center justify-center">
-              <img src="/3dify.png" className="w-44" alt="3Dify Logo" />
+              <Image src="/3dify.png" width={170} height={50} className="w-44" alt="3Dify Logo" />
             </Link>
           </div>
 

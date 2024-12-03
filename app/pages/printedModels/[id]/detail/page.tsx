@@ -164,7 +164,7 @@ const PrintedModelDetailPage = () => {
           {/* Add more details as needed */}
         </CardContent>
         <div className="px-4 pb-4">
-          <Button variant="primary" className="w-full">
+          <Button className="w-full">
             Contact Seller
           </Button>
         </div>
@@ -172,7 +172,6 @@ const PrintedModelDetailPage = () => {
       <div>
         <div className="px-4 pb-4">
           <Button
-            variant="primary"
             className="w-full"
             onClick={handleAddToCart}
           >
