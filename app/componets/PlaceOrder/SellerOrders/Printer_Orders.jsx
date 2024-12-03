@@ -15,6 +15,7 @@ import { Alert } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const resistances = [0, 20, 40, 60, 80, 100];
 
@@ -83,7 +84,6 @@ const PrinterOrder = ({ printerId }) => {
       return;
     }
 
-    // Reset previous messages
     setError(null);
     setSuccessMessage("");
 
@@ -119,8 +119,8 @@ const PrinterOrder = ({ printerId }) => {
       const data = await response.json();
       if (data.cost !== undefined) {
         setCost(data.cost);
-        setSuccessMessage("Order placed successfully!");
-        // Optionally, reset form fields
+        toast.success("Order placed successfully!");
+        
         setMaterial("");
         setColor("");
         setResolution("");
