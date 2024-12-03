@@ -265,9 +265,6 @@ const ProfilePage = () => {
                 (currentUser != userDetail.user_id
                   ? "grid-cols-1"
                   : userDetail?.sellerType === "Designer"
-                (currentUser != userDetail.user_id
-                  ? "grid-cols-1"
-                  : userDetail?.sellerType === "Designer"
                   ? "grid-cols-3"
                   : "grid-cols-2")
               }
