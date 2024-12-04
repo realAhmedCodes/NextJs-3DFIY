@@ -36,6 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, MessageCircle, Award } from "lucide-react";
 import RatingComponent from "@/app/componets/ratings/Ratings";
 import { toast } from "sonner"; // Use Sonner's toast
+import Reviews from "@/app/componets/Reviews/Reviews";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -315,6 +316,10 @@ const ProfilePage = () => {
           </div>
         </DialogContent>
       </Dialog>
+      {userDetail.sellerType==="Designer"?<div>
+        <Reviews profileId={profileUserId} ></Reviews>
+      </div>: ""}
+      
     </div>
   );
 };
