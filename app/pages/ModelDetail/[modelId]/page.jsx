@@ -47,6 +47,7 @@ import ReviewSection from "@/components/ReviewSection";
 // Import your PaymentModal component
 import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
 import Reviews from "@/app/componets/Reviews/Reviews";
+import { toast } from "sonner";
 
 // Initialize Stripe
 const stripePromiseClient = loadStripe(
@@ -177,23 +178,24 @@ const ModelPage = () => {
       setError("Unable to update like status. Please try again.");
     }
   };*/
-const handleLike = async () => {
-  try {
-    if (isLiked) {
-      await axios.delete(`/api/models/${modelId}/modelLike`, {
-        params: { user_id: userId },
-      });
-    } else {
-      await axios.post(`/api/models/${modelId}/modelLike`, {
-        user_id: userId,
-      });
+  const handleLike = async () => {
+    try {
+      if (isLiked) {
+        await axios.delete(`/api/models/${modelId}/modelLike`, {
+          params: { user_id: userId },
+        });
+      } else {
+        await axios.post(`/api/models/${modelId}/modelLike`, {
+          user_id: userId,
+        });
+      }
+      setIsLiked(!isLiked);
+      toast.success("Model liked successfully.");
+    } catch (err) {
+      console.error("Failed to update like status", err);
+      toast.error("Unable to update like status. Please try again.");
     }
-    setIsLiked(!isLiked);
-  } catch (err) {
-    console.error("Failed to update like status", err);
-    setError("Unable to update like status. Please try again.");
-  }
-};
+  };
   // Handle save/unsave button
   const handleSave = async () => {
     try {
@@ -207,9 +209,10 @@ const handleLike = async () => {
         });
       }
       setIsSaved(!isSaved);
+      toast.success(`Model ${isSaved ? "unsaved" : "saved"} successfully.`);
     } catch (err) {
-      console.error("Failed to update save status", err);
-      setError("Unable to update save status. Please try again.");
+      console.error("Failed to update like status", err);
+      toast.error("Unable to save model. Please try again.");
     }
   };
 
@@ -329,7 +332,9 @@ const handleLike = async () => {
         <div className="flex flex-col lg:flex-row gap-8 mt-8">
           <div className="lg:w-2/3">
             <ModelGallery
-              img={model.type === "designer" ? model.image_url : model.image_url}
+              img={
+                model.type === "designer" ? model.image_url : model.image_url
+              }
             />
           </div>
           <div className="lg:w-1/3">
@@ -348,8 +353,6 @@ const handleLike = async () => {
           </div>
         </div>
         <ModelDetails model={model} />
-
-       
       </div>
       {isModalOpen && (
         <Elements stripe={stripePromiseClient}>
@@ -362,6 +365,9 @@ const handleLike = async () => {
           />
         </Elements>
       )}
+      <div className="container mx-auto px-4">
+        <ReviewSection modelId={model.model_id} />
+      </div>
     </div>
   );
 };

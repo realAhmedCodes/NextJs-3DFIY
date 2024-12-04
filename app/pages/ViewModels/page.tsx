@@ -393,16 +393,10 @@ const ModelsListPage: React.FC = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="m-6 mt-3 rounded-b-xl space-y-2">
+                      <div className="m-6 mt-4 rounded-b-xl space-y-2">
                         <Link href={`/pages/ModelDetail/${model.model_id}`}>
                           <Button className="w-full">View Model</Button>
                         </Link>
-                        <Button
-                          onClick={() => handleDownload(model)}
-                          className="w-full"
-                        >
-                          {model.isScraped ? "Visit Source" : "Download"}
-                        </Button>
                       </div>
                     </div>
                   </Card>

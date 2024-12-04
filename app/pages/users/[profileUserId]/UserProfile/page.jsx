@@ -30,7 +30,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { FaLinkedin, FaTwitter } from "react-icons/fa";
-
+import Link from "next/link";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -118,8 +118,8 @@ const ProfilePage = () => {
       )
     : [];
 
-    console.log("userDetail", userDetail);
-    
+  console.log("userDetail", models);
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background">
@@ -128,7 +128,6 @@ const ProfilePage = () => {
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <Avatar className="w-16 h-16 border-2 border-primary-foreground">
-                
                 <AvatarFallback className="capitalize text-2xl font-bold text-primary">
                   {userDetail.name.charAt(0)}
                 </AvatarFallback>
@@ -182,10 +181,11 @@ const ProfilePage = () => {
               ))
             ) : models.length > 1 ? (
               models.map((model) => (
-                <Card key={model.id} className="overflow-hidden">
-                 
+                <Card key={model.mode_id} className="overflow-hidden">
                   <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2">{model.name}</h3>
+                    <h3 className="font-semibold mb-2 hover:underline">
+                      <Link href={`/pages/${model.model_id}`}>{model.name}</Link>
+                    </h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {model.description}
                     </p>
@@ -264,36 +264,62 @@ const ProfilePage = () => {
         </Card>
 
         <Card className="max-w-7xl mx-auto mt-8">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Get Inspired by Top Talent</CardTitle>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={handlePrev} disabled={currentPage === 0}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={handleNext} disabled={currentPage >= Math.ceil(users.length / 3) - 1}>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {displayedUsers.slice(currentPage * 3, (currentPage + 1) * 3).map(designer => (
-                  <Card key={designer.id} className="flex flex-col items-center p-4">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Get Inspired by Top Talent</CardTitle>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handlePrev}
+                disabled={currentPage === 0}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleNext}
+                disabled={currentPage >= Math.ceil(users.length / 3) - 1}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {displayedUsers
+                .slice(currentPage * 3, (currentPage + 1) * 3)
+                .map((designer) => (
+                  <Card
+                    key={designer.id}
+                    className="flex flex-col items-center p-4"
+                  >
                     <Avatar className="w-20 h-20 mb-4">
-                     
                       <AvatarFallback>{designer.name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <h3 className="font-semibold text-center">{designer.name}</h3>
-                    <p className="text-sm text-muted-foreground text-center mb-2">{designer.location}</p>
-                    {designer.is_verified && <Badge variant="secondary">Verified</Badge>}
-                    <Button variant="outline" className="mt-4 w-full" onClick={() => router.push(`/pages/users/${designer.id}/profile`)}>
+                    <h3 className="font-semibold text-center">
+                      {designer.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground text-center mb-2">
+                      {designer.location}
+                    </p>
+                    {designer.is_verified && (
+                      <Badge variant="secondary">Verified</Badge>
+                    )}
+                    <Button
+                      variant="outline"
+                      className="mt-4 w-full"
+                      onClick={() =>
+                        router.push(`/pages/users/${designer.designer_id}/profile`)
+                      }
+                    >
                       Get to know me
                     </Button>
                   </Card>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
         {/* Chat Component */}
         {showChat && currentUser && (
           <ChatComponent

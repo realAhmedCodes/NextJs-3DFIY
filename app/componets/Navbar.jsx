@@ -55,7 +55,6 @@ const Navbar = () => {
     },
   ];
 
-  // Determine the profile URL based on sellerType
   const profileUrl =
     sellerType === "Regular"
       ? `/pages/users/${userId}/UserProfile`
@@ -67,7 +66,6 @@ const Navbar = () => {
     { label: "Inbox", href: `/pages/users/${userId}/inbox` },
   ];
 
-  // Additional items based on sellerType
   if (sellerType === "Designer") {
     profileMenuItems.push({
       label: "Upload Model",
@@ -77,6 +75,9 @@ const Navbar = () => {
     profileMenuItems.push({
       label: "Upload Printer",
       href: `/pages/printers/Printer_Upload`,
+    }, {
+      label: "Upload Models",
+      href: `/pages/printedModels/viewPrintedModels`,
     });
   }
 
@@ -93,26 +94,34 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center justify-center">
-              <Image src="/3dify.png" width={170} height={50} className="w-44" alt="3Dify Logo" />
+              <Image
+                src="/3dify.png"
+                width={170}
+                height={50}
+                className="w-44"
+                alt="3Dify Logo"
+              />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-2">
             {navigationLinks.map(({ label, href }, index) => (
               <Link
                 key={index}
                 href={href}
-                className="text-sm font-medium hover:underline underline-offset-4 text-gray-700 hover:text-blue-600 transition-colors duration-200 ease-in-out"
               >
+                <Button variant="link">
+
                 {label}
+                </Button>
               </Link>
             ))}
           </div>
 
           {/* User Menu */}
 
-          <>
+          <div className="flex items-center space-x-4">
             <Button
               variant="outline"
               onClick={openCart}
@@ -121,7 +130,9 @@ const Navbar = () => {
               <ShoppingCart className="mr-2 h-5 w-5" />
               Cart ({cartItems.length})
             </Button>
-<div><Notifications></Notifications></div>
+            <div>
+              <Notifications />
+            </div>
             <div className="hidden md:flex items-center space-x-4">
               {userId ? (
                 <DropdownMenu>
@@ -191,7 +202,7 @@ const Navbar = () => {
                           onClick={() => router.push("/pages/register")}
                           size="sm"
                         >
-                          Get Started
+                          Register
                         </Button>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -199,7 +210,7 @@ const Navbar = () => {
                 </>
               )}
             </div>
-          </>
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">

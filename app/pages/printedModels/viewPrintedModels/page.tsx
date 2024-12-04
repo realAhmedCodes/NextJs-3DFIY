@@ -84,49 +84,72 @@ const PrintedModelsPage = () => {
       ) : printedModels.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {printedModels.map((model) => (
-            <Card key={model.printed_model_id} className="shadow-md">
+            <Card key={model.printed_model_id} className="flex flex-col">
+              {/* Image Section */}
               <CardHeader>
                 {model.image ? (
-                  <Image
-                    src={`/uploads/printedModels/${model.image}`}
-                    alt={model.name}
-                    width={400}
-                    height={300}
-                    className="object-cover rounded-md"
-                  />
+                  <div className="relative w-full h-64">
+                    <Image
+                      src={`/uploads/printedModels/${model.image}`}
+                      alt={model.name}
+                      layout="fill"
+                      objectFit="cover"
+                      className="rounded-t-lg"
+                    />
+                  </div>
                 ) : (
-                  <div className="h-48 bg-gray-200 rounded-md flex items-center justify-center">
-                    <span>No Image</span>
+                  <div className="h-64 bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <span className="text-gray-500">No Image</span>
                   </div>
                 )}
               </CardHeader>
-              <CardContent>
-                <CardTitle className="text-xl font-semibold">
+
+              {/* Model Information */}
+              <CardContent className="p-4 flex flex-col space-y-3">
+                <CardTitle className="text-2xl font-semibold text-gray-900">
                   {model.name}
                 </CardTitle>
-                <p className="text-sm text-gray-600">{model.description}</p>
-                <div className="mt-2">
-                  <span className="font-medium">Price: </span>
-                  <span>${model.price ? model.price.toFixed(2) : "N/A"}</span>
+                <p className="text-sm text-gray-600">
+                  {model.description || "No description available."}
+                </p>
+
+                {/* Price Section */}
+                <div className="flex items-center justify-between text-lg font-medium text-gray-900">
+                  <div>Price:</div>
+                  <div className="text-xl font-bold">
+                    ${model.price ? model.price.toFixed(2) : "N/A"}
+                  </div>
                 </div>
-                <div className="mt-1">
-                  <span className="font-medium">Material: </span>
-                  <span>{model.material}</span>
-                </div>
-                <div className="mt-1">
-                  <span className="font-medium">Color: </span>
-                  <span>{model.color}</span>
-                </div>
-                <div className="mt-1">
-                  <span className="font-medium">Resolution: </span>
-                  <span>{model.resolution}</span>
-                </div>
-                <div className="mt-1">
-                  <span className="font-medium">Resistance: </span>
-                  <span>{model.resistance}%</span>
+
+                {/* Material, Color, Resolution, Resistance */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Material:</span>
+                    <span className="font-medium">
+                      {model.material || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Color:</span>
+                    <span className="font-medium">{model.color || "N/A"}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Resolution:</span>
+                    <span className="font-medium">
+                      {model.resolution || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Resistance:</span>
+                    <span className="font-medium">
+                      {model.resistance || "N/A"}%
+                    </span>
+                  </div>
                 </div>
               </CardContent>
-              <div className="px-4 pb-4">
+
+              {/* View Details Button */}
+              <div className="px-4 pb-4 mt-auto">
                 <Link
                   href={`/pages/printedModels/${model.printed_model_id}/detail`}
                 >

@@ -50,7 +50,7 @@ const ProfilePage = () => {
   const [ModelOrderShow, setModelOrderShow] = useState(false);
   const [rating, setRating] = useState<number>(0); // Initialize to 0
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false); // Modal state
-  const { userId } = useSelector((state: any) => state.user); // Adjust the state type as per your setup
+  const { userId } = useSelector((state: any) => state.user);
   const router = useRouter();
   const { mutate } = useSWRConfig(); // Initialize mutate
 
@@ -124,6 +124,14 @@ const ProfilePage = () => {
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
     : "";
 
+  console.log(userDetail);
+
+  console.log(currentUser);
+
+  console.log(userDetail);
+
+  console.log(currentUser);
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col lg:flex-row gap-6">
@@ -133,7 +141,7 @@ const ProfilePage = () => {
             <CardHeader className="text-center">
               <Avatar className="w-32 h-32 mx-auto mb-4">
                 <AvatarImage
-                  src={userDetail.profile_pic ? profilePicPath : undefined}
+                  src={userDetail.profile_pic}
                   alt={userDetail.name}
                 />
                 <AvatarFallback>{userDetail.name.charAt(0)}</AvatarFallback>
@@ -159,31 +167,55 @@ const ProfilePage = () => {
               </Badge>
             </CardContent>
 
-            <CardFooter className="justify-center space-x-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Place Order</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Place an Order</DialogTitle>
-                  </DialogHeader>
-                  <ModelOrder
-                    sellerId={
-                      userDetail?.designer_id || userDetail?.printer_owner_id
-                    }
-                    userId={currentUser}
-                  />
-                </DialogContent>
-              </Dialog>
-              <Button variant="outline" onClick={() => setShowChat(!showChat)}>
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Message
-              </Button>
-              <Button onClick={() => setIsRatingModalOpen(true)}>
-                Rate Seller
-              </Button>
-            </CardFooter>
+            {currentUser != userDetail.user_id && (
+              <>
+                <CardFooter className="justify-center space-x-4">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>Place Order</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Place an Order</DialogTitle>
+                      </DialogHeader>
+                      <ModelOrder
+                        sellerId={
+                          userDetail?.designer_id ||
+                          userDetail?.printer_owner_id
+                        }
+                        userId={currentUser}
+                      />
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowChat(!showChat)}
+                      >
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Message
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="p-0 lg:max-w-3xl md:max-w-xl ">
+                      <div >
+                        <ChatComponent
+                          currentUser={currentUser}
+                          roomId={generatedRoomId}
+                          otherUser={otherUser}
+                          onClose={() => setShowChat(false)}
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Button onClick={() => setIsRatingModalOpen(true)}>
+                    Rate Seller
+                  </Button>
+                </CardFooter>
+              </>
+            )}
           </Card>
 
           {/* Achievements Section */}
@@ -211,7 +243,9 @@ const ProfilePage = () => {
             <TabsList
               className={
                 "grid w-full " +
-                (userDetail?.sellerType === "Designer"
+                (currentUser != userDetail.user_id
+                  ? "grid-cols-1"
+                  : userDetail?.sellerType === "Designer"
                   ? "grid-cols-3"
                   : "grid-cols-2")
               }
@@ -219,8 +253,12 @@ const ProfilePage = () => {
               {userDetail?.sellerType === "Designer" && (
                 <TabsTrigger value="models">Models</TabsTrigger>
               )}
-              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-              <TabsTrigger value="active">Active Orders</TabsTrigger>
+              {currentUser == userDetail?.user_id && (
+                <>
+                  <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+                  <TabsTrigger value="active">Active Orders</TabsTrigger>
+                </>
+              )}
             </TabsList>
 
             {userDetail?.sellerType === "Designer" && (
@@ -278,22 +316,6 @@ const ProfilePage = () => {
           </Tabs>
         </div>
       </div>
-
-      {showChat && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Chat with {userDetail.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChatComponent
-              currentUser={currentUser}
-              roomId={generatedRoomId}
-              otherUser={otherUser}
-              onClose={() => setShowChat(false)}
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Rating Modal */}
       <Dialog open={isRatingModalOpen} onOpenChange={setIsRatingModalOpen}>

@@ -181,9 +181,10 @@ const ModelPage = () => {
         });
       }
       setIsLiked(!isLiked);
+      toast.success("Model liked successfully.");
     } catch (err) {
       console.error("Failed to update like status", err);
-      setError("Unable to update like status. Please try again.");
+      toast.error("Unable to update like status. Please try again.");
     }
   };
   // Handle save/unsave button

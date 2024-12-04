@@ -9,7 +9,8 @@ import { Alert } from "@/components/ui/alert";
 import { useContext } from "react";
 import { CartContext } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux"; // Import useSelector to get user data
+import { useSelector } from "react-redux"; 
+import { toast } from "sonner";
 
 const CheckoutForm = ({ totalPrice, cartItems }) => {
   const stripe = useStripe();
@@ -74,8 +75,7 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
             email,   // Include email
           });
           clearCart();
-          alert("Success");
-          router.push("/thank-you"); // Redirect to a thank you page
+          toast.success("Success");
         } catch (updateError) {
           setErrorMessage("Failed to update purchase.");
           console.error(updateError);
