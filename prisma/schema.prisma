@@ -109,27 +109,31 @@ model Users {
 }
 
 model Designers {
-  designer_id  Int            @id @default(autoincrement())
-  user_id      Int
-  cnic_number  String         @unique @db.VarChar(50)
-  bio          String         @db.VarChar(255)
-  ratings      Int?
-  createdAt    DateTime       @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime       @updatedAt @db.Timestamptz(6)
-  balance      Float          @default(0.0)
-  Users        Users          @relation(fields: [user_id], references: [user_id])
-  models       Models[]
-  model_orders model_orders[]
+  designer_id    Int            @id @default(autoincrement())
+  user_id        Int            @unique
+  cnic_number    String         @unique @db.VarChar(50)
+  bio            String         @db.VarChar(255)
+  ratings_sum    Int            @default(0)
+  ratings_count  Int            @default(0)
+  ratings        Int            @default(0) // Average rating, rounded to nearest integer
+  createdAt      DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @db.Timestamptz(6)
+  balance        Float          @default(0.0)
+  Users          Users          @relation(fields: [user_id], references: [user_id])
+  models         Models[]
+  model_orders   model_orders[]
 
   @@index([user_id])
 }
 
 model Printer_Owners {
   printer_owner_id    Int              @id @default(autoincrement())
-  user_id             Int
+  user_id             Int              @unique
   cnic_number         String           @unique @db.VarChar(50)
   bio                 String           @db.VarChar(255)
-  ratings             Int?
+  ratings_sum         Int              @default(0)
+  ratings_count       Int              @default(0)
+  ratings             Int              @default(0) // Average rating, rounded to nearest integer
   quality_certificate Bytes?
   createdAt           DateTime         @default(now()) @db.Timestamptz(6)
   updatedAt           DateTime         @updatedAt @db.Timestamptz(6)
