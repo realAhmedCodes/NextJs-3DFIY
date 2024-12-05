@@ -77,7 +77,7 @@ const Navbar = () => {
       href: `/pages/printers/Printer_Upload`,
     }, {
       label: "Upload Models",
-      href: `/pages/printedModels/viewPrintedModels`,
+      href: `/pages/printedModels/printedModelUpload`,
     });
   }
 

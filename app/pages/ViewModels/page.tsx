@@ -14,6 +14,7 @@ import ImageSearchForm from "@/app/componets/searchModels/ImageSearchForm";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pagination from "@/app/componets/searchModels/Pagination";
+import { toast } from "sonner";
 
 interface Model {
   model_id: number;
@@ -81,7 +82,7 @@ const ModelsListPage: React.FC = () => {
             .filter((id) => !isNaN(id));
 
           if (modelIds.length === 0) {
-            setError("Invalid model IDs provided.");
+            toast.error("Invalid model IDs provided.");
             setModels([]);
             setPagination({
               total: 0,
@@ -112,7 +113,7 @@ const ModelsListPage: React.FC = () => {
                 limit: 9,
                 totalPages: 0,
               });
-              setError("No models found for the provided IDs.");
+              toast.error("No models found for the provided IDs.");
               setLoading(false);
               return;
             } else {
@@ -125,7 +126,7 @@ const ModelsListPage: React.FC = () => {
 
           // Ensure 'models' is present and is an array
           if (!data.models || !Array.isArray(data.models)) {
-            setError("Invalid response structure from server.");
+            toast.error("Invalid response structure from server.");
             setModels([]);
             setPagination({
               total: 0,
@@ -227,7 +228,7 @@ const ModelsListPage: React.FC = () => {
         }
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Failed to load models");
+        toast.error(err.message || "Failed to load models");
         setModels([]);
         setPagination({
           total: 0,
