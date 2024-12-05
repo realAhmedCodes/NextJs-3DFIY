@@ -37,6 +37,7 @@ import { Star, MessageCircle, Award } from "lucide-react";
 import RatingComponent from "@/app/componets/ratings/Ratings";
 import { toast } from "sonner"; // Use Sonner's toast
 import Reviews from "@/app/componets/Reviews/Reviews";
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -169,51 +170,59 @@ const ProfilePage = () => {
 
             {currentUser != userDetail.user_id && (
               <>
-                <CardFooter className="justify-center space-x-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>Place Order</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Place an Order</DialogTitle>
-                      </DialogHeader>
-                      <ModelOrder
-                        sellerId={
-                          userDetail?.designer_id ||
-                          userDetail?.printer_owner_id
-                        }
-                        userId={currentUser}
-                      />
-                    </DialogContent>
-                  </Dialog>
-
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        onClick={() => setShowChat(!showChat)}
-                      >
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Message
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="p-0 lg:max-w-3xl md:max-w-xl ">
-                      <div >
-                        <ChatComponent
-                          currentUser={currentUser}
-                          roomId={generatedRoomId}
-                          otherUser={otherUser}
-                          onClose={() => setShowChat(false)}
+                {currentUser ? (
+                  <CardFooter className="justify-center space-x-4">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>Place Order</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Place an Order</DialogTitle>
+                        </DialogHeader>
+                        <ModelOrder
+                          sellerId={
+                            userDetail?.designer_id ||
+                            userDetail?.printer_owner_id
+                          }
+                          userId={currentUser}
                         />
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                      </DialogContent>
+                    </Dialog>
 
-                  <Button onClick={() => setIsRatingModalOpen(true)}>
-                    Rate Seller
-                  </Button>
-                </CardFooter>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowChat(!showChat)}
+                        >
+                          <MessageCircle className="mr-2 h-4 w-4" />
+                          Message
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="p-0 lg:max-w-3xl md:max-w-xl ">
+                        <div>
+                          <ChatComponent
+                            currentUser={currentUser}
+                            roomId={generatedRoomId}
+                            otherUser={otherUser}
+                            onClose={() => setShowChat(false)}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Button onClick={() => setIsRatingModalOpen(true)}>
+                      Rate Seller
+                    </Button>
+                  </CardFooter>
+                ) : (
+                  <CardFooter className="w-full justify-center">
+                    <Link  href={"pages/Login"}>
+                      <Button>Login</Button>
+                    </Link>
+                  </CardFooter>
+                )}
               </>
             )}
           </Card>
@@ -264,7 +273,7 @@ const ProfilePage = () => {
             {userDetail?.sellerType === "Designer" && (
               <TabsContent value="models" className="space-y-4">
                 <h2 className="text-2xl font-semibold">Uploaded Models</h2>
-                <ScrollArea className="h-[400px] w-full rounded-md border p-4">
+                <ScrollArea className="h-[500px] w-full rounded-md border p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {userDetail.models.map((model: any) => (
                       <Card key={model.model_id} className="flex flex-col">

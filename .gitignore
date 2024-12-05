@@ -45,16 +45,18 @@ next-env.d.ts
 
 
 .venv
-fastApiserver/.env
-fastApiserver/venv/
-fastApiserver/.venv/
-fastApiserver/uploaded_files
-fastApiserver/__pycache__/
-fastApiserver/routers/__pycache__/
-fastApiserver/services/__pycache__/
-fastApiserver/*.py[cod]
+FastApiServer/.env
+FastApiServer/venv/
+FastApiServer/.venv/
+FastApiServer/uploaded_files
+FastApiServer/__pycache__/
+FastApiServer/utils/__pycache__/
+FastApiServer/routers/__pycache__/
+FastApiServer/services/__pycache__/
+FastApiServer/*.py[cod]
 
 
 
-fastApiserver/.env
-fastApiserver/.DS_Store
+FastApiServer/.env
+FastApiServer/.DS_Store
+FastApiServer/utils/__pycache__/similarity.cpython-312.pyc

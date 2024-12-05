@@ -68,15 +68,13 @@ const PrintedModelUpload = () => {
     price: null,
   });
 
+  const { sellerId, userId } = useSelector((state: any) => state.user); // Adjust the selector based on your state structure
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { sellerId, userId } = useSelector((state: any) => state.user);
   const router = useRouter();
   const dispatch = useDispatch();
-
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -114,6 +112,7 @@ const PrintedModelUpload = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Construct FormData for file upload
     const uploadData = new FormData();
     uploadData.append("user_id", userId.toString());
     uploadData.append("printer_owner_id", sellerId.toString());
@@ -131,6 +130,11 @@ const PrintedModelUpload = () => {
     if (formData.price !== null)
       uploadData.append("price", formData.price.toString());
 
+    // Debugging - log the data being sent
+    for (const [key, value] of uploadData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
     try {
       const response = await fetch("/api/printedModels/upload", {
         method: "POST",
@@ -139,14 +143,14 @@ const PrintedModelUpload = () => {
       });
 
       if (response.ok) {
-        toast.success("Model uploaded successfully!");
-        router.push("/models");
+        const result = await response.json();
+        toast("Uploaded successfully!");
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || "Invalid data!");
+        toast.warning(errorData.error || "Invalid data!");
       }
     } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.warning("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -206,7 +210,10 @@ const PrintedModelUpload = () => {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="color" className="flex items-center gap-1 mb-1">
+                    <Label
+                      htmlFor="color"
+                      className="flex items-center gap-1 mb-1"
+                    >
                       Color
                       <PaintBucket className="w-4 h-4 text-muted-foreground" />
                     </Label>
@@ -300,7 +307,10 @@ const PrintedModelUpload = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="weight" className="flex items-center gap-1 mb-1">
+                    <Label
+                      htmlFor="weight"
+                      className="flex items-center gap-1 mb-1"
+                    >
                       Weight (g)
                       <Weight className="w-4 h-4 text-muted-foreground" />
                     </Label>
@@ -315,8 +325,11 @@ const PrintedModelUpload = () => {
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="price" className="flex items-center gap-1 mb-1">Price
-
+                    <Label
+                      htmlFor="price"
+                      className="flex items-center gap-1 mb-1"
+                    >
+                      Price
                       <DollarSign className="w-4 h-4 text-muted-foreground" />
                     </Label>
                     <div className="flex items-center space-x-2">

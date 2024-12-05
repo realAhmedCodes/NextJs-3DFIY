@@ -62,7 +62,10 @@ async def scrape_models():
     downloaded_count = 0
     page = 1
 
-    async with aiohttp.ClientSession(headers={'User-Agent': random.choice(USER_AGENTS)}) as session:
+    async with aiohttp.ClientSession(
+    headers={'User-Agent': random.choice(USER_AGENTS)},
+    connector=aiohttp.TCPConnector(ssl=False)  # Disable SSL verification
+) as session:
         while downloaded_count < download_limit:
             url = f"{base_url}?page={page}"
             logger.info(f"Scraping URL: {url}")

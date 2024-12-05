@@ -190,7 +190,7 @@ const ModelPage = () => {
         });
       }
       setIsLiked(!isLiked);
-      toast.success("Model liked successfully.");
+      toast.success(`Model ${isLiked ? "unliked" : "liked"} successfully.`);
     } catch (err) {
       console.error("Failed to update like status", err);
       toast.error("Unable to update like status. Please try again.");
