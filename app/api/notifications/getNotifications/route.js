@@ -22,6 +22,9 @@ export async function GET(req) {
       );
     }
 
+    console.log(userId, sellerId, sellerType);
+    
+
     let recipientId;
 
     switch (sellerType) {

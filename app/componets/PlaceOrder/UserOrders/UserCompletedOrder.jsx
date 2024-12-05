@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
@@ -26,10 +26,12 @@ import PrinterOrderData from "../../orderDetail/PrinterOrderData";
 import ModelOrderData from "../../orderDetail/ModelOrderData";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { set } from "date-fns";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export const UserActiveOrder = ({ profileUserId }) => {
+  const [printersData, setPrintersData] = useState([]);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -50,7 +52,7 @@ export const UserActiveOrder = ({ profileUserId }) => {
 
   const { data: usersModelOrders, error: usersModelError } = useSWR(
     sellerType === "Regular"
-      ? `/api/orders/userId/${userId}/designerActiveOrders`
+      ? `/api/orders/userId/${userId}/designerCompletedOrders`
       : null,
     fetcher
   );
@@ -65,6 +67,27 @@ export const UserActiveOrder = ({ profileUserId }) => {
       </div>
     );
   }
+
+  const fetchTopData = async () => {
+    try {
+      const response = await fetch("/api/getLandingPageData");
+      if (!response.ok) {
+        console.error("Failed to fetch data");
+        throw new Error("Failed to fetch data");
+      }
+      const result = await response.json();
+      console.log(result);
+      
+      setPrintersData(result.topPrinterOwners);
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchTopData();
+  }, []);
+  
 
   // Loading state
   if (!usersPrinterOrders && !usersModelOrders) {
@@ -89,8 +112,6 @@ export const UserActiveOrder = ({ profileUserId }) => {
     setIsModalOpen(true);
   };
 
-  
-
   const downloadFile = async () => {
     const response = await fetch(`/api/customModelsPayment/download`, {
       method: "GET",
@@ -104,13 +125,13 @@ export const UserActiveOrder = ({ profileUserId }) => {
     const data = await response.json;
 
     console.log(response);
-    
+
     if (response.ok) {
       const fileBlob = await response.blob(); // Get the blob from the response
       const fileURL = window.URL.createObjectURL(fileBlob); // Create a download URL
       const a = document.createElement("a");
       a.href = fileURL;
-      a.click(); 
+      a.click();
       toast.success("Model downloading started successfully.");
     } else {
       throw new Error(data.error || "Failed to download the model.");
@@ -124,7 +145,7 @@ export const UserActiveOrder = ({ profileUserId }) => {
           {usersPrinterOrders?.length > 0 && (
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-4">
-                Active Printer Orders
+                Completed Printer Orders
               </h2>
               <Accordion type="single" collapsible>
                 {usersPrinterOrders.map((order) => (
@@ -162,7 +183,7 @@ export const UserActiveOrder = ({ profileUserId }) => {
           {usersModelOrders?.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4">
-                Active Designer Orders
+                Completed Designer Orders
               </h2>
               <Accordion type="single" collapsible>
                 {usersModelOrders.map((order) => (
@@ -194,7 +215,11 @@ export const UserActiveOrder = ({ profileUserId }) => {
                       ) : null}
                     </AccordionTrigger>
                     <AccordionContent>
-                      <ModelOrderData orderId={order.order_id} downloadFile={downloadFile} />
+                      <ModelOrderData
+                        orderId={order.order_id}
+                        downloadFile={downloadFile}
+                        printersData={printersData}
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 ))}

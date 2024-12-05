@@ -36,7 +36,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, MessageCircle, Award } from "lucide-react";
 import RatingComponent from "@/app/componets/ratings/Ratings";
 import { toast } from "sonner"; // Use Sonner's toast
-import { current } from "@reduxjs/toolkit";
+import Reviews from "@/app/componets/Reviews/Reviews";
 import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -218,7 +218,7 @@ const ProfilePage = () => {
                   </CardFooter>
                 ) : (
                   <CardFooter className="w-full justify-center">
-                    <Link  href={"pages/Login"}>
+                    <Link href={"pages/Login"}>
                       <Button>Login</Button>
                     </Link>
                   </CardFooter>
@@ -347,6 +347,13 @@ const ProfilePage = () => {
           </div>
         </DialogContent>
       </Dialog>
+      {userDetail.sellerType === "Designer" ? (
+        <div>
+          <Reviews profileId={profileUserId} printerId={undefined}></Reviews>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };

@@ -1,4 +1,5 @@
 // app/api/reviews/route.js
+// app/api/reviews/route.js
 
 import { NextResponse } from "next/server";
 import { PrismaClient, NotificationType } from "@prisma/client";
@@ -8,8 +9,8 @@ const prisma = new PrismaClient();
 
 export async function POST(req) {
   try {
-    const { userId, profileId, printerId, reviewText, email } =
-      await req.json();
+    const { userId, profileId, printerId, reviewText, email } = await req.json();
+    console.log("Received Data - profileId:", profileId, "userId:", userId, "printerId:", printerId);
 
     // Validate inputs: Either profileId or printerId must be provided, not both
     if ((profileId && printerId) || (!profileId && !printerId)) {
@@ -36,11 +37,13 @@ export async function POST(req) {
     let notificationType, recipientId, relatedEntity, relatedId;
 
     if (profileId) {
-      // Review for Designer
+      // Review for Designer (profileId is interpreted as user_id)
       const designer = await prisma.designers.findUnique({
-        where: { designer_id: profileId },
+        where: { user_id: profileId }, // Changed from designer_id to user_id
         include: { Users: true },
       });
+
+      console.log("Fetched Designer:", designer); // Added detailed logging
 
       if (!designer) {
         return NextResponse.json(
@@ -49,18 +52,19 @@ export async function POST(req) {
         );
       }
 
-      reviewData.profileId = profileId;
+      reviewData.profileId = designer.designer_id; // Set profileId to designer_id
 
-      recipientId = designer.user_id;
+      recipientId = designer.user_id; // recipientId is the user_id of the designer
       notificationType = NotificationType.COMMENT;
       relatedEntity = "review";
-      // After creating review, we'll have its ID
     } else if (printerId) {
       // Review for Printer
       const printer = await prisma.printers.findUnique({
         where: { printer_id: printerId },
         include: { Printer_Owners: true },
       });
+
+      console.log("Fetched Printer:", printer); // Added detailed logging
 
       if (!printer) {
         return NextResponse.json(
@@ -74,7 +78,6 @@ export async function POST(req) {
       recipientId = printer.Printer_Owners.user_id;
       notificationType = NotificationType.COMMENT;
       relatedEntity = "review";
-      // After creating review, we'll have its ID
     }
 
     // Create the review
@@ -85,7 +88,7 @@ export async function POST(req) {
     relatedId = newReview.id;
 
     // Create a notification
-    const notificationMessage = `You have a new review from ${email}.`;
+    const notificationMessage = `You have a new review from ${email}.`; // Fixed string interpolation
 
     const newNotification = await prisma.notification.create({
       data: {
