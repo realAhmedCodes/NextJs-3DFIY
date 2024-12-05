@@ -6,24 +6,17 @@ import path from 'path';
 const prisma = new PrismaClient();
 
 export async function GET(request, { params }) {
-  const { modelId } = params;
-  const userId = request.headers.get('user-id');  // Get user ID from the request headers
-  
-  console.log(`Checking if user ${userId} has purchased model ${modelId}`);
+  const userId = request.headers.get('user-id');
+  const orderId = request.headers.get('order-id');
+
+  console.log(`Checking if user ${userId} and order ${orderId} exists`);
 
   try {
-    // Validate modelId
-    const parsedModelId = parseInt(modelId, 10);
-    if (isNaN(parsedModelId)) {
-      return NextResponse.json({ error: "Invalid model ID format" }, { status: 400 });
-    }
 
-    const purchase = await prisma.model_purchase.findUnique({
+    const purchase = await prisma.model_order_purchases.findFirstOrThrow({
       where: {
-        user_id_model_id: {
-          user_id: parseInt(userId),  // Use the authenticated user's ID
-          model_id: parsedModelId,
-        },
+        user_id: parseInt(userId),
+        order_id: parseInt(orderId),
       },
     });
 
@@ -31,26 +24,38 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "User has not purchased this model" }, { status: 403 });
     }
 
-    const model = await prisma.models.findUnique({
-      where: { model_id: parsedModelId },
+    const model = await prisma.model_orders.findUnique({
+      where: {
+        user_id: parseInt(userId),
+        order_id: parseInt(orderId)
+      },
     });
 
-    if (!model || !model.model_file) {
+    if (!model || !model.order_file) {
       return NextResponse.json({ error: "Model file not found" }, { status: 404 });
     }
 
-    const filePath = path.resolve('./public/uploads/', model.model_file);
+    if (model.order_file_status !== "Paid") {
+      return NextResponse.json({ error: "Model file not found" }, { status: 404 });
+    }
+
+    const filePath = path.resolve(process.env.APP_PUBLIC_DIR + model.order_file);
+
+    console.log("File path:", filePath);
+
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: "File not found on the server" }, { status: 404 });
     }
 
+
     const file = fs.createReadStream(filePath);
-    const fileName = path.basename(filePath);
+    const stat = fs.statSync(filePath);
 
     return new NextResponse(file, {
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${fileName}"`,
+        'Content-Length': stat.size,
+        'Content-Disposition': `attachment; filename="${path.basename(filePath)}"`,
       },
     });
 

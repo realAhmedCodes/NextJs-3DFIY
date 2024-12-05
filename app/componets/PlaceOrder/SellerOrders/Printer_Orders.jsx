@@ -46,6 +46,8 @@ const PrinterOrder = ({ printerId }) => {
 
   const { userId } = useSelector((state) => state.user);
 
+  console.log(printerId);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -120,7 +122,7 @@ const PrinterOrder = ({ printerId }) => {
       if (data.cost !== undefined) {
         setCost(data.cost);
         toast.success("Order placed successfully!");
-        
+
         setMaterial("");
         setColor("");
         setResolution("");

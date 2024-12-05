@@ -7,6 +7,7 @@ import useSWR from "swr";
 import ChatComponent from "@/app/componets/Chat";
 import UserPendingOrder from "@/app/componets/PlaceOrder/UserOrders/UserPendingOrder";
 import UserActiveOrder from "@/app/componets/PlaceOrder/UserOrders/UserActiveOrder";
+import UserCompletedOrder from "@/app/componets/PlaceOrder/UserOrders/UserCompletedOrder";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FaLinkedin, FaTwitter } from "react-icons/fa";
 import Link from "next/link";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -139,10 +141,22 @@ const ProfilePage = () => {
                 <p className="text-sm opacity-90">{userDetail.bio}</p>
               </div>
             </div>
-            <Button onClick={() => setShowChat(true)} variant="secondary">
-              <Inbox className="mr-2 h-4 w-4" />
-              Inbox
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="secondary">
+                  <Inbox className="mr-2 h-4 w-4" />
+                  Inbox
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="p-0 lg:max-w-3xl md:max-w-xl ">
+                <div>
+                  <ChatComponent
+                    currentUser={currentUser}
+                    onClose={() => setShowChat(false)}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </header>
 
@@ -154,9 +168,10 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="pending" className="w-full">
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 grid w-full grid-cols-3">
                   <TabsTrigger value="pending">Pending Orders</TabsTrigger>
                   <TabsTrigger value="active">Active Orders</TabsTrigger>
+                  <TabsTrigger value="completed">Completed Orders</TabsTrigger>
                 </TabsList>
                 <TabsContent value="pending">
                   <UserPendingOrder profileUserId={profileUserId} />
@@ -165,6 +180,11 @@ const ProfilePage = () => {
                   <UserActiveOrder
                     profileUserId={profileUserId}
                   ></UserActiveOrder>
+                </TabsContent>
+                <TabsContent value="completed">
+                  <UserCompletedOrder
+                    profileUserId={profileUserId}
+                  ></UserCompletedOrder>
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -184,7 +204,9 @@ const ProfilePage = () => {
                 <Card key={model.mode_id} className="overflow-hidden">
                   <CardContent className="p-4">
                     <h3 className="font-semibold mb-2 hover:underline">
-                      <Link href={`/pages/${model.model_id}`}>{model.name}</Link>
+                      <Link href={`/pages/${model.model_id}`}>
+                        {model.name}
+                      </Link>
                     </h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {model.description}
@@ -310,7 +332,9 @@ const ProfilePage = () => {
                       variant="outline"
                       className="mt-4 w-full"
                       onClick={() =>
-                        router.push(`/pages/users/${designer.designer_id}/profile`)
+                        router.push(
+                          `/pages/users/${designer.designer_id}/profile`
+                        )
                       }
                     >
                       Get to know me
@@ -320,13 +344,6 @@ const ProfilePage = () => {
             </div>
           </CardContent>
         </Card>
-        {/* Chat Component */}
-        {showChat && currentUser && (
-          <ChatComponent
-            currentUser={currentUser}
-            onClose={() => setShowChat(false)}
-          />
-        )}
       </div>
     </TooltipProvider>
   );

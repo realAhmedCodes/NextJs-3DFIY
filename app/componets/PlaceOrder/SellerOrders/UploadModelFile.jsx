@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 
 const UploadModelFileModal = ({ orderId, onClose }) => {
   const [modelFile, setModelFile] = useState(null);
-    const [price, setPrice] = useState(null);
+  const [price, setPrice] = useState(null);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const UploadModelFileModal = ({ orderId, onClose }) => {
     const formData = new FormData();
     formData.append("order_file", modelFile);
     formData.append("order_id", orderId);
-    formData.append("price", price )
+    formData.append("price", price);
 
     try {
       const response = await fetch(

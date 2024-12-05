@@ -218,7 +218,7 @@ const ProfilePage = () => {
                   </CardFooter>
                 ) : (
                   <CardFooter className="w-full justify-center">
-                    <Link  href={"pages/Login"}>
+                    <Link href={"pages/Login"}>
                       <Button>Login</Button>
                     </Link>
                   </CardFooter>
@@ -347,10 +347,13 @@ const ProfilePage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {userDetail.sellerType==="Designer"?<div>
-        <Reviews profileId={profileUserId} ></Reviews>
-      </div>: ""}
-      
+      {userDetail.sellerType === "Designer" ? (
+        <div>
+          <Reviews profileId={profileUserId} printerId={undefined}></Reviews>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };
