@@ -13,7 +13,7 @@ export async function GET(req) {
     const sellerType = searchParams.get("sellerType");
     const userId = parseInt(searchParams.get("userId"), 10);
     const sellerId = parseInt(searchParams.get("sellerId"), 10);
-
+console.log(userId, sellerType, sellerId)
     // Validate parameters
     if (isNaN(userId) || isNaN(sellerId) || !sellerType) {
       return NextResponse.json(
@@ -26,11 +26,11 @@ export async function GET(req) {
 
     switch (sellerType) {
       case "Regular":
-        // For regular users, recipientId is userId
+       console.log("reg")
         recipientId = userId;
         break;
       case "Designer":
-        // For designers, recipientId is the associated Users.user_id
+        console.log("des");
         const designer = await prisma.designers.findUnique({
           where: { designer_id: sellerId },
           include: { Users: true },
@@ -44,7 +44,7 @@ export async function GET(req) {
         recipientId = designer.Users.user_id;
         break;
       case "Printer Owner":
-        // For printer owners, recipientId is the associated Users.user_id
+        console.log("pri");
         const printerOwner = await prisma.printer_Owners.findUnique({
           where: { printer_owner_id: sellerId },
           include: { Users: true },
@@ -79,7 +79,7 @@ export async function GET(req) {
     );
   }
 }
-
+/*
 export async function PATCH(req) {
   try {
     // Extract query parameters
@@ -174,3 +174,4 @@ export async function PATCH(req) {
     );
   }
 }
+*/
