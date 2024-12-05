@@ -32,7 +32,7 @@ export default function ModelHeader({ model, isLiked, isSaved, onLike, onSave })
       <div className="flex space-x-2">
         <Button variant="ghost" onClick={onLike} aria-label={isLiked ? 'Unlike' : 'Like'}>
           {isLiked ? (
-            <HeartFilled className="text-red-500 w-6 h-6" />
+            <HeartFilled className="text-red-500 w-6 h-6 fill-red-500" />
           ) : (
             <Heart className="w-6 h-6" />
           )}

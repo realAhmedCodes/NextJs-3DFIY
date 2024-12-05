@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { Plus, X } from "lucide-react";
+import { toast } from "sonner";
 
 const ModelUploadPage = () => {
   const [categories, setCategories] = useState([]);
@@ -29,6 +30,7 @@ const ModelUploadPage = () => {
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [subSubcategories, setSubSubcategories] = useState([]);
   const [selectedSubSubcategoryId, setSelectedSubSubcategoryId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -131,7 +133,7 @@ const ModelUploadPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
     if (!name || !description || !modelFile || !image || !selectedCategoryId) {
       setError("Please fill out all required fields.");
       return;
@@ -159,10 +161,19 @@ const ModelUploadPage = () => {
 
       const data = await response.json();
       if (data.error) {
-        setError(data.error);
+        toast.error(data.error);
       } else {
-        console.log("Model uploaded successfully:", data);
+        toast.success("Model uploaded successfully:", data);
 
+        // Clear form fields
+        setName("");
+        setDescription("");
+        setPrice(null);
+        setIsFree(false);
+        setImage(null);
+        setTags([]);
+
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error(error);
@@ -377,8 +388,8 @@ const ModelUploadPage = () => {
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full">
-              Upload Model
+            <Button disabled={isSubmitting} type="submit" className="w-full">
+              {isSubmitting ? "Uploading..." : "Upload Model"}
             </Button>
           </form>
         </CardContent>
