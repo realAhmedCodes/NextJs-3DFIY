@@ -94,19 +94,18 @@ export async function PUT(req, res) {
           },
         });
 
-        // Emit the notification via Socket.io server (or any other service you use)
-        await axios.post(`${process.env.SOCKET_IO_SERVER_URL}/notify`, {
-          recipientId: userId,
-          notification: {
-            id: notification.id,
-            type: notification.type,
-            message: notification.message,
-            isRead: notification.isRead,
-            createdAt: notification.createdAt,
-            relatedEntity: notification.relatedEntity,
-            relatedId: notification.relatedId,
-          },
-        });
+        // await axios.post(`${process.env.SOCKET_IO_SERVER_URL}/notify`, {
+        //   recipientId: designerUserId, // Use the correct user_id
+        //   notification: {
+        //     id: notification.id,
+        //     type: notification.type,
+        //     message: notification.message,
+        //     isRead: notification.isRead,
+        //     createdAt: notification.createdAt,
+        //     relatedEntity: notification.relatedEntity,
+        //     relatedId: notification.relatedId,
+        //   },
+        // });
       }
 
       return updatedOrder; // Return the updated order as a response

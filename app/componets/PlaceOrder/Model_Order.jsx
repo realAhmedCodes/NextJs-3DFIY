@@ -15,6 +15,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import ModelEstimate from "../ModelEstimate";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const ModelOrder = ({ sellerId, userId }) => {
   const [modelName, setModelName] = useState("");
@@ -88,108 +98,127 @@ const ModelOrder = ({ sellerId, userId }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-      <div>
-        <Label htmlFor="modelName">Model Name</Label>
-        <Input
-          type="text"
-          id="modelName"
-          value={modelName}
-          onChange={(e) => setModelName(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Dimensions (in cm)</Label>
-        <div className="grid grid-cols-3 gap-2">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <div>
+          <Label htmlFor="modelName">Model Name</Label>
           <Input
-            type="number"
-            placeholder="Length"
-            value={dimensions.length}
-            onChange={(e) =>
-              setDimensions({ ...dimensions, length: e.target.value })
-            }
-            required
-          />
-          <Input
-            type="number"
-            placeholder="Width"
-            value={dimensions.width}
-            onChange={(e) =>
-              setDimensions({ ...dimensions, width: e.target.value })
-            }
-            required
-          />
-          <Input
-            type="number"
-            placeholder="Height"
-            value={dimensions.height}
-            onChange={(e) =>
-              setDimensions({ ...dimensions, height: e.target.value })
-            }
+            type="text"
+            id="modelName"
+            value={modelName}
+            onChange={(e) => setModelName(e.target.value)}
             required
           />
         </div>
-      </div>
-      <div>
-        <Label htmlFor="fileFormat">Preferred File Format</Label>
-        <Select
-          id="fileFormat"
-          value={fileFormat}
-          onValueChange={(value) => setFileFormat(value)}
-          required
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select File Format" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="stl">STL</SelectItem>
-            <SelectItem value="obj">OBJ</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label htmlFor="referenceFile">Upload Reference File (optional)</Label>
-        <Input
-          type="file"
-          id="referenceFile"
-          onChange={handleFileChange}
-          accept=".stl,.obj"
-        />
-        {referenceFile && (
-          <div className="mt-2 text-sm text-gray-600">
-            Selected File: {referenceFile.name}
+        <div>
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <Label>Dimensions (in cm)</Label>
+          <div className="grid grid-cols-3 gap-2">
+            <Input
+              type="number"
+              placeholder="Length"
+              value={dimensions.length}
+              onChange={(e) =>
+                setDimensions({ ...dimensions, length: e.target.value })
+              }
+              required
+            />
+            <Input
+              type="number"
+              placeholder="Width"
+              value={dimensions.width}
+              onChange={(e) =>
+                setDimensions({ ...dimensions, width: e.target.value })
+              }
+              required
+            />
+            <Input
+              type="number"
+              placeholder="Height"
+              value={dimensions.height}
+              onChange={(e) =>
+                setDimensions({ ...dimensions, height: e.target.value })
+              }
+              required
+            />
           </div>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="additionalNotes">Additional Notes</Label>
-        <Textarea
-          id="additionalNotes"
-          value={additionalNotes}
-          onChange={(e) => setAdditionalNotes(e.target.value)}
-        />
-      </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Submitting...
-          </>
-        ) : (
-          "Submit Order"
-        )}
-      </Button>
-    </form>
+        </div>
+        <div>
+          <Label htmlFor="fileFormat">Preferred File Format</Label>
+          <Select
+            id="fileFormat"
+            value={fileFormat}
+            onValueChange={(value) => setFileFormat(value)}
+            required
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select File Format" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="stl">STL</SelectItem>
+              <SelectItem value="obj">OBJ</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="referenceFile">
+            Upload Reference File (optional)
+          </Label>
+          <Input
+            type="file"
+            id="referenceFile"
+            onChange={handleFileChange}
+            accept=".stl,.obj"
+          />
+          {referenceFile && (
+            <div className="mt-2 text-sm text-gray-600">
+              Selected File: {referenceFile.name}
+            </div>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="additionalNotes">Additional Notes</Label>
+          <Textarea
+            id="additionalNotes"
+            value={additionalNotes}
+            onChange={(e) => setAdditionalNotes(e.target.value)}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            "Submit Order"
+          )}
+        </Button>
+      </form>
+
+      <Drawer>
+        <DrawerTrigger>
+          <Button className="w-full" variant="outline">Get Cost and Time Estimation</Button>
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Get Cost and Time Estimation</DrawerTitle>
+            <DrawerDescription>
+              Get a cost and time estimation for your order based on the provided requirements.
+            </DrawerDescription>
+          </DrawerHeader>
+          <ModelEstimate />
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 };
 

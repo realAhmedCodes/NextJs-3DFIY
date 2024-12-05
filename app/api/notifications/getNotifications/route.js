@@ -22,6 +22,9 @@ console.log(userId, sellerType, sellerId)
       );
     }
 
+    console.log(userId, sellerId, sellerType);
+    
+
     let recipientId;
 
     switch (sellerType) {
