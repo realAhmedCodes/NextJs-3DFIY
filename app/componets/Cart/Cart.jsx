@@ -18,6 +18,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const Cart = () => {
+  
   const {
     cartItems,
     removeFromCart,
@@ -99,14 +100,17 @@ const Cart = () => {
               </p>
             </div>
             <div className="mt-4 space-y-2">
-              <Button
-                className="w-full"
-                onClick={closeCart}
-                as={Link}
-                href="/checkout"
-              >
-                Proceed to Checkout
-              </Button>
+              <Link href="/pages/checkout">
+                <Button
+                  className="w-full"
+                  onClick={closeCart}
+                  as={Link}
+                
+                >
+                  Proceed to Checkout
+                </Button>
+              </Link>
+
               <Button variant="outline" className="w-full" onClick={clearCart}>
                 Clear Cart
               </Button>
