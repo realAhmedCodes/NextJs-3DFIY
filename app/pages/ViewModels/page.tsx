@@ -1,8 +1,9 @@
 // pages/ViewModels/page.tsx
+// pages/ViewModels/page.tsx
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Pagination from "@/app/componets/searchModels/Pagination";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
 
 interface Model {
   model_id: number;
@@ -48,6 +50,14 @@ const ModelsListPage: React.FC = () => {
   const [models, setModels] = useState<Model[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+
+  // Separate states for recommended models
+  const [recommendedModels, setRecommendedModels] = useState<Model[]>([]);
+  const [loadingRecommended, setLoadingRecommended] = useState<boolean>(true);
+  const [errorRecommended, setErrorRecommended] = useState<string>("");
+
+  const { userId } = useSelector((state: any) => state.user);
+
   const [pagination, setPagination] = useState<PaginationInfo>({
     total: 0,
     page: 1,
@@ -64,7 +74,62 @@ const ModelsListPage: React.FC = () => {
     modelType: "all",
   });
 
-  // Combined useEffect for fetching models
+  // Determine whether to show recommended models
+  const showRecommended = useMemo(() => {
+    // Define which parameters indicate a search/filtering action
+    const searchParamsKeys = [
+      "modelIds",
+      "keyword",
+      "category",
+      "minPrice",
+      "maxPrice",
+      "tags",
+      "sortBy",
+      "modelType",
+      "page",    // Added "page"
+      "limit",   // Added "limit"
+    ];
+
+    // If any of the searchParamsKeys are present, do not show recommended models
+    return !searchParamsKeys.some((param) => searchParams.has(param));
+  }, [searchParams]);
+
+  // Fetch recommended models only if showRecommended is true
+  useEffect(() => {
+    if (!showRecommended) {
+      // Reset recommended models if not showing
+      setRecommendedModels([]);
+      setLoadingRecommended(false);
+      setErrorRecommended("");
+      return;
+    }
+
+    const apiUrl = `http://localhost:8000/recommendations/models/${userId}`;
+
+    const fetchRecommendations = async () => {
+      setLoadingRecommended(true);
+      setErrorRecommended("");
+
+      try {
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch recommendations");
+        }
+
+        const data = await response.json();
+        setRecommendedModels(data.recommendations);
+      } catch (err: any) {
+        setErrorRecommended(err.message || "An error occurred while fetching recommendations.");
+      } finally {
+        setLoadingRecommended(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, [showRecommended, userId]);
+
+  // Combined useEffect for fetching regular models
   useEffect(() => {
     const fetchModels = async () => {
       setLoading(true);
@@ -309,31 +374,31 @@ const ModelsListPage: React.FC = () => {
         <FilterForm initialFilters={initialFilters} />
         <ImageSearchForm />
 
-        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
-          Explore Models
-        </h1>
+        {/* Recommended Models Section */}
+        {showRecommended && (
+          <>
+            <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+              Recommended Models
+            </h1>
 
-        {/* Filter Section */}
-        <div>
-          {/* Error Message */}
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              {error}
-            </Alert>
-          )}
+            {/* Error Message for Recommended Models */}
+            {errorRecommended && (
+              <Alert variant="destructive" className="mb-6">
+                {errorRecommended}
+              </Alert>
+            )}
 
-          {/* Loading State */}
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Array.from({ length: 9 }).map((_, index) => (
-                <Skeleton key={index} className="h-80 w-full rounded-xl" />
-              ))}
-            </div>
-          ) : models.length > 0 ? (
-            <>
-              {/* Models Grid */}
+            {/* Recommended Models Loading State */}
+            {loadingRecommended ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <Skeleton key={index} className="h-80 w-full rounded-xl" />
+                ))}
+              </div>
+            ) : recommendedModels.length > 0 ? (
+              // Recommended Models Grid
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {models.map((model) => (
+                {recommendedModels.map((model) => (
                   <Card
                     key={model.model_id}
                     className="bg-white md:flex-row rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex lg:flex-col relative"
@@ -352,7 +417,11 @@ const ModelsListPage: React.FC = () => {
                     {model.image ? (
                       <div className="relative h-48 w-full rounded-t-lg overflow-hidden">
                         <Image
-                          src={model.isScraped ? `${model.image}` : `/uploads/${model.image}`}
+                          src={
+                            model.isScraped
+                              ? `${model.image}`
+                              : `/uploads/${model.image}`
+                          }
                           alt={model.name}
                           fill
                           className="object-cover"
@@ -403,24 +472,128 @@ const ModelsListPage: React.FC = () => {
                   </Card>
                 ))}
               </div>
+            ) : (
+              <p className="text-center text-2xl text-gray-600 mt-10">
+                No recommended models found.
+              </p>
+            )}
+          </>
+        )}
 
-              {/* Pagination Component */}
-              {pagination.totalPages > 1 && (
-                <div className="mt-8 flex justify-center">
-                  <Pagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-center text-2xl text-gray-600 mt-10">
-              No models found. Try adjusting your search criteria.
-            </p>
-          )}
-        </div>
+        {/* Explore Models Section */}
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8 pt-10">
+          Explore Models
+        </h1>
+
+        {/* Error Message for Regular Models */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            {error}
+          </Alert>
+        )}
+
+        {/* Regular Models Loading State */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 9 }).map((_, index) => (
+              <Skeleton key={index} className="h-80 w-full rounded-xl" />
+            ))}
+          </div>
+        ) : models.length > 0 ? (
+          <>
+            {/* Regular Models Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {models.map((model) => (
+                <Card
+                  key={model.model_id}
+                  className="bg-white md:flex-row rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex lg:flex-col relative"
+                >
+                  {/* Badge indicating model type */}
+                  <div className="absolute z-10 m-6 mt-4 shadow-xl">
+                    <Badge className="text-sm">
+                      {model.isScraped
+                        ? "External Download"
+                        : model.is_free
+                        ? "FREE"
+                        : `$${model.price}`}
+                    </Badge>
+                  </div>
+                  {/* Model Image */}
+                  {model.image ? (
+                    <div className="relative h-48 w-full rounded-t-lg overflow-hidden">
+                      <Image
+                        src={
+                          model.isScraped
+                            ? `${model.image}`
+                            : `/uploads/${model.image}`
+                        }
+                        alt={model.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-48 w-full bg-gray-200 rounded-t-lg">
+                      <span className="text-gray-500">
+                        No Image Available
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col flex-1">
+                    {/* Model Info */}
+                    <div className="px-6 flex flex-col flex-1">
+                      <div className="flex mt-4 justify-between items-center">
+                        <h2 className="lg:line-clamp-2 font-semibold text-gray-800 capitalize">
+                          {model.name}
+                        </h2>
+                      </div>
+
+                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                        {model.description}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap mt-3 gap-2">
+                        {model.tags.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs text-gray-600 font-medium capitalize"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="m-6 mt-4 rounded-b-xl space-y-2">
+                      <Link href={`/pages/ModelDetail/${model.model_id}`}>
+                        <Button className="w-full">View Model</Button>
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination Component */}
+            {pagination.totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-2xl text-gray-600 mt-10">
+            No models found. Try adjusting your search criteria.
+          </p>
+        )}
       </div>
     </div>
   );
