@@ -118,12 +118,28 @@ export async function POST(req, { params }) {
       );
     }
 
+
+
+     const printerOwnerId = await prisma.printers.findUnique({
+       where: {
+         printer_id: parseInt(printerId),
+       },
+       include: {
+         Printer_Owners: {
+           include: {
+             Users: true, 
+           },
+         },
+       },
+     });
+
+
     // Create notification for the printer owner
     const notificationMessage = `You have a new custom order from ${user.name} (${user.email}).`;
 
     const newNotification = await prisma.notification.create({
       data: {
-        recipientId: printer_owner_id,
+        recipientId: printerOwnerId.Printer_Owners.user_id,
         type: NotificationType.CUSTOM_ORDER, // Use the new enum value
         message: notificationMessage,
         isRead: false,

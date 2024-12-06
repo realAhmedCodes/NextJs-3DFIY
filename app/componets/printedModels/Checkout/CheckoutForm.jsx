@@ -75,7 +75,7 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
             email,   // Include email
           });
           clearCart();
-          toast.success("Success");
+          toast.success("Payment Submitted Successfuly");
         } catch (updateError) {
           setErrorMessage("Failed to update purchase.");
           console.error(updateError);

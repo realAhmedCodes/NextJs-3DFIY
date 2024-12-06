@@ -16,6 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import ModelEstimate from "../ModelEstimate";
+import { toast } from "sonner";
 import {
   Drawer,
   DrawerContent,
@@ -77,7 +78,10 @@ const ModelOrder = ({ sellerId, userId }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit order");
+        toast.error("Failed to submit order");
+      }
+ if (response.ok) {
+        toast.success("Submited order successfuly");
       }
 
       const result = await response.json();

@@ -10,66 +10,26 @@ export async function GET(req) {
   try {
     // Extract query parameters
     const { searchParams } = new URL(req.url);
-    const sellerType = searchParams.get("sellerType");
-    const userId = parseInt(searchParams.get("userId"), 10);
-    const sellerId = parseInt(searchParams.get("sellerId"), 10);
+   
+    const userId = parseInt(searchParams.get("userId"), 10)
 
     // Validate parameters
-    if (isNaN(userId) || isNaN(sellerId) || !sellerType) {
+    if (!userId ) {
       return NextResponse.json(
-        { error: "sellerType, userId, and sellerId are required." },
+        { error: " userId are required." },
         { status: 400 }
       );
     }
 
-    console.log(userId, sellerId, sellerType);
+    console.log(userId);
     
 
-    let recipientId;
-
-    switch (sellerType) {
-      case "Regular":
-        // For regular users, recipientId is userId
-        recipientId = userId;
-        break;
-      case "Designer":
-        // For designers, recipientId is the associated Users.user_id
-        const designer = await prisma.designers.findUnique({
-          where: { designer_id: sellerId },
-          include: { Users: true },
-        });
-        if (!designer) {
-          return NextResponse.json(
-            { error: "Designer not found." },
-            { status: 404 }
-          );
-        }
-        recipientId = designer.Users.user_id;
-        break;
-      case "Printer Owner":
-        // For printer owners, recipientId is the associated Users.user_id
-        const printerOwner = await prisma.printer_Owners.findUnique({
-          where: { printer_owner_id: sellerId },
-          include: { Users: true },
-        });
-        if (!printerOwner) {
-          return NextResponse.json(
-            { error: "Printer Owner not found." },
-            { status: 404 }
-          );
-        }
-        recipientId = printerOwner.Users.user_id;
-        break;
-      default:
-        return NextResponse.json(
-          { error: "Invalid sellerType provided." },
-          { status: 400 }
-        );
-    }
+      
 
     // Fetch notifications for the mapped recipientId
     const notifications = await prisma.notification.findMany({
-      where: { recipientId },
+      where: { userId },
+      where: { recipientId: parseInt(userId) },
       orderBy: { createdAt: "desc" },
     });
 
@@ -82,7 +42,7 @@ export async function GET(req) {
     );
   }
 }
-
+/*
 export async function PATCH(req) {
   try {
     // Extract query parameters
@@ -177,3 +137,4 @@ export async function PATCH(req) {
     );
   }
 }
+*/

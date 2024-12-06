@@ -51,7 +51,7 @@ const Notifications = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get("/api/notifications/getNotifications", {
-            params: { sellerType, userId, sellerId },
+            params: { userId },
           });
           setNotifications(response.data.notifications);
           const unread = response.data.notifications.filter((notif) => !notif.isRead).length;
@@ -71,7 +71,7 @@ const Notifications = () => {
         socket = null;
       };
     }
-  }, [userId, sellerType, sellerId]);
+  }, [userId]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -87,7 +87,7 @@ const Notifications = () => {
       await axios.patch(
         "/api/notifications/getNotifications",
         { notificationIds: unreadIds },
-        { params: { sellerType, userId, sellerId } } // Include all three params
+        { params: { userId } } // Include all three params
       );
       // Update local state
       setNotifications((prev) =>

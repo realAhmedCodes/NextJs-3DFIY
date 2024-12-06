@@ -58,9 +58,10 @@ async def model_recommendations(user_id: int, db=Depends(get_db)):
 
         # Fetch model details
         query = """
-        SELECT model_id, name, description, image, price
+        SELECT model_id, name, description, image, price,tags
         FROM "Models"
         WHERE model_id = ANY($1::int[])
+        LIMIT 6
         """
         records = await db.fetch(query, model_ids)
         recommendations = [dict(record) for record in records]
@@ -89,6 +90,7 @@ async def designer_recommendations(user_id: int, db=Depends(get_db)):
         FROM "Designers" d
         JOIN "Users" u ON d.user_id = u.user_id
         WHERE d.designer_id = ANY($1::int[])
+        LIMIT 6
         """
         records = await db.fetch(query, designer_ids)
         recommendations = [dict(record) for record in records]

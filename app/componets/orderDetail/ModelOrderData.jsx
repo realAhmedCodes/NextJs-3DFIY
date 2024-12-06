@@ -96,7 +96,7 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
       </div>
     );
 
-  console.log(printersData[0]);
+ 
 
   return (
     <Card className="w-full mx-auto">

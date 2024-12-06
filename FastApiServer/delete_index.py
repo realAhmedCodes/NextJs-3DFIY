@@ -1,5 +1,5 @@
 #delete_index.py
-'''
+
 import os
 from pinecone import Pinecone, ServerlessSpec
 from dotenv import load_dotenv
@@ -49,4 +49,3 @@ try:
 except Exception as e:
     logger.error(f"Error deleting index '{index_name}': {e}")
     raise e
-'''

@@ -98,10 +98,18 @@ export async function POST(req, { params }) {
 
     // Create a notification for the designer
     const notificationMessage = `You have received a new custom order (#${newOrder.order_id}) from User ${userId}.`;
-
+ const designer = await prisma.designers.findUnique({
+   where: { designer_id: parseInt(sellerId) },
+   include: { Users: true },
+ });
+  if (!designer) {
+    return NextResponse.json({ error: "Designer not found." }, { status: 404 });
+  }
+  let id = designer.Users.user_id;
     const newNotification = await prisma.notification.create({
+      
       data: {
-        recipientId: parseInt(sellerId, 10),
+        recipientId: parseInt(id, 10),
         type: NotificationType.CUSTOM_ORDER,
         message: notificationMessage,
         relatedEntity: "order",
