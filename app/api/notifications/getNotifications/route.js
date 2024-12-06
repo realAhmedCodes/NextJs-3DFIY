@@ -10,66 +10,26 @@ export async function GET(req) {
   try {
     // Extract query parameters
     const { searchParams } = new URL(req.url);
-    const sellerType = searchParams.get("sellerType");
-    const userId = parseInt(searchParams.get("userId"), 10);
-    const sellerId = parseInt(searchParams.get("sellerId"), 10);
-console.log(userId, sellerType, sellerId)
+   
+    const userId = parseInt(searchParams.get("userId"), 10)
+
     // Validate parameters
-    if (isNaN(userId) || isNaN(sellerId) || !sellerType) {
+    if (!userId ) {
       return NextResponse.json(
-        { error: "sellerType, userId, and sellerId are required." },
+        { error: " userId are required." },
         { status: 400 }
       );
     }
 
-    console.log(userId, sellerId, sellerType);
+    console.log(userId);
     
 
-    let recipientId;
-
-    switch (sellerType) {
-      case "Regular":
-       console.log("reg")
-        recipientId = userId;
-        break;
-      case "Designer":
-        console.log("des");
-        const designer = await prisma.designers.findUnique({
-          where: { designer_id: sellerId },
-          include: { Users: true },
-        });
-        if (!designer) {
-          return NextResponse.json(
-            { error: "Designer not found." },
-            { status: 404 }
-          );
-        }
-        recipientId = designer.Users.user_id;
-        break;
-      case "Printer Owner":
-        console.log("pri");
-        const printerOwner = await prisma.printer_Owners.findUnique({
-          where: { printer_owner_id: sellerId },
-          include: { Users: true },
-        });
-        if (!printerOwner) {
-          return NextResponse.json(
-            { error: "Printer Owner not found." },
-            { status: 404 }
-          );
-        }
-        recipientId = printerOwner.Users.user_id;
-        break;
-      default:
-        return NextResponse.json(
-          { error: "Invalid sellerType provided." },
-          { status: 400 }
-        );
-    }
+      
 
     // Fetch notifications for the mapped recipientId
     const notifications = await prisma.notification.findMany({
-      where: { recipientId },
+      where: { userId },
+      where: { recipientId: parseInt(userId) },
       orderBy: { createdAt: "desc" },
     });
 

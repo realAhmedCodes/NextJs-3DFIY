@@ -54,12 +54,16 @@ export async function POST(req) {
       if (!printerOwnersSet.has(printerOwnerId)) {
         printerOwnersSet.add(printerOwnerId);
 
+
+
+
+      
         // Create notification message
         const notificationMessage = `New Printer Model purchased "${printedModel.name}".`;
 
         // Prepare notification data
         notificationsToCreate.push({
-          recipientId: printerOwnerId,
+          recipientId: printedModel.printer_owner.user_id,
           type: NotificationType.NEW_PURCHASE,
           message: notificationMessage,
           isRead: false,

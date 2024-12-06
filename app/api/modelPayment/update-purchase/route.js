@@ -50,6 +50,22 @@ export async function POST(req) {
       return NextResponse.json({ error: "Model not found" }, { status: 404 });
     }
 
+
+
+ const designerModel = await prisma.models.findUnique({
+   where: {
+     model_id: parsedModelId,
+   },
+   include: {
+     Designers: {
+       include: {
+         Users: true, 
+       },
+     },
+   },
+ });
+
+
     // Update the designer's balance
     await prisma.designers.update({
       where: { designer_id: model.designer_id },
@@ -65,7 +81,7 @@ export async function POST(req) {
 
     const newNotification = await prisma.notification.create({
       data: {
-        recipientId: model.designer_id,
+        recipientId: designerModel.Designers.Users.user_id,
         type: NotificationType.NEW_PURCHASE,
         message: notificationMessage,
         relatedEntity: "model_purchase",

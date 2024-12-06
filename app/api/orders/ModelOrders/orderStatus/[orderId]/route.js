@@ -11,11 +11,15 @@ export async function POST(req, { params }) {
  let parsedId = parseInt(orderId);
   try {
     // Fetch the order to get the relevant user and details
-    const order = await prisma.model_orders.findUnique({
-      where: { order_id: parsedId },
-      select: {
-        user_id: true, // The user who placed the order
-        model_name: true,
+    const order = await prisma.printer_orders.findUnique({
+      where: { pending_order_id: parsedId },
+    
+      include: {
+        Printer_Owners: {
+          include: {
+            Users: true, // Include user details from Designers relation
+          },
+        },
       },
     });
 
@@ -26,11 +30,11 @@ export async function POST(req, { params }) {
     }
 
     // Create a notification for the user
-    const notificationMessage = `Your order for model ${order.model_name} has been dispatched.`;
+    const notificationMessage = `Your order for model ${order.pending_order_id} has been dispatched.`;
 
     const newNotification = await prisma.notification.create({
       data: {
-        recipientId: order.user_id, // The user who placed the order
+        recipientId: order.Printer_Owners.user_id, // The user who placed the order
         type: NotificationType.ORDER_STATUS_UPDATE,
         message: notificationMessage,
         relatedEntity: "order",
