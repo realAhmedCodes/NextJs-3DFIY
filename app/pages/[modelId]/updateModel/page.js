@@ -4,9 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
-
 import { useSelector } from "react-redux";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,7 +49,7 @@ const UpdateModelPage = () => {
 
   const router = useRouter();
 
-  const { userId } = useSelector((state) => state.user);
+  const { userId, sellerId } = useSelector((state) => state.user);
 
   // Fetch categories
   useEffect(() => {
@@ -201,9 +199,9 @@ const UpdateModelPage = () => {
     formData.append(
       "category_id",
       selectedSubSubcategoryId ||
-        selectedSubcategoryId ||
-        selectedCategoryId ||
-        categoryId
+      selectedSubcategoryId ||
+      selectedCategoryId ||
+      categoryId
     );
     formData.append("designer_id", designerId);
     formData.append("name", name);
@@ -263,7 +261,7 @@ const UpdateModelPage = () => {
 
   return (
     <div>
-     
+
       <div className="flex justify-center py-8 px-4">
         <Card className="w-full max-w-3xl">
           <CardHeader>
@@ -312,9 +310,9 @@ const UpdateModelPage = () => {
                     <span>
                       {selectedCategoryId
                         ? categories.find(
-                            (cat) =>
-                              cat.category_id.toString() === selectedCategoryId
-                          )?.name
+                          (cat) =>
+                            cat.category_id.toString() === selectedCategoryId
+                        )?.name
                         : "Select a category"}
                     </span>
                   </SelectTrigger>
@@ -343,10 +341,10 @@ const UpdateModelPage = () => {
                       <span>
                         {selectedSubcategoryId
                           ? subcategories.find(
-                              (sub) =>
-                                sub.category_id.toString() ===
-                                selectedSubcategoryId
-                            )?.name
+                            (sub) =>
+                              sub.category_id.toString() ===
+                              selectedSubcategoryId
+                          )?.name
                           : "Select a subcategory"}
                       </span>
                     </SelectTrigger>
@@ -378,10 +376,10 @@ const UpdateModelPage = () => {
                       <span>
                         {selectedSubSubcategoryId
                           ? subSubcategories.find(
-                              (subsub) =>
-                                subsub.category_id.toString() ===
-                                selectedSubSubcategoryId
-                            )?.name
+                            (subsub) =>
+                              subsub.category_id.toString() ===
+                              selectedSubSubcategoryId
+                          )?.name
                           : "Select a sub-subcategory"}
                       </span>
                     </SelectTrigger>
@@ -474,7 +472,7 @@ const UpdateModelPage = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" disabled={sellerId == designerId}>
                 Update Model
               </Button>
             </form>

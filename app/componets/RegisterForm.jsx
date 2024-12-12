@@ -25,7 +25,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowBigLeft, ArrowLeft } from "lucide-react";
+import { ArrowBigLeft, ArrowLeft, ArrowRight } from "lucide-react";
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -251,7 +251,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-1/2 flex-col items-center justify-center bg-white py-8 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen w-1/2 flex-col items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <CardHeader className="text-center">
         <h2 className="text-2xl font-bold text-gray-900">
           Sign Up to Get Started
@@ -276,7 +276,7 @@ const RegisterForm = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="mt-1"
+                className="bg-white mt-1"
               />
               {touched.name && !validName && (
                 <p className="text-red-500 text-sm">Name is required.</p>
@@ -293,7 +293,7 @@ const RegisterForm = () => {
                 value={formData.username}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="mt-1"
+                className="bg-white mt-1"
               />
               {touched.username && !validUsername && (
                 <p className="text-red-500 text-sm">
@@ -313,7 +313,7 @@ const RegisterForm = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="mt-1"
+                className="bg-white mt-1"
               />
               {touched.email && !validEmail && (
                 <p className="text-red-500 text-sm">
@@ -359,7 +359,7 @@ const RegisterForm = () => {
                 value={formData.pwd}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="mt-1"
+                className="bg-white mt-1"
               />
               {touched.pwd && !validPwd && (
                 <p className="text-red-500 text-sm">
@@ -379,7 +379,7 @@ const RegisterForm = () => {
                 value={formData.matchPwd}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="mt-1"
+                className="bg-white mt-1"
               />
               {touched.matchPwd && !validMatch && (
                 <p className="text-red-500 text-sm">Passwords do not match.</p>
@@ -411,7 +411,7 @@ const RegisterForm = () => {
                 placeholder="Enter Location"
                 value={formData.location}
                 onChange={handleInputChange}
-                className="mt-1"
+                className="bg-white mt-1"
               />
             </div>
 
@@ -424,7 +424,7 @@ const RegisterForm = () => {
                 placeholder="Enter Phone Number"
                 value={formData.phoneNo}
                 onChange={handleInputChange}
-                className="mt-1"
+                className="bg-white mt-1"
               />
             </div>
 
@@ -437,7 +437,7 @@ const RegisterForm = () => {
                 placeholder="Enter CNIC"
                 value={formData.cnic_number}
                 onChange={handleInputChange}
-                className="mt-1"
+                className="bg-white mt-1"
               />
             </div>
 
@@ -449,7 +449,7 @@ const RegisterForm = () => {
                 placeholder="Write your bio here"
                 value={formData.bio}
                 onChange={handleInputChange}
-                className="mt-1"
+                className="bg-white mt-1"
               ></Textarea>
             </div>
 
@@ -488,7 +488,7 @@ const RegisterForm = () => {
                   type="file"
                   accept="image/jpeg,image/png"
                   onChange={handleFileChange}
-                  className="mt-1"
+                  className="bg-white mt-1"
                 />
                 {!formData.profile_pic && (
                   <p className="text-red-500 text-sm">
