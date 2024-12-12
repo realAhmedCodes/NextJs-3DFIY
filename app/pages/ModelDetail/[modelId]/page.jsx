@@ -189,10 +189,10 @@ const ModelPage = () => {
   };
 
   // Navigate to update model page
-  const handleUpdateModel = () => {
+  /*const handleUpdateModel = () => {
     router.push(`/pages/updateModel/${modelId}`);
   };
-
+*/
   // Handle model deletion
   const handleDeleteModel = async () => {
     const confirmDelete = window.confirm(
@@ -333,6 +333,8 @@ const ModelPage = () => {
           <div className="lg:w-1/3">
             <ModelActions
               model={model}
+              modelId={modelId}
+              desginerId={model.designer_id}
               hasPurchased={hasPurchased}
               onBuy={() => setIsModalOpen(true)}
               onDownload={() => handleDownload()}
@@ -347,10 +349,8 @@ const ModelPage = () => {
             />
             <RelatedModels relatedModels={model.relatedModels} />
           </div>
-         
         </div>
-        <div><Button onClick={handleUpdateModel}>
-          Update Model</Button></div>
+       
         <ModelDetails model={model} />
 
         <ReviewSection modelId={model.model_id} />
