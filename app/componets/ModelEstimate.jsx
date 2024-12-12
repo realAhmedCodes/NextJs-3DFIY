@@ -90,6 +90,11 @@ export default function ModelEstimate() {
                 onChange={(e) => setInput(e.target.value)}
                 className="border border-gray-300"
               />
+              <p className="text-xs mt-2 text-gray-400">
+              Disclaimer: This estimate is based on the given requirements and
+              it may vary depending on the complexity of the project and the
+              skills of the designer.
+            </p>
             </div>
             <Button
               disabled={loading}
