@@ -65,14 +65,14 @@ export function MaterialsAndColors({ onNext, data }) {
             <label key={material} className="flex items-center space-x-2">
               <Checkbox
                 checked={watch("materials").includes(material)}
-                onCheckedChange={(checked) => handleMaterialChange(material, checked)}
+                onCheckedChange={(checked) => handleMaterialChange(material, checked as boolean)}
               />
               <span>{material}</span>
             </label>
           ))}
         </div>
         {errors.materials && (
-          <p className="text-sm text-destructive">{errors.materials.message}</p>
+          <p className="text-sm text-destructive">{errors.materials.message as string}</p>
         )}
       </div>
       <div className="space-y-2">

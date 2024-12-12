@@ -6,7 +6,7 @@ import PrinterUploadForm from "@/components/printer-upload-form";
 
 const Page = () => {
   const [printerOwnerId, setPrinterOwnerId] = useState(null);
-  const { sellerId } = useSelector((state) => state.user);
+  const { sellerId } = useSelector((state: { user: { sellerId: string | number } }) => state.user);
 
   useEffect(() => {
     if (sellerId) {

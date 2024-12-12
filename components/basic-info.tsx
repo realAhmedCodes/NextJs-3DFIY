@@ -45,7 +45,7 @@ export function BasicInfo({ onNext, data }) {
           placeholder="Enter printer name"
         />
         {errors.name && (
-          <p className="text-sm text-destructive">{errors.name.message}</p>
+          <p className="text-sm text-destructive">{errors.name.message as string}</p>
         )}
       </div>
 
@@ -58,7 +58,7 @@ export function BasicInfo({ onNext, data }) {
         />
         {errors.description && (
           <p className="text-sm text-destructive">
-            {errors.description.message}
+            {errors.description.message as string}
           </p>
         )}
       </div>
@@ -71,7 +71,7 @@ export function BasicInfo({ onNext, data }) {
           placeholder="Enter location"
         />
         {errors.location && (
-          <p className="text-sm text-destructive">{errors.location.message}</p>
+          <p className="text-sm text-destructive">{errors.location.message as string}</p>
         )}
       </div>
 
@@ -93,7 +93,7 @@ export function BasicInfo({ onNext, data }) {
         </Select>
         {errors.printerType && (
           <p className="text-sm text-destructive">
-            {errors.printerType.message}
+            {errors.printerType.message as string}
           </p>
         )}
       </div>

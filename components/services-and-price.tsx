@@ -37,7 +37,7 @@ export function ServicesAndPrice({ onNext, data }) {
       <div className="space-y-2">
         <Label htmlFor="price">Price (per hour)</Label>
         <Input id="price" type="number" {...register('price', { required: 'Price is required', min: 0 })} placeholder="e.g., 50" step="0.01" />
-        {errors.price && <p className="text-sm text-destructive">{errors.price.message}</p>}
+        {errors.price && <p className="text-sm text-destructive">{errors.price.message as string}</p>}
       </div>
     </form>
   )
