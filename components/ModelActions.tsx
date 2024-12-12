@@ -2,15 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Edit, Trash } from "lucide-react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
 import Reviews from "@/app/componets/Reviews/Reviews";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import LoginModal from "../app/componets/LoginModal";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 // Initialize Stripe
 const stripePromiseClient = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY
@@ -28,9 +26,6 @@ export default function ModelActions({
   authToken,
   handlePurchaseSuccess,
 }) {
-
-  console.log(model.model_id, userId, authToken);
-  
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -48,7 +43,7 @@ export default function ModelActions({
             <Button onClick={onDownload}>
               {model.type == "scraped" ? "View Source" : "Download"}
             </Button>
-          ) : (
+          ) : userId ? (
             <>
               <Drawer>
                 <DrawerTrigger>
@@ -65,6 +60,17 @@ export default function ModelActions({
                   </Elements>
                 </DrawerContent>
               </Drawer>
+            </>
+          ) : (
+            <>
+              <Dialog>
+                <DialogTrigger>
+                  <Button>Buy Now</Button>
+                </DialogTrigger>
+                <DialogContent className="p-0">
+                  <LoginModal />
+                </DialogContent>
+              </Dialog>
             </>
           )}
         </div>
