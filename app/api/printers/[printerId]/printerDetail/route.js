@@ -16,6 +16,7 @@ export async function GET(req, { params }) {
       select: {
         name: true, // Printer details
         description: true,
+        printer_owner_id: true,
         price: true,
         image: true,
         materials: true,
@@ -57,6 +58,7 @@ export async function GET(req, { params }) {
       printer_name: printer.name,
       description: printer.description,
       price: printer.price,
+      printer_owner_id: printer.printer_owner_id,
       image: printer.image,
       materials: printer.materials,
       services: printer.services,
