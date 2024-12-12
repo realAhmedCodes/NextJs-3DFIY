@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 import { Bell } from "lucide-react"; // Replace with your preferred icon
 import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 
 let socket;
 
@@ -40,7 +41,7 @@ const Notifications = () => {
         // Handle connection errors
         socket.on("connect_error", (err) => {
           console.error("Socket connection error:", err);
-          setError("Real-time notifications are currently unavailable.");
+          toast.error("Real-time notifications are currently unavailable.");
         });
       }
 
@@ -58,7 +59,7 @@ const Notifications = () => {
           setUnreadCount(unread);
         } catch (err) {
           console.error("Error fetching notifications:", err);
-          setError("Failed to load notifications.");
+          toast.error("Failed to load notifications.");
         }
       };
 
@@ -98,7 +99,7 @@ const Notifications = () => {
       setUnreadCount(0);
     } catch (err) {
       console.error("Error marking notifications as read:", err);
-      setError("Failed to mark notifications as read.");
+      toast.error("Failed to mark notifications as read.");
     }
   };
 

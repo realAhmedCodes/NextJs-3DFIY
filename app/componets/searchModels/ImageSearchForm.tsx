@@ -2,12 +2,13 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const ImageSearchForm: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -21,14 +22,14 @@ const ImageSearchForm: React.FC = () => {
       // Validate file type and size
       const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
       if (!allowedTypes.includes(file.type)) {
-        setError("Only JPEG and PNG images are allowed.");
+        toast.error("Only JPEG and PNG images are allowed.");
         setSelectedImage(null);
         return;
       }
 
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        setError("Image size should not exceed 5MB.");
+        toast.error("Image size should not exceed 5MB.");
         setSelectedImage(null);
         return;
       }
@@ -42,7 +43,7 @@ const ImageSearchForm: React.FC = () => {
     e.preventDefault();
 
     if (!selectedImage) {
-      setError("Please upload an image to search.");
+      toast.error("Please upload an image to search.");
       return;
     }
 
@@ -60,34 +61,43 @@ const ImageSearchForm: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to perform image search.");
+        if (response.status === 404) {
+          toast.error(errorData.error || "Model not found.");
+          router.push(`/pages/ViewModels?modelIds=0`);
+        } else {
+          toast.error(errorData.error || "Failed to perform image search.");
+        }
         return;
       }
 
       const data = await response.json();
 
-      // Ensure 'modelIds' is present and is an array
       if (!data.modelIds || !Array.isArray(data.modelIds)) {
         console.error("Invalid response structure:", data);
-        setError("Invalid response from search service.");
+        toast.error("Invalid response from search service.");
         return;
       }
 
       if (data.modelIds.length === 0) {
-        setError("No similar models found.");
+        toast.error("No similar models found.");
         return;
       }
 
-      // Redirect to the models page with modelIds as query params
       const modelIds = data.modelIds.join(",");
       router.push(`/pages/ViewModels?modelIds=${modelIds}`);
     } catch (err: any) {
       console.error("Image search error:", err);
-      setError("An unexpected error occurred during image search.");
+      toast.error("An unexpected error occurred during image search.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (selectedImage) {
+      setError("");
+    }
+  }, [selectedImage]);
 
   return (
     <div className="bg-white p-8 rounded-xl shadow-md mb-16">
@@ -110,10 +120,7 @@ const ImageSearchForm: React.FC = () => {
             {error}
           </Alert>
         )}
-        <Button
-          type="submit"
-          disabled={loading}
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Searching..." : "Search by Image"}
         </Button>
       </form>

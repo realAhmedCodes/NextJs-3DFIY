@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { toast } from "sonner";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -48,7 +49,7 @@ const PrinterOrderData = ({ orderId }) => {
       }
       // Optionally, you can revalidate the SWR data here
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 

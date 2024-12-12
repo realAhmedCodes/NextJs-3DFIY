@@ -15,6 +15,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { toast } from "sonner";
 const PaymentModal = ({ model, userId, authToken, onSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -39,7 +40,7 @@ const PaymentModal = ({ model, userId, authToken, onSuccess }) => {
         );
         setClientSecret(response.data.clientSecret);
       } catch (error) {
-        setErrorMessage("Failed to initialize payment.");
+        toast.error("Failed to initialize payment.");
         console.error(error);
       }
     };
@@ -74,7 +75,7 @@ const PaymentModal = ({ model, userId, authToken, onSuccess }) => {
       );
 
       if (error) {
-        setErrorMessage(error.message || "Payment failed.");
+        toast.error(error.message || "Payment failed.");
         setLoading(false);
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         // Payment successful
@@ -95,12 +96,12 @@ const PaymentModal = ({ model, userId, authToken, onSuccess }) => {
           );
           onSuccess();
         } catch (updateError) {
-          setErrorMessage("Failed to update purchase.");
+          toast.error("Failed to update purchase.");
           console.error(updateError);
         }
       }
     } catch (error) {
-      setErrorMessage("Payment failed.");
+      toast.error("Payment failed.");
       console.error(error);
     }
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { clearFile } from "@/redux/features/uploadSlice";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const PriceEstimatePage = () => {
   const router = useRouter();
@@ -64,7 +65,7 @@ const PriceEstimatePage = () => {
       }
     } catch (error) {
       console.error("Failed to get cost estimation:", error);
-      setError(error.message);
+      toast.error(error.message);
     } finally {
       setUploading(false);
     }

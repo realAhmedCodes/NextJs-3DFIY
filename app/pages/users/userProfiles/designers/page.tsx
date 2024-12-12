@@ -14,6 +14,7 @@ import Pagination from "@/app/componets/searchDesigners/Pagination";
 import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Star } from "lucide-react";
+import { toast } from "sonner";
 
 interface PaginationInfo {
   total: number;
@@ -105,7 +106,7 @@ const DesignersPage: React.FC = () => {
         }
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Failed to load designers");
+        toast.error(err.message || "Failed to load designers");
         setDesigners([]);
         setPagination({
           total: 0,

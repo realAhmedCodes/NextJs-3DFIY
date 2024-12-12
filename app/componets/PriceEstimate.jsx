@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, ShoppingCart, Eye } from "lucide-react";
 import Dropzone from "@/components/ui/dropzone";
 import { setFile } from "@/redux/features/uploadSlice";
+import { toast } from "sonner";
 
 const PriceEstimate = () => {
   const router = useRouter();
@@ -64,7 +65,7 @@ const PriceEstimate = () => {
       }
     } catch (err) {
       console.error("Failed to upload file:", err);
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setUploading(false);
     }

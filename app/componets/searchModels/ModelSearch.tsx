@@ -12,6 +12,7 @@ import { Alert } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import SearchBar from "./SearchBar";
+import { toast } from "sonner";
 
 interface Model {
   model_id: number;
@@ -54,7 +55,7 @@ const SearchModelsPage = () => {
         setModels(response.data);
       } catch (error) {
         console.error("Error fetching search results:", error);
-        setError("Failed to load search results. Please try again later.");
+        toast.error("Failed to load search results. Please try again later.");
       } finally {
         setLoading(false);
       }

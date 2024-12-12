@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface ScrapedModel {
   id: number;
@@ -31,7 +32,7 @@ const ScrapedModelsPage: React.FC = () => {
         const data = await response.json();
         setModels(data);
       } catch (err: any) {
-        setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }

@@ -7,6 +7,7 @@ import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
   const stripe = useStripe();
@@ -34,7 +35,7 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
         setClientSecret(response.data.clientSecret);
         console.log("Received clientSecret:", response.data.clientSecret);
       } catch (error) {
-        setErrorMessage("Failed to initialize payment.");
+        toast.error("Failed to initialize payment.");
         console.error(error);
       }
     };
@@ -64,7 +65,7 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
       );
 
       if (error) {
-        setErrorMessage(error.message || "Payment failed.");
+        toast.error(error.message || "Payment failed.");
         setLoading(false);
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         // Payment successful
@@ -85,12 +86,12 @@ const PaymentModal = ({ model, userId, authToken, onClose, onSuccess }) => {
           );
           onSuccess();
         } catch (updateError) {
-          setErrorMessage("Failed to update purchase.");
+          toast.error("Failed to update purchase.");
           console.error(updateError);
         }
       }
     } catch (error) {
-      setErrorMessage("Payment failed.");
+      toast.error("Payment failed.");
       console.error(error);
     }
 

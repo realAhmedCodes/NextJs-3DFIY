@@ -31,7 +31,7 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
         });
         setClientSecret(response.data.clientSecret);
       } catch (error) {
-        setErrorMessage("Failed to initialize payment.");
+        toast.error("Failed to initialize payment.");
         console.error(error);
       }
     };
@@ -61,7 +61,7 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
       );
 
       if (error) {
-        setErrorMessage(error.message || "Payment failed.");
+        toast.error(error.message || "Payment failed.");
         setLoading(false);
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         // Payment successful
@@ -77,12 +77,12 @@ const CheckoutForm = ({ totalPrice, cartItems }) => {
           clearCart();
           toast.success("Payment Submitted Successfuly");
         } catch (updateError) {
-          setErrorMessage("Failed to update purchase.");
+          toast.error("Failed to update purchase.");
           console.error(updateError);
         }
       }
     } catch (error) {
-      setErrorMessage("Payment failed.");
+      toast.error("Payment failed.");
       console.error(error);
     }
 

@@ -60,3 +60,4 @@ FastApiServer/*.py[cod]
 FastApiServer/.env
 FastApiServer/.DS_Store
 FastApiServer/utils/__pycache__/similarity.cpython-312.pyc
+FastApiServer/utils/__pycache__/

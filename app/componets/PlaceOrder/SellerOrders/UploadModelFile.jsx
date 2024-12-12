@@ -16,6 +16,7 @@ import { Alert } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const UploadModelFileModal = ({ orderId, onClose }) => {
   const [modelFile, setModelFile] = useState(null);
@@ -29,7 +30,7 @@ const UploadModelFileModal = ({ orderId, onClose }) => {
     e.preventDefault();
 
     if (!modelFile) {
-      setError("Please upload a 3D model file.");
+      toast.error("Please upload a 3D model file.");
       return;
     }
 
@@ -57,7 +58,7 @@ const UploadModelFileModal = ({ orderId, onClose }) => {
       }
 
       const data = await response.json();
-      setSuccessMessage("File uploaded successfully!");
+      toast.success("File uploaded successfully!");
       setModelFile(null);
 
       // Optionally, refresh the page or refetch data
@@ -68,7 +69,7 @@ const UploadModelFileModal = ({ orderId, onClose }) => {
         onClose();
       }, 2000);
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

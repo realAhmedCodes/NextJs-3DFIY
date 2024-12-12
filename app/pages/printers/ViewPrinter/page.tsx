@@ -13,6 +13,7 @@ import Pagination from "@/app/componets/searchPrinters/Pagination";
 import { Printer, Tag, DollarSign } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 interface Printer {
   printer_id: number;
@@ -122,7 +123,7 @@ const PrintersListPage: React.FC = () => {
         }
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Failed to load printers");
+        toast.error(err.message || "Failed to load printers");
         setPrinters([]);
         setPagination({
           total: 0,

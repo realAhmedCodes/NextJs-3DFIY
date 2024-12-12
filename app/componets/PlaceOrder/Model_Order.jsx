@@ -57,7 +57,7 @@ const ModelOrder = ({ sellerId, userId }) => {
       !dimensions.height ||
       !fileFormat
     ) {
-      setError("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       setLoading(false);
       return;
     }
@@ -85,7 +85,7 @@ const ModelOrder = ({ sellerId, userId }) => {
       }
 
       const result = await response.json();
-      console.log("Order submitted successfully", result);
+      toast.success("Order submitted successfully", result);
       // Reset form fields
       setModelName("");
       setDescription("");
@@ -95,7 +95,7 @@ const ModelOrder = ({ sellerId, userId }) => {
       setAdditionalNotes("");
       setError(null);
     } catch (error) {
-      setError(error.message);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }

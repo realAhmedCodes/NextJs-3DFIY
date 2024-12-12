@@ -135,7 +135,7 @@ const ModelUploadPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     if (!name || !description || !modelFile || !image || !selectedCategoryId) {
-      setError("Please fill out all required fields.");
+      toast.error("Please fill out all required fields.");
       return;
     }
 
@@ -177,7 +177,7 @@ const ModelUploadPage = () => {
       }
     } catch (error) {
       console.error(error);
-      setError("Server Error. Please try again later.");
+      toast.error("Server Error. Please try again later.");
     }
   };
 

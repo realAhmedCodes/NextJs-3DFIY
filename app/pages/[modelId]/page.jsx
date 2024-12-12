@@ -77,7 +77,7 @@ const ModelPage = () => {
         const response = await axios.get(`/api/models/${modelId}/modelDetail`);
         setModel(response.data);
       } catch (err) {
-        setError(
+        toast.error(
           err.response?.data?.message || "Failed to fetch model details"
         );
       } finally {
@@ -98,7 +98,7 @@ const ModelPage = () => {
           );
           setIsLiked(response.data.liked);
         } catch (err) {
-          setError(err.response?.data?.message);
+          toast.error(err.response?.data?.message);
         }
       }
     };
@@ -120,7 +120,7 @@ const ModelPage = () => {
           const data = await response.json();
           setIsSaved(data.saved);
         } catch (error) {
-          setError(error.message || "Failed to fetch saved status");
+          toast.error(error.message || "Failed to fetch saved status");
         }
       }
     };
@@ -151,24 +151,6 @@ const ModelPage = () => {
     checkPurchaseStatus();
   }, [userId, model, authToken]);
 
-  // Handle like/unlike button
-  /*const handleLike = async () => {
-    try {
-      if (isLiked) {
-        await axios.delete(
-          `/api/models/${modelId}/modelUnlike?user_id=${userId}`
-        );
-      } else {
-        await axios.post(`/api/models/${modelId}/modelLike`, {
-          user_id: userId,
-        });
-      }
-      setIsLiked(!isLiked);
-    } catch (err) {
-      console.error("Failed to update like status", err);
-      setError("Unable to update like status. Please try again.");
-    }
-  };*/
   const handleLike = async () => {
     try {
       if (isLiked) {
@@ -202,7 +184,7 @@ const ModelPage = () => {
       setIsSaved(!isSaved);
     } catch (err) {
       console.error("Failed to update save status", err);
-      setError("Unable to update save status. Please try again.");
+      toast.error("Unable to update save status. Please try again.");
     }
   };
 
@@ -227,7 +209,7 @@ const ModelPage = () => {
       router.push("/models");
     } catch (err) {
       console.error("Failed to delete model", err);
-      setError("Unable to delete model. Please try again.");
+      toast.error("Unable to delete model. Please try again.");
     } finally {
       setIsDeleting(false);
     }

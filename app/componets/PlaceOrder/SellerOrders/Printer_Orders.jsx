@@ -57,9 +57,11 @@ const PrinterOrder = ({ printerId }) => {
         ]);
 
         if (!materialsResponse.ok) {
+          toast.error("Failed to fetch printer materials");
           throw new Error("Failed to fetch printer materials");
         }
         if (!ownerResponse.ok) {
+          toast.error("Failed to fetch printer owner details");
           throw new Error("Failed to fetch printer owner details");
         }
 
@@ -70,7 +72,7 @@ const PrinterOrder = ({ printerId }) => {
         setPrinterOwnerId(ownerData.printer_owner_id);
         setLoading(false);
       } catch (err) {
-        setError(err.message);
+        toast.error(err.message);
         setLoading(false);
       }
     };
@@ -82,7 +84,7 @@ const PrinterOrder = ({ printerId }) => {
     e.preventDefault();
 
     if (!modelFile) {
-      setError("Please upload a 3D model file.");
+      toast.error("Please upload a 3D model file.");
       return;
     }
 
@@ -115,6 +117,7 @@ const PrinterOrder = ({ printerId }) => {
 
       if (!response.ok) {
         const errorDetail = await response.json();
+        toast.error(errorDetail.error || "Failed to place order.");
         throw new Error(errorDetail.error || "Failed to place order.");
       }
 
@@ -133,10 +136,11 @@ const PrinterOrder = ({ printerId }) => {
         setAddress("");
         setPhoneNumber("");
       } else {
+        toast.error("Unexpected response format.");
         throw new Error("Unexpected response format.");
       }
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 

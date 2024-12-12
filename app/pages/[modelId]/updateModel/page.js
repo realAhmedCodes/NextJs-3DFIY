@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { toast } from "sonner";
 
 
 
@@ -231,15 +232,16 @@ const UpdateModelPage = () => {
       const data = await response.json();
 
       if (data.error) {
-        setError(data.error);
+        toast.error(data.error);
         console.log("Error updating model:", data.error);
       } else {
         console.log("Model updated successfully:", data);
+        toast.success("Model updated successfully.");
         router.push(`/models/${modelId}`);
       }
     } catch (error) {
       console.error("Update failed:", error);
-      setError("Update failed. Please try again.");
+      toast.error("Update failed. Please try again.");
     }
   };
 

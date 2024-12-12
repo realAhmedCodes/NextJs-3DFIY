@@ -40,6 +40,7 @@ import {
 import ModelOrder from "../PlaceOrder/Model_Order";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PrinterOrder from "../PlaceOrder/SellerOrders/Printer_Orders";
+import { toast } from "sonner";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -79,7 +80,7 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
       }
       // Optionally, you can revalidate the SWR data here
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 

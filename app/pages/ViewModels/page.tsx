@@ -120,7 +120,7 @@ const ModelsListPage: React.FC = () => {
         const data = await response.json();
         setRecommendedModels(data.recommendations);
       } catch (err: any) {
-        setErrorRecommended(err.message || "An error occurred while fetching recommendations.");
+        toast.error(err.message || "An error occurred while fetching recommendations.");
       } finally {
         setLoadingRecommended(false);
       }
@@ -473,7 +473,7 @@ const ModelsListPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-2xl text-gray-600 mt-10">
+              <p className="text-center text-xl text-gray-600 mt-10">
                 No recommended models found.
               </p>
             )}
@@ -590,7 +590,7 @@ const ModelsListPage: React.FC = () => {
             )}
           </>
         ) : (
-          <p className="text-center text-2xl text-gray-600 mt-10">
+          <p className="text-center text-xl text-gray-500 mt-10">
             No models found. Try adjusting your search criteria.
           </p>
         )}
