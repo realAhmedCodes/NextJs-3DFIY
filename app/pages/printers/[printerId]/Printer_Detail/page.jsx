@@ -26,7 +26,7 @@ import {
 import { Loader2 } from "lucide-react";
 import Reviews from "@/app/componets/Reviews/Reviews";
 import {
-  Printer,
+  Printer as PrinterIcon,
   Settings,
   Package,
   DollarSign,
@@ -39,16 +39,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const printerData = {
-  specifications: [
-    { name: "Print Volume", value: "250 x 250 x 300 mm" },
-    { name: "Layer Resolution", value: "50-400 microns" },
-    { name: "Print Speed", value: "Up to 150 mm/s" },
-    { name: "Nozzle Diameter", value: "0.4 mm" },
-    { name: "Filament Diameter", value: "1.75 mm" },
-  ],
-};
 
 const Page = () => {
   const { printerId } = useParams();
@@ -70,7 +60,8 @@ const Page = () => {
       await axios.delete(`/api/printers/${printerId}/delete`);
       router.push("/pages/printers");
     } catch (err) {
-      console.error("Failed to delete model", err);
+      console.error("Failed to delete printer:", err);
+      // Optionally, display an error message to the user
     }
   };
 
@@ -100,80 +91,11 @@ const Page = () => {
   const profilePicPath = printer.profile_pic
     ? `${printer.profile_pic.split("\\").pop()}`
     : null;
-
+console.log(printer)
   return (
-    // <div className="container mx-auto p-8">
-    //   <Card className="max-w-4xl mx-auto">
-    //     {printer.image && (
-    //       <img
-    //         src={`/uploads/${printer.image}`}
-    //         alt={printer.printer_name}
-    //         className="object-cover w-full h-96 rounded-t-lg"
-    //       />
-    //     )}
-    //     <CardContent>
-    //       <div className="flex items-start justify-between mb-4">
-    //         <div>
-    //           <CardTitle className="text-3xl">{printer.printer_name}</CardTitle>
-    //           <div className="flex items-center space-x-2">
-    //             <span className="text-gray-600">{printer.user_location}</span>
-    //           </div>
-    //         </div>
-    //         {printer.profile_pic && (
-    //           <Avatar className="w-16 h-16">
-    //             <AvatarImage src={profilePicPath} alt={printer.user_name} />
-    //             <AvatarFallback>
-    //               {printer.user_name?.charAt(0).toUpperCase()}
-    //             </AvatarFallback>
-    //           </Avatar>
-    //         )}
-    //       </div>
-    //       <hr className="my-4" />
-    //       <CardDescription className="mb-4">
-    //         {printer.description}
-    //       </CardDescription>
-    //       {printer.materials && (
-    //         <div className="mb-4">
-    //           <h2 className="text-xl font-semibold mb-2">Materials</h2>
-    //           <p className="text-gray-700">{printer.materials}</p>
-    //         </div>
-    //       )}
-    //       {printer.price && (
-    //         <div className="mb-4">
-    //           <h2 className="text-xl font-semibold mb-2">Price</h2>
-    //           <p className="text-gray-700">${printer.price}</p>
-    //         </div>
-    //       )}
-    //       {sellerType === "Printer Owner" && (
-    //         <div className="mt-4 flex space-x-2">
-    //           <Button onClick={updateModelBtn} >
-    //             Update Printer
-    //           </Button>
-    //           <Button onClick={delModelBtn} variant="destructive">
-    //             Delete Printer
-    //           </Button>
-    //         </div>
-    //       )}
-    //       <div className="mt-4">
-    //         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-    //           <DialogTrigger asChild>
-    //             <Button>Place an Order</Button>
-    //           </DialogTrigger>
-    //           <DialogContent>
-    //             <DialogHeader>
-    //               <DialogTitle>Place an Order</DialogTitle>
-    //             </DialogHeader>
-    //             <PrinterOrder printerId={printerId} />
-    //           </DialogContent>
-    //         </Dialog>
-    //       </div>
-    //     </CardContent>
-    //   </Card>
-    //   <div><Reviews printerId={printerId}></Reviews></div>
-    // </div>
-
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Printer Information Section */}
         <Card className="col-span-1 lg:col-span-2">
           <CardContent className="p-0">
             <div className="w-full">
@@ -181,16 +103,16 @@ const Page = () => {
                 <DialogTrigger className="overflow-hidden">
                   <div className="relative rounded-lg bg-black">
                     <img
-                      src={`/uploads/` + printer.image}
-                      alt={printer.name}
-                      className="object-cover w-full max-h-[500px] rounded-t-lg"
+                      src={`/uploads/${printer.image}`}
+                      alt={printer.printer_name}
+                      className="object-cover w-full max-h-[500px] rounded-t-lg cursor-pointer"
                     />
                   </div>
                 </DialogTrigger>
                 <DialogContent className="p-1 lg:max-w-4xl md:max-w-3xl text-white">
                   <img
-                    src={`/uploads/` + printer.image}
-                    alt={printer.name}
+                    src={`/uploads/${printer.image}`}
+                    alt={printer.printer_name}
                     className="rounded-lg"
                   />
                 </DialogContent>
@@ -211,7 +133,7 @@ const Page = () => {
                 <Badge variant="secondary" className="text-lg px-3 py-1">
                   <span className="text-sm text-gray-600 font-normal mr-1">
                     Starting From
-                  </span>{" "}
+                  </span>
                   ${printer.price}
                 </Badge>
               </div>
@@ -226,15 +148,25 @@ const Page = () => {
                   <TabsTrigger value="materials">Materials</TabsTrigger>
                 </TabsList>
                 <TabsContent value="specifications">
-                  <ScrollArea className="h-[200px] w-full rounded-md border p-4">
+                  <ScrollArea className="h-auto w-full rounded-md border p-4">
                     <table className="w-full">
                       <tbody>
-                        {printerData.specifications.map((spec, index) => (
-                          <tr key={index} className="border-b last:border-b-0">
-                            <td className="py-2 font-medium">{spec.name}</td>
-                            <td className="py-2 text-right">{spec.value}</td>
-                          </tr>
-                        ))}
+                        {printer.specifications &&
+                          Object.entries(printer.specifications).map(
+                            ([key, value], index) => (
+                              <tr
+                                key={index}
+                                className="border-b last:border-b-0"
+                              >
+                                <td className="py-2 font-medium capitalize">
+                                  {key
+                                    .replace(/([A-Z])/g, " $1")
+                                    .replace(/^./, (str) => str.toUpperCase())}
+                                </td>
+                                <td className="py-2 text-right">{value}</td>
+                              </tr>
+                            )
+                          )}
                       </tbody>
                     </table>
                   </ScrollArea>
@@ -254,12 +186,18 @@ const Page = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sidebar Section */}
         <div className="space-y-6">
+          {/* Owner Information */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-4 mb-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={profilePicPath} alt={printer.user_name} />
+                  <AvatarImage
+                    src={`/uploads/${profilePicPath}`}
+                    alt={printer.user_name}
+                  />
                   <AvatarFallback>{printer.user_name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -270,9 +208,9 @@ const Page = () => {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center">
                   <Star className="text-yellow-400 mr-1" size={20} />
-                  <span className="font-semibold">{""}</span>
+                  <span className="font-semibold">4.5</span>
                   <span className="text-muted-foreground ml-1">
-                    ({"N/A"} reviews)
+                    (25 reviews)
                   </span>
                 </div>
                 <div className="flex items-center text-muted-foreground">
@@ -303,29 +241,26 @@ const Page = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Services Section */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Printer Features</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center">
-                  <Printer className="mr-2 h-4 w-4" />
-                  <span>High Resolution</span>
+              <h3 className="text-lg font-semibold mb-4">Services</h3>
+              {printer.services && printer.services.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {printer.services.map((service, index) => (
+                    <Badge key={index} variant="outline">
+                      {service}
+                    </Badge>
+                  ))}
                 </div>
-                <div className="flex items-center">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Easy Setup</span>
-                </div>
-                <div className="flex items-center">
-                  <Package className="mr-2 h-4 w-4" />
-                  <span>Multiple Materials</span>
-                </div>
-                <div className="flex items-center">
-                  <DollarSign className="mr-2 h-4 w-4" />
-                  <span>Cost-Effective</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-muted-foreground">No services listed.</p>
+              )}
             </CardContent>
           </Card>
+
+          {/* Reviews Section */}
           <Reviews printerId={printerId} />
         </div>
       </div>
@@ -334,3 +269,4 @@ const Page = () => {
 };
 
 export default Page;
+
