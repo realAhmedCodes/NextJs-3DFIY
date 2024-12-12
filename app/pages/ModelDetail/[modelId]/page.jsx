@@ -353,7 +353,7 @@ const ModelPage = () => {
        
         <ModelDetails model={model} />
 
-        <ReviewSection modelId={model.model_id} />
+      
       </div>
     </div>
   );

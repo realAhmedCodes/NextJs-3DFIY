@@ -1,4 +1,7 @@
 // app/pages/ProfilePage.tsx
+// /app/pages/ProfilePage.tsx
+
+// /app/pages/ProfilePage.tsx
 
 "use client";
 
@@ -39,6 +42,12 @@ import { toast } from "sonner"; // Use Sonner's toast
 import Reviews from "@/app/componets/Reviews/Reviews";
 import Link from "next/link";
 
+// Update import aliases to avoid conflicts
+import RecentSalesDesigner from "@/app/componets/sales/modelRecentSales/RecentSales";
+import RecentModelOrderPayments from "@/app/componets/sales/customModelsRecentPayments/RecentSales";
+import RecentPrintedModelsSales from "@/app/componets/sales/printedModelSales/RecentSales";
+import RecentDesignerReviews from "@/app/componets/designerReview/page";
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const ProfilePage = () => {
@@ -51,7 +60,7 @@ const ProfilePage = () => {
   const [ModelOrderShow, setModelOrderShow] = useState(false);
   const [rating, setRating] = useState<number>(0); // Initialize to 0
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false); // Modal state
-  const { userId } = useSelector((state: any) => state.user);
+  const { userId, sellerId } = useSelector((state: any) => state.user);
   const router = useRouter();
   const { mutate } = useSWRConfig(); // Initialize mutate
 
@@ -123,15 +132,7 @@ const ProfilePage = () => {
 
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
-    : "";
-
-  console.log(userDetail);
-
-  console.log(currentUser);
-
-  console.log(userDetail);
-
-  console.log(currentUser);
+    : "/default.png"; // Fallback to default image
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -142,7 +143,11 @@ const ProfilePage = () => {
             <CardHeader className="text-center">
               <Avatar className="w-32 h-32 mx-auto mb-4">
                 <AvatarImage
-                  src={userDetail.profile_pic}
+                  src={
+                    userDetail.profile_pic
+                      ? `/uploads/${userDetail.profile_pic}`
+                      : "/default.png"
+                  }
                   alt={userDetail.name}
                 />
                 <AvatarFallback>{userDetail.name.charAt(0)}</AvatarFallback>
@@ -218,7 +223,7 @@ const ProfilePage = () => {
                   </CardFooter>
                 ) : (
                   <CardFooter className="w-full justify-center">
-                    <Link href={"pages/Login"}>
+                    <Link href={"/pages/Login"}>
                       <Button>Login</Button>
                     </Link>
                   </CardFooter>
@@ -249,27 +254,21 @@ const ProfilePage = () => {
         {/* Orders and Models Section */}
         <div className="flex-grow space-y-6">
           <Tabs defaultValue="models">
-            <TabsList
-              className={
-                "grid w-full " +
-                (currentUser != userDetail.user_id
-                  ? "grid-cols-1"
-                  : userDetail?.sellerType === "Designer"
-                  ? "grid-cols-3"
-                  : "grid-cols-2")
-              }
-            >
-              {userDetail?.sellerType === "Designer" && (
+            <TabsList className="grid grid-cols-4 w-full">
+              {/* Conditionally render Models or Printers tab */}
+              {userDetail?.sellerType === "Designer" ? (
                 <TabsTrigger value="models">Models</TabsTrigger>
+              ) : (
+                <TabsTrigger value="printers">Printers</TabsTrigger>
               )}
-              {currentUser == userDetail?.user_id && (
-                <>
-                  <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-                  <TabsTrigger value="active">Active Orders</TabsTrigger>
-                </>
-              )}
+
+              {/* Pending Orders and Active Orders */}
+              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+              <TabsTrigger value="active">Active Orders</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
 
+            {/* Models Tab Content for Designers */}
             {userDetail?.sellerType === "Designer" && (
               <TabsContent value="models" className="space-y-4">
                 <h2 className="text-2xl font-semibold">Uploaded Models</h2>
@@ -306,6 +305,60 @@ const ProfilePage = () => {
                 </ScrollArea>
               </TabsContent>
             )}
+
+            {/* Printers Tab Content for Printer Owners */}
+            {userDetail?.sellerType === "Printer Owner" && (
+              <TabsContent value="printers" className="space-y-4">
+                <h2 className="text-2xl font-semibold">Your Printers</h2>
+                <ScrollArea className="h-[500px] w-full rounded-md border p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {userDetail.printer.map((printer: any) => (
+                      <Card key={printer.printer_id} className="flex flex-col">
+                        <img
+                          src={`/uploads/${printer.image}`}
+                          alt={printer.name}
+                          className="w-full h-40 object-cover rounded-t-lg"
+                        />
+                        <CardHeader>
+                          <CardTitle>{printer.name}</CardTitle>
+                          <CardDescription>
+                            {printer.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-700">
+                            Type: {printer.printer_type}
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            Price: ${printer.price}
+                          </p>
+                        </CardContent>
+                        <CardFooter className="mt-auto">
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-lg font-semibold">
+                              Rating: {printer.rating || "N/A"}
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                router.push(
+                                  `/pages/printers/${printer.printer_id}/Printer_Detail`
+                                )
+                              }
+                            >
+                              View Details
+                            </Button>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                  </div>
+                  <ScrollBar orientation="vertical" />
+                </ScrollArea>
+              </TabsContent>
+            )}
+
+            {/* Pending Orders Tab Content */}
             <TabsContent value="pending">
               <ScrollArea className="h-fit w-full rounded-md border p-4">
                 <div className="space-y-4">
@@ -314,6 +367,8 @@ const ProfilePage = () => {
                 <ScrollBar orientation="vertical" />
               </ScrollArea>
             </TabsContent>
+
+            {/* Active Orders Tab Content */}
             <TabsContent value="active">
               <ScrollArea className="h-fit w-full rounded-md border p-4">
                 <div className="space-y-4">
@@ -321,6 +376,58 @@ const ProfilePage = () => {
                 </div>
                 <ScrollBar orientation="vertical" />
               </ScrollArea>
+            </TabsContent>
+
+            {/* Analytics Tab Content */}
+            <TabsContent value="analytics" className="space-y-4">
+              <h2 className="text-2xl font-semibold">Recent Sales Analytics</h2>
+              <Tabs
+                defaultValue={
+                  userDetail?.sellerType === "Designer"
+                    ? "designer-sales"
+                    : "printer-sales"
+                }
+              >
+                <TabsList
+                  className={
+                    userDetail?.sellerType === "Designer"
+                      ? "grid grid-cols-2 gap-2"
+                      : "grid grid-cols-1 gap-2"
+                  }
+                >
+                  {userDetail?.sellerType === "Designer" ? (
+                    <>
+                      <TabsTrigger value="designer-sales">
+                        Recent Sales
+                      </TabsTrigger>
+                      <TabsTrigger value="designer-payments">
+                        Model Order Payments
+                      </TabsTrigger>
+                    </>
+                  ) : (
+                    <TabsTrigger value="printer-sales">
+                      Recent Printed Models Sales
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+
+                {/* Nested TabsContent for Analytics */}
+                {userDetail?.sellerType === "Designer" && (
+                  <>
+                    <TabsContent value="designer-sales">
+                      <RecentSalesDesigner designerId={sellerId} />
+                    </TabsContent>
+                    <TabsContent value="designer-payments">
+                      <RecentModelOrderPayments designerId={sellerId} />
+                    </TabsContent>
+                  </>
+                )}
+                {userDetail?.sellerType === "Printer Owner" && (
+                  <TabsContent value="printer-sales">
+                    <RecentPrintedModelsSales printerOwnerId={sellerId} />
+                  </TabsContent>
+                )}
+              </Tabs>
             </TabsContent>
           </Tabs>
         </div>
@@ -347,12 +454,18 @@ const ProfilePage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {userDetail.sellerType === "Designer" ? (
-        <div>
-          <Reviews profileId={profileUserId} printerId={undefined}></Reviews>
-        </div>
-      ) : (
-        ""
+
+      {parseInt(profileUserId) !== parseInt(userId) && (
+        <>
+          <div>
+            <Reviews profileId={profileUserId} printerId={undefined} />
+          </div>
+          <div>
+            <RecentDesignerReviews
+              designerId={sellerId}
+            ></RecentDesignerReviews>
+          </div>
+        </>
       )}
     </div>
   );

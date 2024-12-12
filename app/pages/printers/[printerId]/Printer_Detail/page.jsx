@@ -37,12 +37,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import RecentPrinterReviews from "@/app/componets/printerReview/page";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const Page = () => {
   const { printerId } = useParams();
-  const { sellerType } = useSelector((state) => state.user);
+  const { sellerType, sellerId } = useSelector((state) => state.user);
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -260,8 +261,18 @@ console.log(printer)
             </CardContent>
           </Card>
 
-          {/* Reviews Section */}
-          <Reviews printerId={printerId} />
+          {sellerId === printer.printer_owner_id && (
+            <>
+              <div>
+                <div>
+                  <Reviews printerId={printerId} />
+                </div>
+                <div>
+             <RecentPrinterReviews printerId={printerId}></RecentPrinterReviews>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
