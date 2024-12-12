@@ -92,7 +92,6 @@ const Page = () => {
   const profilePicPath = printer.profile_pic
     ? `${printer.profile_pic.split("\\").pop()}`
     : null;
-console.log(printer)
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -196,7 +195,7 @@ console.log(printer)
               <div className="flex items-center space-x-4 mb-4">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
-                    src={`/uploads/${profilePicPath}`}
+                    src={`${profilePicPath}`}
                     alt={printer.user_name}
                   />
                   <AvatarFallback>{printer.user_name.charAt(0)}</AvatarFallback>
@@ -209,9 +208,9 @@ console.log(printer)
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center">
                   <Star className="text-yellow-400 mr-1" size={20} />
-                  <span className="font-semibold">4.5</span>
+                  <span className="font-semibold">{printer.ratings}</span>
                   <span className="text-muted-foreground ml-1">
-                    (25 reviews)
+                    {printer.reviews ? `(${printer.reviews})` : "No Reviews"}
                   </span>
                 </div>
                 <div className="flex items-center text-muted-foreground">
@@ -221,25 +220,33 @@ console.log(printer)
               </div>
               {sellerType === "Printer Owner" && (
                 <div className="mt-4 flex space-x-2">
-                  <Button onClick={updateModelBtn}>Update Printer</Button>
-                  <Button onClick={delModelBtn} variant="destructive">
+                  <Button onClick={updateModelBtn} className="w-1/2">
+                    Update Printer
+                  </Button>
+                  <Button
+                    onClick={delModelBtn}
+                    variant="destructive"
+                    className="w-1/2"
+                  >
                     Delete Printer
                   </Button>
                 </div>
               )}
-              <div className="mt-4">
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full">Place an Order</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Place an Order</DialogTitle>
-                    </DialogHeader>
-                    <PrinterOrder printerId={printerId} />
-                  </DialogContent>
-                </Dialog>
-              </div>
+              {sellerType !== "Printer Owner" && (
+                <div className="mt-4">
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="w-full">Place an Order</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Place an Order</DialogTitle>
+                      </DialogHeader>
+                      <PrinterOrder printerId={printerId} />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -280,4 +287,3 @@ console.log(printer)
 };
 
 export default Page;
-

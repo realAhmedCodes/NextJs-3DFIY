@@ -36,24 +36,6 @@ export async function POST(req) {
     const nozzleDiameter = parseFloat(form.get("nozzleDiameter"));
     const filamentDiameter = parseFloat(form.get("filamentDiameter"));
 
-    console.log(
-      printer_owner_id,
-      name,
-      printerType,
-      materials,
-      colors,
-      services,
-      image,
-      printVolumeWidth,
-      printVolumeDepth,
-      printVolumeHeight,
-      layerResolutionMin,
-      layerResolutionMax,
-      printSpeedMax,
-      nozzleDiameter,
-      filamentDiameter
-    );
-
     // Check for missing required fields
     if (
       !printer_owner_id ||

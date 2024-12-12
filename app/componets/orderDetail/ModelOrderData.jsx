@@ -184,15 +184,13 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
                 <div className="flex space-x-4">
                   <Button
                     onClick={() => handleAction("accepted")}
-                    variant="default"
-                    className="bg-green-500 hover:bg-green-600"
                   >
                     <Check className="w-4 h-4 mr-2" />
                     Accept
                   </Button>
                   <Button
                     onClick={() => setIsDeclining(true)}
-                    variant="destructive"
+                    variant="outline"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Decline
@@ -240,12 +238,14 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
                                 className={
                                   "fill-yellow-400 text-yellow-400 mr-1"
                                 }
+                                key={index}
                                 size={20}
                               />
                             ))}
 
                             {[...Array(5 - seller.ratings)].map((_, index) => (
                               <Star
+                                key={index}
                                 className={"mr-1 text-gray-300"}
                                 size={20}
                               />

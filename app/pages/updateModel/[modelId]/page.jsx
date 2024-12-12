@@ -42,13 +42,14 @@ const UpdateModelPage = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [subSubcategories, setSubSubcategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedSubSubcategoryId, setSelectedSubSubcategoryId] = useState("");
 
   const [error, setError] = useState("");
 
   const router = useRouter();
 
-  const { userId } = useSelector((state) => state.user);
+  const { userId, sellerId } = useSelector((state) => state.user);
 
   // Fetch categories
   useEffect(() => {
@@ -191,7 +192,7 @@ const UpdateModelPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     // Create a new FormData instance
     const formData = new FormData();
     formData.append("modelId", modelId);
@@ -228,6 +229,7 @@ const UpdateModelPage = () => {
 
       const data = await response.json();
 
+      setIsLoading(false);
       if (data.error) {
         setError(data.error);
         console.log("Error updating model:", data.error);
@@ -257,6 +259,19 @@ const UpdateModelPage = () => {
     setTags(updatedTags);
   };
 
+  if (sellerId !== designerId) {
+    return (
+      <div className="flex justify-center py-8 px-4 h-screen items-center">
+        <Card className="w-full max-w-3xl h-fit">
+          <CardHeader>
+            <h2 className="text-xl font-semibold text-center">
+              You are not authorized to update this model
+            </h2>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
   return (
     <div>
       <div className="flex justify-center py-8 px-4">
@@ -469,7 +484,11 @@ const UpdateModelPage = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || sellerId !== designerId}
+              >
                 Update Model
               </Button>
             </form>

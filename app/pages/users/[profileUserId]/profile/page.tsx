@@ -132,7 +132,15 @@ const ProfilePage = () => {
 
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
-    : "/default.png"; // Fallback to default image
+    : "";
+
+  console.log(userDetail);
+
+  console.log(currentUser);
+
+  console.log(userDetail);
+
+  console.log(currentUser);
 
   return (
     <div className="container mx-auto p-6 space-y-6">

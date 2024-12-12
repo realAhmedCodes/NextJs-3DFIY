@@ -77,17 +77,14 @@ export const UserActiveOrder = ({ profileUserId }) => {
       }
       const result = await response.json();
       console.log(result);
-      
+
       setPrintersData(result.topPrinterOwners);
     } catch (err) {
       console.error(err.message);
     }
   };
 
-  useEffect(() => {
-    fetchTopData();
-  }, []);
-  
+  fetchTopData();
 
   // Loading state
   if (!usersPrinterOrders && !usersModelOrders) {
