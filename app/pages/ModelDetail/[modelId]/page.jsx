@@ -190,7 +190,7 @@ const ModelPage = () => {
 
   // Navigate to update model page
   const handleUpdateModel = () => {
-    router.push(`/models/${modelId}/updateModel`);
+    router.push(`/pages/updateModel/${modelId}`);
   };
 
   // Handle model deletion
@@ -347,7 +347,10 @@ const ModelPage = () => {
             />
             <RelatedModels relatedModels={model.relatedModels} />
           </div>
+         
         </div>
+        <div><Button onClick={handleUpdateModel}>
+          Update Model</Button></div>
         <ModelDetails model={model} />
 
         <ReviewSection modelId={model.model_id} />

@@ -1,286 +1,221 @@
-/*import { NextResponse } from "next/server";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import pool from "@/app/lib/db";
+// app/api/models/[modelId]/route.js
 
-// Configure multer for memory storage
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /obj|stl|jpeg|jpg|png/;
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetypes = [
-      "application/sla",
-      "model/stl",
-      "application/vnd.ms-pki.stl",
-      "application/octet-stream",
-      "text/plain",
-      "image/jpeg",
-      "image/png",
-    ];
-    const mimetype = mimetypes.includes(file.mimetype);
-
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(
-        new Error("Only .obj, .stl, .jpeg, .jpg, and .png files are allowed!")
-      );
-    }
-  },
-});
-
-// Middleware function to parse form data
-const multerMiddleware = upload.fields([
-  { name: "modelFile", maxCount: 1 },
-  { name: "image", maxCount: 1 },
-]);
-
-// Main PUT function to handle the update logic
-export async function PUT(req, { params }) {
-  const { modelId } = params;
-
-  // Process the incoming request with multer
-  await new Promise((resolve, reject) => {
-    multerMiddleware(req, req.nextUrl, (err) => {
-      if (err instanceof multer.MulterError) {
-        return reject(err);
-      } else if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
-
-  const { category_id, designer_id, name, description, price, is_free, tags } =
-    req.body;
-
-  if (!modelId) {
-    return NextResponse.json(
-      { error: "Model ID is required" },
-      { status: 400 }
-    );
-  }
-
-  try {
-    // Fetch existing model details
-    const result = await pool.query(
-      'SELECT * FROM "Models" WHERE model_id = $1',
-      [modelId]
-    );
-    if (result.rows.length === 0) {
-      return NextResponse.json({ error: "Model not found" }, { status: 404 });
-    }
-
-    const model = result.rows[0];
-
-    // Handle model file upload
-    let newModelFilePath = model.model_file;
-    if (req.files && req.files.modelFile) {
-      const modelFile = req.files.modelFile[0];
-      newModelFilePath = `./uploads/models/${name}_model_${Date.now()}.${modelFile.originalname
-        .split(".")
-        .pop()}`;
-      fs.writeFileSync(newModelFilePath, modelFile.buffer);
-      if (model.model_file) {
-        fs.unlinkSync(model.model_file);
-      }
-    }
-
-    // Handle image upload
-    let newImagePath = model.image;
-    if (req.files && req.files.image) {
-      const imageFile = req.files.image[0];
-      newImagePath = `./uploads/models/${name}_image_${Date.now()}.${imageFile.originalname
-        .split(".")
-        .pop()}`;
-      fs.writeFileSync(newImagePath, imageFile.buffer);
-      if (model.image) {
-        fs.unlinkSync(model.image);
-      }
-    }
-
-    // Update model in the database
-    const updateResult = await pool.query(
-      'UPDATE "Models" SET category_id = $1, designer_id = $2, name = $3, description = $4, price = $5, is_free = $6, tags = $7, model_file = $8, image = $9 WHERE model_id = $10 RETURNING *',
-      [
-        category_id || model.category_id,
-        designer_id || model.designer_id,
-        name || model.name,
-        description || model.description,
-        price || model.price,
-        is_free || model.is_free,
-        tags || model.tags,
-        newModelFilePath,
-        newImagePath,
-        modelId,
-      ]
-    );
-
-    return NextResponse.json(updateResult.rows[0]);
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Failed to update model" },
-      { status: 500 }
-    );
-  }
-}
-*/
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
-import multer from "multer";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
+import { NextResponse } from "next/server";
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
 
-// Configure multer for memory storage
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /obj|stl|jpeg|jpg|png/;
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-    const mimetypes = [
-      "application/sla",
-      "model/stl",
-      "application/vnd.ms-pki.stl",
-      "application/octet-stream",
-      "text/plain",
-      "image/jpeg",
-      "image/png",
-    ];
-    const mimetype = mimetypes.includes(file.mimetype);
+// Define the upload directory
+const uploadDir = path.join(process.cwd(), "public", "uploads");
 
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(
-        new Error("Only .obj, .stl, .jpeg, .jpg, and .png files are allowed!")
-      );
-    }
-  },
-});
+// Ensure the upload directory exists
+await fs.mkdir(uploadDir, { recursive: true });
 
-// Middleware function to parse form data
-const multerMiddleware = upload.fields([
-  { name: "modelFile", maxCount: 1 },
-  { name: "image", maxCount: 1 },
-]);
-
-// Helper to process multer requests
-function runMiddleware(req, res, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      return resolve(result);
-    });
-  });
+// Helper function to sanitize filenames
+function sanitizeFilename(name) {
+  return name.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "");
 }
 
-// Main PUT function to handle the update logic
 export async function PUT(req, { params }) {
   const { modelId } = params;
 
-  // Process the incoming request with multer
-  await runMiddleware(req, req.nextUrl, multerMiddleware);
-
-  // Manually parse form fields from req.body since it's a multipart form
-  const category_id = req.body.category_id;
-  const designer_id = req.body.designer_id;
-  const name = req.body.name;
-  const description = req.body.description;
-  const price = req.body.price;
-  const is_free = req.body.is_free === "true"; // Convert to boolean
-  const tags = req.body.tags ? JSON.parse(req.body.tags) : [];
-
-  // Debugging output
-  console.log({
-    category_id,
-    designer_id,
-    name,
-    description,
-    price,
-    is_free,
-    tags,
-    files: req.files,
-  });
-
-  if (!modelId) {
-    return NextResponse.json(
-      { error: "Model ID is required" },
-      { status: 400 }
-    );
-  }
+  console.log("Received modelId:", modelId);
 
   try {
-    // Fetch existing model details using Prisma
-    const model = await prisma.models.findUnique({
-      where: { model_id: parseInt(modelId) },
+    // Parse the incoming multipart/form-data
+    const formData = await req.formData();
+
+    // Extract fields from the form data
+    const category_id = formData.get("category_id")
+      ? parseInt(formData.get("category_id"), 10)
+      : null;
+    const designer_id = formData.get("designer_id")
+      ? parseInt(formData.get("designer_id"), 10)
+      : null;
+    const name = formData.get("name");
+    const description = formData.get("description");
+    const price = formData.get("price")
+      ? parseFloat(formData.get("price"))
+      : null;
+    const is_free =
+      formData.get("is_free") === "true" || formData.get("is_free") === true;
+    const tags = formData.get("tags") ? JSON.parse(formData.get("tags")) : [];
+    const model_file = formData.get("modelFile"); // File
+    const image = formData.get("image"); // File
+
+    // Log parsed form data for debugging
+    console.log("Parsed Form Data:", {
+      category_id,
+      designer_id,
+      name,
+      description,
+      price,
+      is_free,
+      tags,
+      model_file: model_file ? model_file.name : "No new model file uploaded",
+      image: image ? image.name : "No new image uploaded",
     });
 
-    if (!model) {
+    // Validate mandatory fields (adjust as per your requirements)
+    if (!category_id || !designer_id || !name || !description) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch existing model from the database
+    const existingModel = await prisma.models.findUnique({
+      where: { model_id: parseInt(modelId, 10) },
+    });
+
+    if (!existingModel) {
       return NextResponse.json({ error: "Model not found" }, { status: 404 });
     }
 
-    // Handle model file upload
-    let newModelFilePath = model.model_file;
-    if (req.files && req.files.modelFile) {
-      const modelFile = req.files.modelFile[0];
-      newModelFilePath = `./uploads/models/${name}_model_${Date.now()}.${modelFile.originalname
-        .split(".")
-        .pop()}`;
-      fs.writeFileSync(newModelFilePath, modelFile.buffer);
-      if (model.model_file) {
-        fs.unlinkSync(model.model_file); // Delete old file
+    // Sanitize the 'name' to ensure filenames are safe
+    const sanitizedName = sanitizeFilename(name);
+
+    // Initialize variables for new file paths
+    let newModelFileName = existingModel.model_file;
+    let newImageFileName = existingModel.image;
+
+    // Handle model file upload (if a new file is provided)
+    if (model_file && model_file.name) {
+      const allowedModelTypes = ["stl", "obj"];
+      const modelFileExt = model_file.name.split(".").pop().toLowerCase();
+      if (!allowedModelTypes.includes(modelFileExt)) {
+        return NextResponse.json(
+          {
+            error: "Invalid model file type. Only .stl and .obj are allowed.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const timestamp = Date.now();
+      newModelFileName = `${sanitizedName}_model_${timestamp}.${modelFileExt}`;
+      const modelFilePath = path.join(uploadDir, newModelFileName);
+      const modelFileBuffer = Buffer.from(await model_file.arrayBuffer());
+      await fs.writeFile(modelFilePath, modelFileBuffer);
+      console.log("New model file saved:", modelFilePath);
+
+      // Delete old model file if it exists
+      if (existingModel.model_file) {
+        const oldModelFilePath = path.join(uploadDir, existingModel.model_file);
+        try {
+          await fs.unlink(oldModelFilePath);
+          console.log("Old model file deleted:", oldModelFilePath);
+        } catch (err) {
+          console.warn("Failed to delete old model file:", oldModelFilePath);
+        }
       }
     }
 
-    // Handle image upload
-    let newImagePath = model.image;
-    if (req.files && req.files.image) {
-      const imageFile = req.files.image[0];
-      newImagePath = `./uploads/models/${name}_image_${Date.now()}.${imageFile.originalname
-        .split(".")
-        .pop()}`;
-      fs.writeFileSync(newImagePath, imageFile.buffer);
-      if (model.image) {
-        fs.unlinkSync(model.image); // Delete old image
+    // Handle image upload (if a new image is provided)
+    if (image && image.name) {
+      const allowedImageTypes = ["jpeg", "jpg", "png"];
+      const imageExt = image.name.split(".").pop().toLowerCase();
+      if (!allowedImageTypes.includes(imageExt)) {
+        return NextResponse.json(
+          {
+            error: "Invalid image file type. Only JPEG and PNG are allowed.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const timestamp = Date.now();
+      newImageFileName = `${sanitizedName}_image_${timestamp}.${imageExt}`;
+      const imageFilePath = path.join(uploadDir, newImageFileName);
+      const imageBuffer = Buffer.from(await image.arrayBuffer());
+      await fs.writeFile(imageFilePath, imageBuffer);
+      console.log("New image file saved:", imageFilePath);
+
+      // Delete old image file if it exists
+      if (existingModel.image) {
+        const oldImageFilePath = path.join(uploadDir, existingModel.image);
+        try {
+          await fs.unlink(oldImageFilePath);
+          console.log("Old image file deleted:", oldImageFilePath);
+        } catch (err) {
+          console.warn("Failed to delete old image file:", oldImageFilePath);
+        }
       }
     }
 
-    // Update model in the database using Prisma
+    // Update the model in the database
     const updatedModel = await prisma.models.update({
-      where: { model_id: parseInt(modelId) },
+      where: { model_id: parseInt(modelId, 10) },
       data: {
-        category_id: category_id || model.category_id,
-        designer_id: designer_id || model.designer_id,
-        name: name || model.name,
-        description: description || model.description,
-        price: price !== undefined ? parseFloat(price) : model.price,
-        is_free: is_free !== undefined ? is_free : model.is_free,
-        tags: tags.length > 0 ? tags : model.tags,
-        model_file: newModelFilePath,
-        image: newImagePath,
+        category_id: category_id || existingModel.category_id,
+        designer_id: designer_id || existingModel.designer_id,
+        name: name || existingModel.name,
+        description: description || existingModel.description,
+        price: is_free ? null : price,
+        is_free: is_free !== undefined ? is_free : existingModel.is_free,
+        tags: tags.length > 0 ? tags : existingModel.tags,
+        model_file: newModelFileName,
+        image: newImageFileName,
+        updatedAt: new Date(),
       },
     });
 
-    return NextResponse.json(updatedModel);
+    console.log("Updated Model:", updatedModel);
+
+    // If a new image was uploaded, send it to FastAPI for embedding
+    if (image && image.name) {
+      const indexingResponse = await sendImageToFastAPI(
+        existingModel.model_id,
+        path.join(uploadDir, newImageFileName)
+      );
+
+      if (!indexingResponse.ok) {
+        const errorData = await indexingResponse.json();
+        console.error("Error indexing image:", errorData);
+        return NextResponse.json(
+          { error: "Failed to index image in Pinecone" },
+          { status: 500 }
+        );
+      }
+    }
+
+    return NextResponse.json(updatedModel, { status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error("Error during model update:", error);
     return NextResponse.json(
       { error: "Failed to update model" },
       { status: 500 }
     );
   }
+}
+
+// Helper function to send image to FastAPI
+async function sendImageToFastAPI(model_id, imagePath) {
+  console.log(
+    `Sending image to FastAPI: model_id=${model_id}, imagePath=${imagePath}`
+  );
+  const form = new FormData();
+  const fileBuffer = await fs.readFile(imagePath);
+  const mimeTypes = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+  };
+  const ext = path.extname(imagePath).substring(1).toLowerCase();
+  const mimeType = mimeTypes[ext] || "application/octet-stream";
+  const blob = new Blob([fileBuffer], { type: mimeType });
+  form.append("file", blob, path.basename(imagePath));
+
+  // Use environment variable for FastAPI URL
+  const fastApiUrl = process.env.FASTAPI_URL || "http://localhost:8000";
+
+  return fetch(`${fastApiUrl}/index_image/?model_id=${model_id}`, {
+    method: "POST",
+    body: form,
+    // Do NOT set 'Content-Type' header manually
+  });
 }

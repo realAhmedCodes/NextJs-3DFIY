@@ -26,9 +26,6 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 const UpdateModelPage = () => {
   const { modelId } = useParams();
-  const router = useRouter();
-
-  // Initialize state variables
   const [model, setModel] = useState(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -49,21 +46,19 @@ const UpdateModelPage = () => {
 
   const [error, setError] = useState("");
 
+  const router = useRouter();
+
   const { userId } = useSelector((state) => state.user);
 
-  // Fetch categories on component mount
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/category");
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
         const categoryData = await response.json();
         setCategories(categoryData);
-        console.log("Categories fetched:", categoryData);
       } catch (err) {
-        console.error(err);
+        console.log(err);
       }
     };
     fetchCategories();
@@ -77,17 +72,10 @@ const UpdateModelPage = () => {
           const response = await fetch(
             `/api/subcategories/${selectedCategoryId}`
           );
-          if (!response.ok) {
-            throw new Error("Failed to fetch subcategories");
-          }
           const subcategoryData = await response.json();
           setSubcategories(subcategoryData);
-          console.log(
-            `Subcategories for category ${selectedCategoryId}:`,
-            subcategoryData
-          );
         } catch (err) {
-          console.error(err);
+          console.log(err);
         }
       };
       fetchSubcategories();
@@ -110,17 +98,10 @@ const UpdateModelPage = () => {
           const response = await fetch(
             `/api/subcategories/${selectedSubcategoryId}`
           );
-          if (!response.ok) {
-            throw new Error("Failed to fetch sub-subcategories");
-          }
           const subSubcategoryData = await response.json();
           setSubSubcategories(subSubcategoryData);
-          console.log(
-            `Sub-subcategories for subcategory ${selectedSubcategoryId}:`,
-            subSubcategoryData
-          );
         } catch (err) {
-          console.error(err);
+          console.log(err);
         }
       };
       fetchSubSubcategories();
@@ -131,15 +112,14 @@ const UpdateModelPage = () => {
     }
   }, [selectedSubcategoryId]);
 
-  // Fetch model details on component mount or when modelId changes
+  // Fetch model details
   useEffect(() => {
     const fetchModelDetail = async () => {
       try {
         const response = await axios.get(`/api/models/${modelId}/modelDetail`);
         const data = response.data;
-        console.log("Model details fetched:", data);
         setModel(data);
-        setName(data.name);
+        setName(data.model_name);
         setDescription(data.description);
         setPrice(data.price);
         setIsFree(data.is_free);
@@ -167,9 +147,6 @@ const UpdateModelPage = () => {
     try {
       // Fetch the category details
       const response = await fetch(`/api/category/${categoryId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch category details");
-      }
       const categoryData = await response.json();
 
       if (!categoryData.parent_category_id) {
@@ -184,9 +161,6 @@ const UpdateModelPage = () => {
         const parentResponse = await fetch(
           `/api/category/${categoryData.parent_category_id}`
         );
-        if (!parentResponse.ok) {
-          throw new Error("Failed to fetch parent category");
-        }
         const parentCategoryData = await parentResponse.json();
 
         if (!parentCategoryData.parent_category_id) {
@@ -215,30 +189,12 @@ const UpdateModelPage = () => {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Log current state for debugging
-    console.log("Submitting with the following data:", {
-      modelId,
-      category_id:
-        selectedSubSubcategoryId ||
-        selectedSubcategoryId ||
-        selectedCategoryId ||
-        categoryId,
-      designerId,
-      name,
-      description,
-      price: isFree ? "0" : price,
-      is_free: isFree,
-      tags,
-      image,
-      modelFile,
-    });
-
     // Create a new FormData instance
     const formData = new FormData();
+    formData.append("modelId", modelId);
     formData.append(
       "category_id",
       selectedSubSubcategoryId ||
@@ -251,7 +207,6 @@ const UpdateModelPage = () => {
     formData.append("description", description);
     formData.append("price", isFree ? "0" : price);
     formData.append("is_free", isFree);
-    formData.append("tags", JSON.stringify(tags));
 
     // Check if image and modelFile are not null
     if (image) {
@@ -261,12 +216,14 @@ const UpdateModelPage = () => {
       formData.append("modelFile", modelFile);
     }
 
+    // Append tags as JSON string
+    formData.append("tags", JSON.stringify(tags));
+
     try {
       // Send PUT request to update model
       const response = await fetch(`/api/models/${modelId}/update`, {
         method: "PUT",
         body: formData,
-        // Do NOT set 'Content-Type' header manually
       });
 
       const data = await response.json();
@@ -276,7 +233,6 @@ const UpdateModelPage = () => {
         console.log("Error updating model:", data.error);
       } else {
         console.log("Model updated successfully:", data);
-        // Optionally redirect or provide feedback
         //router.push(`/models/${modelId}`);
       }
     } catch (error) {
@@ -285,25 +241,20 @@ const UpdateModelPage = () => {
     }
   };
 
-  // Handle adding a new tag
   const handleTagAdd = () => {
-    const trimmedTag = tagInput.trim();
-    if (trimmedTag !== "" && !tags.includes(trimmedTag)) {
+    if (tagInput.trim() !== "" && !tags.includes(tagInput)) {
       if (tags.length < 5) {
-        setTags([...tags, trimmedTag]);
+        setTags([...tags, tagInput.trim()]);
         setTagInput("");
-        console.log("Tag added:", trimmedTag);
       } else {
         alert("You can only add up to 5 tags.");
       }
     }
   };
 
-  // Handle deleting a tag
   const handleTagDelete = (tagToDelete) => {
     const updatedTags = tags.filter((tag) => tag !== tagToDelete);
     setTags(updatedTags);
-    console.log("Tag deleted:", tagToDelete);
   };
 
   return (
@@ -328,10 +279,7 @@ const UpdateModelPage = () => {
                   type="text"
                   placeholder="Enter model name"
                   value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log("Name updated to:", e.target.value);
-                  }}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
@@ -343,10 +291,7 @@ const UpdateModelPage = () => {
                   id="description"
                   placeholder="Enter model description"
                   value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                    console.log("Description updated to:", e.target.value);
-                  }}
+                  onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </div>
@@ -355,10 +300,7 @@ const UpdateModelPage = () => {
               <div>
                 <Label htmlFor="category">Category</Label>
                 <Select
-                  onValueChange={(value) => {
-                    setSelectedCategoryId(value);
-                    console.log("Category selected:", value);
-                  }}
+                  onValueChange={(value) => setSelectedCategoryId(value)}
                   value={selectedCategoryId}
                 >
                   <SelectTrigger id="category">
@@ -389,10 +331,7 @@ const UpdateModelPage = () => {
                 <div>
                   <Label htmlFor="subcategory">Subcategory</Label>
                   <Select
-                    onValueChange={(value) => {
-                      setSelectedSubcategoryId(value);
-                      console.log("Subcategory selected:", value);
-                    }}
+                    onValueChange={(value) => setSelectedSubcategoryId(value)}
                     value={selectedSubcategoryId}
                   >
                     <SelectTrigger id="subcategory">
@@ -425,10 +364,9 @@ const UpdateModelPage = () => {
                 <div>
                   <Label htmlFor="subsubcategory">Sub-subcategory</Label>
                   <Select
-                    onValueChange={(value) => {
-                      setSelectedSubSubcategoryId(value);
-                      console.log("Sub-subcategory selected:", value);
-                    }}
+                    onValueChange={(value) =>
+                      setSelectedSubSubcategoryId(value)
+                    }
                     value={selectedSubSubcategoryId}
                   >
                     <SelectTrigger id="subsubcategory">
@@ -462,10 +400,7 @@ const UpdateModelPage = () => {
                   <Checkbox
                     id="isFree"
                     checked={isFree}
-                    onCheckedChange={(checked) => {
-                      setIsFree(checked);
-                      console.log("Is Free:", checked);
-                    }}
+                    onCheckedChange={(checked) => setIsFree(checked)}
                   />
                   <Label htmlFor="isFree">Is Free</Label>
                 </div>
@@ -477,10 +412,7 @@ const UpdateModelPage = () => {
                       type="number"
                       placeholder="Enter price"
                       value={price}
-                      onChange={(e) => {
-                        setPrice(e.target.value);
-                        console.log("Price updated to:", e.target.value);
-                      }}
+                      onChange={(e) => setPrice(e.target.value)}
                       required={!isFree}
                     />
                   </div>
@@ -495,10 +427,7 @@ const UpdateModelPage = () => {
                     type="text"
                     placeholder="Add a tag"
                     value={tagInput}
-                    onChange={(e) => {
-                      setTagInput(e.target.value);
-                      console.log("Tag input updated to:", e.target.value);
-                    }}
+                    onChange={(e) => setTagInput(e.target.value)}
                   />
                   <Button type="button" onClick={handleTagAdd}>
                     <PlusIcon className="h-4 w-4" />
@@ -524,10 +453,7 @@ const UpdateModelPage = () => {
                   id="modelFile"
                   type="file"
                   accept=".stl,.obj"
-                  onChange={(e) => {
-                    setModelFile(e.target.files[0]);
-                    console.log("Model file selected:", e.target.files[0]);
-                  }}
+                  onChange={(e) => setModelFile(e.target.files[0])}
                 />
               </div>
 
@@ -538,10 +464,7 @@ const UpdateModelPage = () => {
                   id="image"
                   type="file"
                   accept="image/jpeg,image/png"
-                  onChange={(e) => {
-                    setImage(e.target.files[0]);
-                    console.log("Image file selected:", e.target.files[0]);
-                  }}
+                  onChange={(e) => setImage(e.target.files[0])}
                 />
               </div>
 

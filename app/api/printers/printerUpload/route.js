@@ -1,84 +1,4 @@
-/*import path from "path";
-import fs from "fs";
-import pool from "@/app/lib/db";
-
-const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-export async function POST(req) {
-  try {
-    const form = await req.formData();
-
-    const printer_owner_id = parseInt(form.get("printer_owner_id"), 10);
-    const name = form.get("name");
-    const description = form.get("description");
-    const printerType = form.get("printerType");
-    const materials = JSON.parse(form.get("materials"));
-    const colors = JSON.parse(form.get("colors"));
-    const services = JSON.parse(form.get("services"));
-    const price = parseFloat(form.get("price"));
-    const location = form.get("location");
-    const image = form.get("image");
-
-    if (
-      !printer_owner_id ||
-      !name ||
-      !printerType ||
-      !materials.length ||
-      !colors.length ||
-      !services.length ||
-      !image
-    ) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
-        {
-          status: 400,
-        }
-      );
-    }
-
-    const imageFilename = `${name}_image_${Date.now()}.${image.name
-      .split(".")
-      .pop()}`;
-    const imagePath = path.join(uploadDir, imageFilename);
-
-    const imageBuffer = Buffer.from(await image.arrayBuffer());
-    fs.writeFileSync(imagePath, imageBuffer);
-
-    const now = new Date().toISOString();
-
-    const result = await pool.query(
-      `INSERT INTO "printers" (printer_owner_id, name, description, printer_type, materials, colors, services, price, location, image, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5::text[], $6::text[], $7::text[], $8, $9, $10, $11, $12) RETURNING *`,
-      [
-        printer_owner_id,
-        name,
-        description,
-        printerType,
-        materials,
-        colors,
-        services,
-        price,
-        location,
-        imageFilename,
-        now,
-        now,
-      ]
-    );
-
-    return new Response(JSON.stringify(result.rows[0]), { status: 201 });
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: "Failed to upload printer" }), {
-      status: 500,
-    });
-  }
-}
-*/
-
+// /app/api/printers/printerUpload/route.js
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import fs from "fs";
@@ -106,15 +26,35 @@ export async function POST(req) {
     const location = form.get("location");
     const image = form.get("image");
 
-   console.log(
-     printer_owner_id ,
-       name,
-       printerType,
-       materials,
-       colors,
-       services,
-       image
-   );
+    // Parse technical specifications
+    const printVolumeWidth = parseFloat(form.get("printVolumeWidth"));
+    const printVolumeDepth = parseFloat(form.get("printVolumeDepth"));
+    const printVolumeHeight = parseFloat(form.get("printVolumeHeight"));
+    const layerResolutionMin = parseFloat(form.get("layerResolutionMin"));
+    const layerResolutionMax = parseFloat(form.get("layerResolutionMax"));
+    const printSpeedMax = parseFloat(form.get("printSpeedMax"));
+    const nozzleDiameter = parseFloat(form.get("nozzleDiameter"));
+    const filamentDiameter = parseFloat(form.get("filamentDiameter"));
+
+    console.log(
+      printer_owner_id,
+      name,
+      printerType,
+      materials,
+      colors,
+      services,
+      image,
+      printVolumeWidth,
+      printVolumeDepth,
+      printVolumeHeight,
+      layerResolutionMin,
+      layerResolutionMax,
+      printSpeedMax,
+      nozzleDiameter,
+      filamentDiameter
+    );
+
+    // Check for missing required fields
     if (
       !printer_owner_id ||
       !name ||
@@ -122,10 +62,40 @@ export async function POST(req) {
       !materials.length ||
       !colors.length ||
       !services.length ||
-      !image
+      !image ||
+      isNaN(printVolumeWidth) ||
+      isNaN(printVolumeDepth) ||
+      isNaN(printVolumeHeight) ||
+      isNaN(layerResolutionMin) ||
+      isNaN(layerResolutionMax) ||
+      isNaN(printSpeedMax) ||
+      isNaN(nozzleDiameter) ||
+      isNaN(filamentDiameter)
     ) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({ error: "Missing or invalid required fields" }),
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Optional: Server-side validation (ensure values are positive)
+    if (
+      printVolumeWidth <= 0 ||
+      printVolumeDepth <= 0 ||
+      printVolumeHeight <= 0 ||
+      layerResolutionMin <= 0 ||
+      layerResolutionMax <= 0 ||
+      printSpeedMax <= 0 ||
+      nozzleDiameter <= 0 ||
+      filamentDiameter <= 0 ||
+      layerResolutionMin > layerResolutionMax
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid values for technical specifications",
+        }),
         {
           status: 400,
         }
@@ -133,9 +103,8 @@ export async function POST(req) {
     }
 
     // Handle image upload
-    const imageFilename = `${name}_image_${Date.now()}.${image.name
-      .split(".")
-      .pop()}`;
+    const imageExtension = image.name.split(".").pop();
+    const imageFilename = `${name}_image_${Date.now()}.${imageExtension}`;
     const imagePath = path.join(uploadDir, imageFilename);
     const imageBuffer = Buffer.from(await image.arrayBuffer());
     fs.writeFileSync(imagePath, imageBuffer);
@@ -153,6 +122,15 @@ export async function POST(req) {
         price: price,
         location: location,
         image: imageFilename,
+        // Technical Specifications as Numbers
+        printVolumeWidth: printVolumeWidth,
+        printVolumeDepth: printVolumeDepth,
+        printVolumeHeight: printVolumeHeight,
+        layerResolutionMin: layerResolutionMin,
+        layerResolutionMax: layerResolutionMax,
+        printSpeedMax: printSpeedMax,
+        nozzleDiameter: nozzleDiameter,
+        filamentDiameter: filamentDiameter,
         created_at: new Date(),
         updated_at: new Date(),
       },
