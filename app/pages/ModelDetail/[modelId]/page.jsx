@@ -150,7 +150,7 @@ const ModelPage = () => {
 
     checkPurchaseStatus();
   }, [userId, model, authToken]);
-  
+
   const handleLike = async () => {
     try {
       if (isLiked) {
@@ -189,10 +189,10 @@ const ModelPage = () => {
   };
 
   // Navigate to update model page
-  const handleUpdateModel = () => {
-    router.push(`/models/${modelId}/updateModel`);
+  /*const handleUpdateModel = () => {
+    router.push(`/pages/updateModel/${modelId}`);
   };
-
+*/
   // Handle model deletion
   const handleDeleteModel = async () => {
     const confirmDelete = window.confirm(
@@ -218,7 +218,7 @@ const ModelPage = () => {
   // Handle buy button click
   const handleBuy = async () => {
     if (!userId) {
-      router.push("/login");
+      router.push("/pages/Login");
       return;
     }
 
@@ -272,7 +272,7 @@ const ModelPage = () => {
   };
 
   // Handle purchase success
-  const handlePurchaseSuccess = () => {    
+  const handlePurchaseSuccess = () => {
     setHasPurchased(true);
     toast.success("Purchase successful!");
     window.location.reload();
@@ -333,8 +333,10 @@ const ModelPage = () => {
           <div className="lg:w-1/3">
             <ModelActions
               model={model}
+              modelId={modelId}
+              desginerId={model.designer_id}
               hasPurchased={hasPurchased}
-              onBuy={() => setIsModalOpen(true)}
+              onBuy={handleBuy}
               onDownload={() => handleDownload()}
               isCurrentUserSeller={false}
               authToken={authToken}
@@ -348,6 +350,7 @@ const ModelPage = () => {
             <RelatedModels relatedModels={model.relatedModels} />
           </div>
         </div>
+       
         <ModelDetails model={model} />
 
         <ReviewSection modelId={model.model_id} />

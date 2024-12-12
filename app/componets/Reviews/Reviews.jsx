@@ -15,7 +15,6 @@ const Reviews = ({ profileId, printerId }) => {
   let parsedProfileId = parseInt(profileId);
   let parsedPrinterId = parseInt(printerId);
   const handleReviewSubmit = async () => {
-    // Validate that either profileId or printerId is provided
     if (!profileId && !printerId) {
       toast.warning("No target for the review.");
       return;
@@ -23,7 +22,7 @@ const Reviews = ({ profileId, printerId }) => {
 
     // Validate that review text is not empty
     if (!reviewText.trim()) {
-      toast.warning('Please write a review before submitting.');
+      toast.warning("Please write a review before submitting.");
       return;
     }
 
@@ -54,7 +53,7 @@ const Reviews = ({ profileId, printerId }) => {
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      toast.error('An unexpected error occurred.');
+      toast.error("An unexpected error occurred.");
     }
 
     setIsSubmitting(false);
@@ -76,8 +75,8 @@ const Reviews = ({ profileId, printerId }) => {
         />
         <Button
           onClick={handleReviewSubmit}
-          disabled={isSubmitting}
-          className="w-full"
+          disabled={isSubmitting || sellerType === "Printer Owner"}
+          className="w-full "
         >
           {isSubmitting ? "Submitting..." : "Submit Review"}
         </Button>

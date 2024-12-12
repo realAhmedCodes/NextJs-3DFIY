@@ -4,7 +4,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
+
 import { useSelector } from "react-redux";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,9 +23,6 @@ import { Badge } from "@/components/ui/badge";
 import { Alert } from "@/components/ui/alert";
 
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { toast } from "sonner";
-
-
 
 const UpdateModelPage = () => {
   const { modelId } = useParams();
@@ -43,6 +42,7 @@ const UpdateModelPage = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("");
   const [subSubcategories, setSubSubcategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedSubSubcategoryId, setSelectedSubSubcategoryId] = useState("");
 
   const [error, setError] = useState("");
@@ -192,16 +192,16 @@ const UpdateModelPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     // Create a new FormData instance
     const formData = new FormData();
     formData.append("modelId", modelId);
     formData.append(
       "category_id",
       selectedSubSubcategoryId ||
-      selectedSubcategoryId ||
-      selectedCategoryId ||
-      categoryId
+        selectedSubcategoryId ||
+        selectedCategoryId ||
+        categoryId
     );
     formData.append("designer_id", designerId);
     formData.append("name", name);
@@ -229,17 +229,17 @@ const UpdateModelPage = () => {
 
       const data = await response.json();
 
+      setIsLoading(false);
       if (data.error) {
-        toast.error(data.error);
+        setError(data.error);
         console.log("Error updating model:", data.error);
       } else {
         console.log("Model updated successfully:", data);
-        toast.success("Model updated successfully.");
-        router.push(`/models/${modelId}`);
+        //router.push(`/models/${modelId}`);
       }
     } catch (error) {
       console.error("Update failed:", error);
-      toast.error("Update failed. Please try again.");
+      setError("Update failed. Please try again.");
     }
   };
 
@@ -259,9 +259,21 @@ const UpdateModelPage = () => {
     setTags(updatedTags);
   };
 
+  if (sellerId !== designerId) {
+    return (
+      <div className="flex justify-center py-8 px-4 h-screen items-center">
+        <Card className="w-full max-w-3xl h-fit">
+          <CardHeader>
+            <h2 className="text-xl font-semibold text-center">
+              You are not authorized to update this model
+            </h2>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
   return (
     <div>
-
       <div className="flex justify-center py-8 px-4">
         <Card className="w-full max-w-3xl">
           <CardHeader>
@@ -310,9 +322,9 @@ const UpdateModelPage = () => {
                     <span>
                       {selectedCategoryId
                         ? categories.find(
-                          (cat) =>
-                            cat.category_id.toString() === selectedCategoryId
-                        )?.name
+                            (cat) =>
+                              cat.category_id.toString() === selectedCategoryId
+                          )?.name
                         : "Select a category"}
                     </span>
                   </SelectTrigger>
@@ -341,10 +353,10 @@ const UpdateModelPage = () => {
                       <span>
                         {selectedSubcategoryId
                           ? subcategories.find(
-                            (sub) =>
-                              sub.category_id.toString() ===
-                              selectedSubcategoryId
-                          )?.name
+                              (sub) =>
+                                sub.category_id.toString() ===
+                                selectedSubcategoryId
+                            )?.name
                           : "Select a subcategory"}
                       </span>
                     </SelectTrigger>
@@ -376,10 +388,10 @@ const UpdateModelPage = () => {
                       <span>
                         {selectedSubSubcategoryId
                           ? subSubcategories.find(
-                            (subsub) =>
-                              subsub.category_id.toString() ===
-                              selectedSubSubcategoryId
-                          )?.name
+                              (subsub) =>
+                                subsub.category_id.toString() ===
+                                selectedSubSubcategoryId
+                            )?.name
                           : "Select a sub-subcategory"}
                       </span>
                     </SelectTrigger>
@@ -472,7 +484,11 @@ const UpdateModelPage = () => {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full" disabled={sellerId == designerId}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || sellerId !== designerId}
+              >
                 Update Model
               </Button>
             </form>

@@ -21,6 +21,16 @@ import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
 import { toast } from "sonner";
 import { EyeSlashIcon } from "@heroicons/react/24/solid";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import ForgotPassword from "./ForgotPassword";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 const LoginForm = () => {
   // State management for form inputs and UI states
@@ -65,7 +75,7 @@ const LoginForm = () => {
         );
 
         toast.success("Login successful!");
-        router.push(`/`); 
+        router.push(`/`);
       }
     } catch (error) {
       toast.error("Error during login, please try again.");
@@ -74,122 +84,139 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email and password to sign in to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Error Alert */}
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <p>{error}</p>
-            </Alert>
-          )}
+    <>
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle className="text-2xl">Login</CardTitle>
+            <CardDescription>
+              Enter your email and password to sign in to your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <p>{error}</p>
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
-            <div>
-              <Label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email
-              </Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="email@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            {/* Password Input */}
-            <div>
-              <div className="flex items-center justify-between">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Input */}
+              <div>
                 <Label
-                  htmlFor="password"
+                  htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Password
+                  Email
                 </Label>
-                <Link
-                  href="#"
-                  className="text-sm text-gray-600 hover:text-gray-800"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
-              <div className="mt-1 relative">
                 <Input
-                  id="password"
-                  name="password"
-                  type={passwordShown ? "text" : "password"}
-                  placeholder="********"
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="email@example.com"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
-                  aria-label={passwordShown ? "Hide password" : "Show password"}
-                >
-                  {passwordShown ? (
-                    <EyeSlashIcon className="h-5 w-5" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div>
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
-            </div>
+              {/* Password Input */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </Label>
 
-            {/* Login with Google Button */}
-            <div>
-              <Button
-                variant="outline"
-                className="w-full py-3 px-6 rounded-lg shadow-lg transition duration-300"
-                disabled
-                onClick={() => {
-                  // Implement Google login functionality here
-                  console.log("Login with Google clicked");
-                }}
+                  <Drawer>
+                    <DrawerTrigger>
+                      <span className="text-sm text-gray-600 hover:text-gray-800 p-0 hover:underline">
+                        Forgot your password?
+                      </span>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <DrawerHeader className="max-w-7xl mx-auto">
+                        <DrawerTitle>Reset Password</DrawerTitle>
+                        <DrawerDescription>
+                          Enter your name and email to reset your password. An
+                          OTP will be sent to your registered email if it
+                          exists.
+                        </DrawerDescription>
+                      </DrawerHeader>
+                      <ForgotPassword />
+                    </DrawerContent>
+                  </Drawer>
+                </div>
+                <div className="mt-1 relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={passwordShown ? "text" : "password"}
+                    placeholder="********"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
+                    aria-label={
+                      passwordShown ? "Hide password" : "Show password"
+                    }
+                  >
+                    {passwordShown ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div>
+                <Button type="submit" className="w-full">
+                  Login
+                </Button>
+              </div>
+
+              {/* Login with Google Button */}
+              <div>
+                <Button
+                  variant="outline"
+                  className="w-full py-3 px-6 rounded-lg shadow-lg transition duration-300"
+                  disabled
+                  onClick={() => {
+                    // Implement Google login functionality here
+                    console.log("Login with Google clicked");
+                  }}
+                >
+                  {/* You can add a Google icon here if desired */}
+                  <span>Login with Google</span>
+                </Button>
+              </div>
+            </form>
+
+            {/* Register Link */}
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/pages/register"
+                className="font-medium text-gray-700 hover:text-gray-800"
               >
-                {/* You can add a Google icon here if desired */}
-                <span>Login with Google</span>
-              </Button>
+                Sign up
+              </Link>
             </div>
-          </form>
-
-          {/* Register Link */}
-          <div className="mt-4 text-center text-sm">
-            Don`&apos;`t have an account?{" "}
-            <Link
-              href="/pages/register"
-              className="font-medium text-gray-700 hover:text-gray-800"
-            >
-              Sign up
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 

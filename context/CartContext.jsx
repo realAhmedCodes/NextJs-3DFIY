@@ -16,8 +16,11 @@ export const CartProvider = ({ children }) => {
     }
   });
 
+  
+
   // Manage cart visibility state
   const [isCartOpen, setIsCartOpen] = useState(false);
+  console.log(isCartOpen);
 
   // Save cartItems to sessionStorage whenever it changes
   useEffect(() => {

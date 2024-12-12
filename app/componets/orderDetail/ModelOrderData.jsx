@@ -184,15 +184,13 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
                 <div className="flex space-x-4">
                   <Button
                     onClick={() => handleAction("accepted")}
-                    variant="default"
-                    className="bg-green-500 hover:bg-green-600"
                   >
                     <Check className="w-4 h-4 mr-2" />
                     Accept
                   </Button>
                   <Button
                     onClick={() => setIsDeclining(true)}
-                    variant="destructive"
+                    variant="outline"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Decline

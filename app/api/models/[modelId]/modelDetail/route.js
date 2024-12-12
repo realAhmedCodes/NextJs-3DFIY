@@ -39,6 +39,7 @@ export async function GET(request, { params }) {
       const responseData = {
         type: "designer", // Indicator for model type
         model_id: designerModel.model_id,
+        designer_id: designerModel.designer_id,
         model_name: designerModel.name,
         description: designerModel.description,
         price: designerModel.price,
