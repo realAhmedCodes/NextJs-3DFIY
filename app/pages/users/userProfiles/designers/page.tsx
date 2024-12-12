@@ -222,6 +222,7 @@ const DesignersPage: React.FC = () => {
                       <div className="flex items-center justify-center -mt-4 mb-8">
                         {[...Array(ratings)].map((_, index) => (
                           <Star
+                            key={index}
                             className={"fill-yellow-400 text-yellow-400 mr-1"}
                             size={24}
                           />
@@ -229,9 +230,10 @@ const DesignersPage: React.FC = () => {
 
                         {[...Array(5 - ratings)].map((_, index) => (
                           <Star
-                          className={"mr-1 text-gray-300"}
-                          size={24}
-                        />
+                            key={index}
+                            className={"mr-1 text-gray-300"}
+                            size={24}
+                          />
                         ))}
                       </div>
                     )}

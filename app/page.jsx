@@ -165,20 +165,27 @@ export default function Home() {
                         <div className="flex items-center justify-center">
                           {[...Array(seller.ratings)].map((_, index) => (
                             <Star
+                              key={index}
                               className={"fill-yellow-400 text-yellow-400 mr-1"}
                               size={20}
                             />
                           ))}
 
                           {[...Array(5 - seller.ratings)].map((_, index) => (
-                            <Star className={"mr-1 text-gray-300"} size={20} />
+                            <Star
+                              key={index}
+                              className={"mr-1 text-gray-300"}
+                              size={20}
+                            />
                           ))}
                         </div>
                       )}
                     </span>
                   </div>
                   <Link href={`/pages/users/${seller.user_id}/profile`}>
-                    <Button className="w-full mt-2" size="sm" variant="ghost">View Profile</Button>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">
+                      View Profile
+                    </Button>
                   </Link>
                 </Card>
               ))}
@@ -213,7 +220,7 @@ export default function Home() {
                   <h3 className="text-lg font-semibold capitalize">
                     {seller.Users.name}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500" key={index}>
                     {seller.Users.sellerType}
                   </p>
                   <div className="flex items-center">
@@ -222,20 +229,27 @@ export default function Home() {
                         <div className="flex items-center justify-center  mt-2">
                           {[...Array(seller.ratings)].map((_, index) => (
                             <Star
+                              key={index}
                               className={"fill-yellow-400 text-yellow-400 mr-1"}
                               size={20}
                             />
                           ))}
 
                           {[...Array(5 - seller.ratings)].map((_, index) => (
-                            <Star className={"mr-1 text-gray-300"} size={20} />
+                            <Star
+                              key={index}
+                              className={"mr-1 text-gray-300"}
+                              size={20}
+                            />
                           ))}
                         </div>
                       )}
                     </span>
                   </div>
                   <Link href={`/pages/users/${seller.user_id}/profile`}>
-                    <Button className="w-full mt-2" size="sm" variant="ghost">View Profile</Button>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">
+                      View Profile
+                    </Button>
                   </Link>
                 </Card>
               ))}
@@ -270,14 +284,12 @@ export default function Home() {
                   <h3 className="text-lg font-semibold capitalize">
                     {seller.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mb-2">
-                    ${seller.price}
-                  </p>
-                  <div className="flex items-center">
-                    
-                  </div>
+                  <p className="text-sm text-gray-500 mb-2">${seller.price}</p>
+                  <div className="flex items-center"></div>
                   <Link href={`/pages/users/${seller.user_id}/profile`}>
-                    <Button className="w-full mt-2" size="sm" variant="ghost">View Model</Button>
+                    <Button className="w-full mt-2" size="sm" variant="ghost">
+                      View Model
+                    </Button>
                   </Link>
                 </Card>
               ))}

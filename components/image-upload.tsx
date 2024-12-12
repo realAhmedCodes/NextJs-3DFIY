@@ -12,7 +12,7 @@ export function ImageUpload({ onSubmit, data }) {
       <div className="space-y-2">
         <Label htmlFor="image">Upload Printer Image</Label>
         <Input id="image" type="file" {...register('image', { required: 'Image is required' })} accept="image/*" />
-        {errors.image && <p className="text-sm text-destructive">{errors.image.message}</p>}
+        {errors.image && <p className="text-sm text-destructive">{errors.image.message as string}</p>}
       </div>
     </form>
   )

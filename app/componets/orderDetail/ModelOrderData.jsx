@@ -238,12 +238,14 @@ const ModelOrderData = ({ orderId, downloadFile, printersData }) => {
                                 className={
                                   "fill-yellow-400 text-yellow-400 mr-1"
                                 }
+                                key={index}
                                 size={20}
                               />
                             ))}
 
                             {[...Array(5 - seller.ratings)].map((_, index) => (
                               <Star
+                                key={index}
                                 className={"mr-1 text-gray-300"}
                                 size={20}
                               />
