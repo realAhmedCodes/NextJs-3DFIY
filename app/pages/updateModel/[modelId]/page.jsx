@@ -233,7 +233,7 @@ const UpdateModelPage = () => {
         console.log("Error updating model:", data.error);
       } else {
         console.log("Model updated successfully:", data);
-        router.push(`/models/${modelId}`);
+        //router.push(`/models/${modelId}`);
       }
     } catch (error) {
       console.error("Update failed:", error);
