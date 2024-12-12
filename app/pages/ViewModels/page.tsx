@@ -86,8 +86,8 @@ const ModelsListPage: React.FC = () => {
       "tags",
       "sortBy",
       "modelType",
-      "page",    // Added "page"
-      "limit",   // Added "limit"
+      "page", // Added "page"
+      "limit", // Added "limit"
     ];
 
     // If any of the searchParamsKeys are present, do not show recommended models
@@ -120,13 +120,18 @@ const ModelsListPage: React.FC = () => {
         const data = await response.json();
         setRecommendedModels(data.recommendations);
       } catch (err: any) {
-        toast.error(err.message || "An error occurred while fetching recommendations.");
+        toast.error(
+          err.message || "An error occurred while fetching recommendations."
+        );
       } finally {
         setLoadingRecommended(false);
       }
     };
-
-    fetchRecommendations();
+    if (userId) {
+      fetchRecommendations();
+    } else if(!userId) {
+      setLoadingRecommended(false);
+    }
   }, [showRecommended, userId]);
 
   // Combined useEffect for fetching regular models
@@ -472,9 +477,13 @@ const ModelsListPage: React.FC = () => {
                   </Card>
                 ))}
               </div>
-            ) : (
+            ) : userId ? (
               <p className="text-center text-xl text-gray-600 mt-10">
                 No recommended models found.
+              </p>
+            ) : (
+              <p className="text-center text-xl text-gray-600 mt-10">
+                Please log in to view recommended models.
               </p>
             )}
           </>
@@ -534,9 +543,7 @@ const ModelsListPage: React.FC = () => {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center h-48 w-full bg-gray-200 rounded-t-lg">
-                      <span className="text-gray-500">
-                        No Image Available
-                      </span>
+                      <span className="text-gray-500">No Image Available</span>
                     </div>
                   )}
 

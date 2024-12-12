@@ -25,6 +25,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { ArrowBigLeft, ArrowLeft } from "lucide-react";
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -250,267 +251,271 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Sign Up to Get Started
-          </h2>
-        </CardHeader>
-        <CardContent>
-          {currentStep === 1 && (
-            <form
-              className="space-y-6"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleNext();
-              }}
-            >
-              {/* Name */}
-              <div>
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter Name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  className="mt-1"
-                />
-                {touched.name && !validName && (
-                  <p className="text-red-500 text-sm">Name is required.</p>
-                )}
-              </div>
+    <div className="flex min-h-screen w-1/2 flex-col items-center justify-center bg-white py-8 px-4 sm:px-6 lg:px-8">
+      <CardHeader className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900">
+          Sign Up to Get Started
+        </h2>
+      </CardHeader>
+      <CardContent className="w-1/2">
+        {currentStep === 1 && (
+          <form
+            className="space-y-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleNext();
+            }}
+          >
+            {/* Name */}
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Enter Name"
+                value={formData.name}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className="mt-1"
+              />
+              {touched.name && !validName && (
+                <p className="text-red-500 text-sm">Name is required.</p>
+              )}
+            </div>
 
-              {/* Username */}
-              <div>
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="Username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  className="mt-1"
-                />
-                {touched.username && !validUsername && (
-                  <p className="text-red-500 text-sm">
-                    Username must be 4-24 characters, start with a letter, and
-                    can include letters, numbers, underscores, and hyphens.
-                  </p>
-                )}
-              </div>
+            {/* Username */}
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className="mt-1"
+              />
+              {touched.username && !validUsername && (
+                <p className="text-red-500 text-sm">
+                  Username must be 4-24 characters, start with a letter, and can
+                  include letters, numbers, underscores, and hyphens.
+                </p>
+              )}
+            </div>
 
-              {/* Email */}
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  className="mt-1"
-                />
-                {touched.email && !validEmail && (
-                  <p className="text-red-500 text-sm">
-                    Enter a valid email address.
-                  </p>
-                )}
-              </div>
+            {/* Email */}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className="mt-1"
+              />
+              {touched.email && !validEmail && (
+                <p className="text-red-500 text-sm">
+                  Enter a valid email address.
+                </p>
+              )}
+            </div>
 
-              {/* Next Button */}
-              <Button type="button" onClick={handleNext} className="w-full">
+            {/* Next Button */}
+            <Button type="button" onClick={handleNext} className="w-full">
+              Next
+            </Button>
+
+            {/* Login Link */}
+            <p className="mt-6 text-center text-sm text-gray-600">
+              Already have an account?
+              <a
+                href="/pages/Login"
+                className="font-semibold text-gray-600 hover:text-gray-800"
+              >
+                {" "}
+                Log In
+              </a>
+            </p>
+          </form>
+        )}
+
+        {currentStep === 2 && (
+          <form
+            className="space-y-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleNext();
+            }}
+          >
+            {/* Password */}
+            <div>
+              <Label htmlFor="pwd">Password</Label>
+              <Input
+                id="pwd"
+                type="password"
+                placeholder="********"
+                value={formData.pwd}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className="mt-1"
+              />
+              {touched.pwd && !validPwd && (
+                <p className="text-red-500 text-sm">
+                  Password must be 8-24 characters, include uppercase and
+                  lowercase letters, a number, and a special character.
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <Label htmlFor="matchPwd">Confirm Password</Label>
+              <Input
+                id="matchPwd"
+                type="password"
+                placeholder="********"
+                value={formData.matchPwd}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                className="mt-1"
+              />
+              {touched.matchPwd && !validMatch && (
+                <p className="text-red-500 text-sm">Passwords do not match.</p>
+              )}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between">
+              <Button type="button" variant="outline" onClick={handleBack}>
+                <ArrowLeft />
+                Back
+              </Button>
+              <Button type="button" onClick={handleNext}>
+                <ArrowRight />
                 Next
               </Button>
+            </div>
+          </form>
+        )}
 
-              {/* Login Link */}
-              <p className="mt-6 text-center text-sm text-gray-600">
-                Already have an account?
-                <a
-                  href="/pages/Login"
-                  className="font-semibold text-gray-600 hover:text-gray-800"
-                >
-                  {" "}
-                  Log In
-                </a>
-              </p>
-            </form>
-          )}
+        {currentStep === 3 && (
+          <form className="space-y-6" onSubmit={SubmitBtn}>
+            {/* Location */}
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                type="text"
+                placeholder="Enter Location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+            </div>
 
-          {currentStep === 2 && (
-            <form
-              className="space-y-6"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleNext();
-              }}
-            >
-              {/* Password */}
-              <div>
-                <Label htmlFor="pwd">Password</Label>
-                <Input
-                  id="pwd"
-                  type="password"
-                  placeholder="********"
-                  value={formData.pwd}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  className="mt-1"
-                />
-                {touched.pwd && !validPwd && (
-                  <p className="text-red-500 text-sm">
-                    Password must be 8-24 characters, include uppercase and
-                    lowercase letters, a number, and a special character.
-                  </p>
-                )}
-              </div>
+            {/* Phone Number */}
+            <div>
+              <Label htmlFor="phoneNo">Phone Number</Label>
+              <Input
+                id="phoneNo"
+                type="tel"
+                placeholder="Enter Phone Number"
+                value={formData.phoneNo}
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+            </div>
 
-              {/* Confirm Password */}
-              <div>
-                <Label htmlFor="matchPwd">Confirm Password</Label>
-                <Input
-                  id="matchPwd"
-                  type="password"
-                  placeholder="********"
-                  value={formData.matchPwd}
-                  onChange={handleInputChange}
-                  onBlur={handleBlur}
-                  className="mt-1"
-                />
-                {touched.matchPwd && !validMatch && (
-                  <p className="text-red-500 text-sm">
-                    Passwords do not match.
-                  </p>
-                )}
-              </div>
+            {/* CNIC Number */}
+            <div>
+              <Label htmlFor="cnic_number">CNIC Number</Label>
+              <Input
+                id="cnic_number"
+                type="text"
+                placeholder="Enter CNIC"
+                value={formData.cnic_number}
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+            </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={handleBack}>
-                  Back
-                </Button>
-                <Button type="button" onClick={handleNext}>
-                  Next
-                </Button>
-              </div>
-            </form>
-          )}
+            {/* Bio */}
+            <div>
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                placeholder="Write your bio here"
+                value={formData.bio}
+                onChange={handleInputChange}
+                className="mt-1"
+              ></Textarea>
+            </div>
 
-          {currentStep === 3 && (
-            <form className="space-y-6" onSubmit={SubmitBtn}>
-              {/* Location */}
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  type="text"
-                  placeholder="Enter Location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <Label htmlFor="phoneNo">Phone Number</Label>
-                <Input
-                  id="phoneNo"
-                  type="tel"
-                  placeholder="Enter Phone Number"
-                  value={formData.phoneNo}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              {/* CNIC Number */}
-              <div>
-                <Label htmlFor="cnic_number">CNIC Number</Label>
-                <Input
-                  id="cnic_number"
-                  type="text"
-                  placeholder="Enter CNIC"
-                  value={formData.cnic_number}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Write your bio here"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                ></Textarea>
-              </div>
-
-              {/* Seller Type Selection */}
-              <div>
-                <Label>Become a Seller</Label>
-                <RadioGroup
-                  value={formData.sellerType}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, sellerType: value })
-                  }
-                  className="mt-2 flex gap-8"
-                >
-                  <div className="flex items-center space-x-4 mt-2">
-                    <RadioGroupItem value="Designer" id="designer" />
-                    <Label htmlFor="designer" className="cursor-pointer">
-                      Model Designer
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <RadioGroupItem value="Printer Owner" id="printerOwner" />
-                    <Label htmlFor="printerOwner" className="cursor-pointer">
-                      Printer Owner
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Profile Picture */}
-              {(formData.sellerType === "Designer" ||
-                formData.sellerType === "Printer Owner") && (
-                <div>
-                  <Label htmlFor="profile_pic">Profile Picture</Label>
-                  <Input
-                    id="profile_pic"
-                    type="file"
-                    accept="image/jpeg,image/png"
-                    onChange={handleFileChange}
-                    className="mt-1"
-                  />
-                  {!formData.profile_pic && (
-                    <p className="text-red-500 text-sm">
-                      Profile picture is required.
-                    </p>
-                  )}
+            {/* Seller Type Selection */}
+            <div>
+              <Label>Become a Seller</Label>
+              <RadioGroup
+                value={formData.sellerType}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, sellerType: value })
+                }
+                className="mt-2 flex gap-8"
+              >
+                <div className="flex items-center space-x-4 mt-2">
+                  <RadioGroupItem value="Designer" id="designer" />
+                  <Label htmlFor="designer" className="cursor-pointer">
+                    Model Designer
+                  </Label>
                 </div>
-              )}
+                <div className="flex items-center space-x-4 mt-2">
+                  <RadioGroupItem value="Printer Owner" id="printerOwner" />
+                  <Label htmlFor="printerOwner" className="cursor-pointer">
+                    Printer Owner
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
 
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
-                <Button type="button" variant="outline" onClick={handleBack}>
-                  Back
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? "Submitting..." : "Submit"}
-                </Button>
+            {/* Profile Picture */}
+            {(formData.sellerType === "Designer" ||
+              formData.sellerType === "Printer Owner") && (
+              <div>
+                <Label htmlFor="profile_pic">Profile Picture</Label>
+                <Input
+                  id="profile_pic"
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleFileChange}
+                  className="mt-1"
+                />
+                {!formData.profile_pic && (
+                  <p className="text-red-500 text-sm">
+                    Profile picture is required.
+                  </p>
+                )}
               </div>
-            </form>
-          )}
-        </CardContent>
-      </Card>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex flex-col gap-2">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit"}
+              </Button>
+              <Button type="button" variant="outline" onClick={handleBack}>
+                <ArrowLeft />
+                Back
+              </Button>
+            </div>
+            <p className=" text-xs text-gray-500">
+              By clicking submit, you agree to our{" "}
+              <span className="underline"> Terms of Service</span> and{" "}
+              <span className="underline">Privacy Policy.</span>
+            </p>
+          </form>
+        )}
+      </CardContent>
 
       {/* OTP Verification Dialog */}
       <Dialog open={isOtpDialogOpen}>

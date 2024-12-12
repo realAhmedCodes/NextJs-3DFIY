@@ -13,6 +13,8 @@ import PaymentModal from "@/app/componets/modelPurchase/PaymentModal";
 import Reviews from "@/app/componets/Reviews/Reviews";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import LoginModal from "../app/componets/LoginModal";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 // Initialize Stripe
 const stripePromiseClient = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY
@@ -57,7 +59,7 @@ const {  sellerType, sellerId } = useSelector(
             <Button onClick={onDownload}>
               {model.type == "scraped" ? "View Source" : "Download"}
             </Button>
-          ) : (
+          ) : userId ? (
             <>
               <Drawer>
                 <DrawerTrigger>
@@ -76,6 +78,17 @@ const {  sellerType, sellerId } = useSelector(
                   </Elements>
                 </DrawerContent>
               </Drawer>
+            </>
+          ) : (
+            <>
+              <Dialog>
+                <DialogTrigger>
+                  <Button>Buy Now</Button>
+                </DialogTrigger>
+                <DialogContent className="p-0">
+                  <LoginModal />
+                </DialogContent>
+              </Dialog>
             </>
           )}
         </div>
