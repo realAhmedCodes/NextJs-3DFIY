@@ -22,6 +22,7 @@ const stripePromiseClient = loadStripe(
 
 export default function ModelActions({
   userId,
+  modelUserId,
   desginerId,
   model,
   modelId,
@@ -41,7 +42,7 @@ const {  sellerType, sellerId } = useSelector(
    const handleUpdateModel = () => {
      router.push(`/pages/updateModel/${modelId}`);
    };
-
+console.log(modelUserId ,userId)
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center mb-4">
@@ -93,7 +94,7 @@ const {  sellerType, sellerId } = useSelector(
           )}
         </div>
       </div>
-      {sellerId === desginerId && (
+      {userId === modelUserId && (
         <div className="flex space-x-4 mt-4">
           <Button
             variant="outline"

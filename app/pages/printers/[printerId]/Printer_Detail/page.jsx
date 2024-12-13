@@ -43,7 +43,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const Page = () => {
   const { printerId } = useParams();
-  const { sellerType, sellerId } = useSelector((state) => state.user);
+  const { sellerType, sellerId, userId } = useSelector((state) => state.user);
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -209,28 +209,29 @@ const Page = () => {
                 <div className="flex items-center">
                   <Star className="text-yellow-400 mr-1" size={20} />
                   <span className="font-semibold">{printer.ratings}</span>
-                  <span className="text-muted-foreground ml-1">
-                    {printer.reviews ? `(${printer.reviews})` : "No Reviews"}
-                  </span>
+                  
                 </div>
                 <div className="flex items-center text-muted-foreground">
                   <Clock size={16} className="mr-1" />
                   <span>Quick responses</span>
                 </div>
               </div>
-              {sellerType === "Printer Owner" && (
-                <div className="mt-4 flex space-x-2">
-                  <Button onClick={updateModelBtn} className="w-1/2">
-                    Update Printer
-                  </Button>
-                  <Button
-                    onClick={delModelBtn}
-                    variant="destructive"
-                    className="w-1/2"
-                  >
-                    Delete Printer
-                  </Button>
-                </div>
+              
+              {userId === printer.user_id && (
+                <>
+                  <div className="mt-4 flex space-x-2">
+                    <Button onClick={updateModelBtn} className="w-1/2">
+                      Update Printer
+                    </Button>
+                    <Button
+                      onClick={delModelBtn}
+                      variant="destructive"
+                      className="w-1/2"
+                    >
+                      Delete Printer
+                    </Button>
+                  </div>
+                </>
               )}
               {sellerType !== "Printer Owner" && (
                 <div className="mt-4">
@@ -268,18 +269,16 @@ const Page = () => {
             </CardContent>
           </Card>
 
-          {sellerId === printer.printer_owner_id && (
+          {userId !== printer.user_id && (
             <>
               <div>
-                <div>
-                  <Reviews printerId={printerId} />
-                </div>
-                <div>
-             <RecentPrinterReviews printerId={printerId}></RecentPrinterReviews>
-                </div>
+                <Reviews printerId={printerId} />
               </div>
             </>
           )}
+          <div>
+            <RecentPrinterReviews printerId={printerId}></RecentPrinterReviews>
+          </div>
         </div>
       </div>
     </div>

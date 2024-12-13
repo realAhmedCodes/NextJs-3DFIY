@@ -1,8 +1,4 @@
 // app/pages/ProfilePage.tsx
-// /app/pages/ProfilePage.tsx
-
-// /app/pages/ProfilePage.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -50,6 +46,7 @@ import RecentDesignerReviews from "@/app/componets/designerReview/page";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+
 const ProfilePage = () => {
   const { profileUserId } = useParams();
   const [currentUser, setCurrentUser] = useState<number | null>(null);
@@ -80,18 +77,24 @@ const ProfilePage = () => {
     }
   }, [userId, userDetail]);
 
+  // Determine if the current user is viewing their own profile
+  const isOwnProfile = currentUser === userDetail?.user_id;
+
   const handleRatingSubmit = async () => {
     try {
-      const response = await fetch(
-        `/api/ratings/designers/${profileUserId}/postRatings`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ rating: Number(rating) }), // Send the new rating value
-        }
-      );
+      // Adjust the API endpoint based on sellerType
+      const ratingEndpoint =
+        userDetail?.sellerType === "Designer"
+          ? `/api/ratings/designers/${profileUserId}/postRatings`
+          : `/api/ratings/printers/${profileUserId}/postRatings`;
+
+      const response = await fetch(ratingEndpoint, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rating: Number(rating) }), // Send the new rating value
+      });
 
       const result = await response.json();
 
@@ -132,15 +135,7 @@ const ProfilePage = () => {
 
   const profilePicPath = userDetail?.profile_pic
     ? `/uploads/${userDetail.profile_pic.split("\\").pop()}`
-    : "";
-
-  console.log(userDetail);
-
-  console.log(currentUser);
-
-  console.log(userDetail);
-
-  console.log(currentUser);
+    : "/default.png"; // Fallback to default image
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -150,15 +145,8 @@ const ProfilePage = () => {
           <Card>
             <CardHeader className="text-center">
               <Avatar className="w-32 h-32 mx-auto mb-4">
-                <AvatarImage
-                  src={
-                    userDetail.profile_pic
-                      ? `/uploads/${userDetail.profile_pic}`
-                      : "/default.png"
-                  }
-                  alt={userDetail.name}
-                />
-                <AvatarFallback>{userDetail.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={profilePicPath} alt={userDetail.name} />
+                <AvatarFallback>{userDetail.name.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
               <CardTitle className="text-3xl">{userDetail.name}</CardTitle>
               <CardDescription className="text-lg">
@@ -181,10 +169,11 @@ const ProfilePage = () => {
               </Badge>
             </CardContent>
 
-            {currentUser != userDetail.user_id && (
+            {currentUser !== userDetail.user_id && (
               <>
                 {currentUser ? (
                   <CardFooter className="justify-center space-x-4">
+                    {/* Place Order Button */}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button>Place Order</Button>
@@ -203,6 +192,7 @@ const ProfilePage = () => {
                       </DialogContent>
                     </Dialog>
 
+                    {/* Message Button */}
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
@@ -225,6 +215,7 @@ const ProfilePage = () => {
                       </DialogContent>
                     </Dialog>
 
+                    {/* Rate Seller Button */}
                     <Button onClick={() => setIsRatingModalOpen(true)}>
                       Rate Seller
                     </Button>
@@ -261,8 +252,8 @@ const ProfilePage = () => {
 
         {/* Orders and Models Section */}
         <div className="flex-grow space-y-6">
-          <Tabs defaultValue="models">
-            <TabsList className="grid grid-cols-4 w-full">
+          <Tabs defaultValue={userDetail?.sellerType === "Designer" ? "models" : "printers"}>
+            <TabsList className={`grid ${isOwnProfile ? 'grid-cols-4' : 'grid-cols-1'} w-full gap-2`}>
               {/* Conditionally render Models or Printers tab */}
               {userDetail?.sellerType === "Designer" ? (
                 <TabsTrigger value="models">Models</TabsTrigger>
@@ -270,10 +261,14 @@ const ProfilePage = () => {
                 <TabsTrigger value="printers">Printers</TabsTrigger>
               )}
 
-              {/* Pending Orders and Active Orders */}
-              <TabsTrigger value="pending">Pending Orders</TabsTrigger>
-              <TabsTrigger value="active">Active Orders</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              {/* Conditionally render Pending Orders, Active Orders, and Analytics tabs */}
+              {isOwnProfile && (
+                <>
+                  <TabsTrigger value="pending">Pending Orders</TabsTrigger>
+                  <TabsTrigger value="active">Active Orders</TabsTrigger>
+                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                </>
+              )}
             </TabsList>
 
             {/* Models Tab Content for Designers */}
@@ -329,9 +324,7 @@ const ProfilePage = () => {
                         />
                         <CardHeader>
                           <CardTitle>{printer.name}</CardTitle>
-                          <CardDescription>
-                            {printer.description}
-                          </CardDescription>
+                          <CardDescription>{printer.description}</CardDescription>
                         </CardHeader>
                         <CardContent>
                           <p className="text-sm text-gray-700">
@@ -366,77 +359,90 @@ const ProfilePage = () => {
               </TabsContent>
             )}
 
-            {/* Pending Orders Tab Content */}
-            <TabsContent value="pending">
-              <ScrollArea className="h-fit w-full rounded-md border p-4">
-                <div className="space-y-4">
-                  <PendingOrder profileUserId={profileUserId} />
-                </div>
-                <ScrollBar orientation="vertical" />
-              </ScrollArea>
-            </TabsContent>
+            {/* Conditionally render Pending Orders, Active Orders, and Analytics tab contents */}
+            {isOwnProfile && (
+              <>
+                {/* Pending Orders Tab Content */}
+                <TabsContent value="pending">
+                  <ScrollArea className="h-fit w-full rounded-md border p-4">
+                    <div className="space-y-4">
+                      <PendingOrder profileUserId={profileUserId} />
+                    </div>
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                </TabsContent>
 
-            {/* Active Orders Tab Content */}
-            <TabsContent value="active">
-              <ScrollArea className="h-fit w-full rounded-md border p-4">
-                <div className="space-y-4">
-                  <ActiveOrder profileUserId={profileUserId} />
-                </div>
-                <ScrollBar orientation="vertical" />
-              </ScrollArea>
-            </TabsContent>
+                {/* Active Orders Tab Content */}
+                <TabsContent value="active">
+                  <ScrollArea className="h-fit w-full rounded-md border p-4">
+                    <div className="space-y-4">
+                      <ActiveOrder profileUserId={profileUserId} />
+                    </div>
+                    <ScrollBar orientation="vertical" />
+                  </ScrollArea>
+                </TabsContent>
 
-            {/* Analytics Tab Content */}
-            <TabsContent value="analytics" className="space-y-4">
-              <h2 className="text-2xl font-semibold">Recent Sales Analytics</h2>
-              <Tabs
-                defaultValue={
-                  userDetail?.sellerType === "Designer"
-                    ? "designer-sales"
-                    : "printer-sales"
-                }
-              >
-                <TabsList
-                  className={
-                    userDetail?.sellerType === "Designer"
-                      ? "grid grid-cols-2 gap-2"
-                      : "grid grid-cols-1 gap-2"
-                  }
-                >
-                  {userDetail?.sellerType === "Designer" ? (
-                    <>
-                      <TabsTrigger value="designer-sales">
-                        Recent Sales
-                      </TabsTrigger>
-                      <TabsTrigger value="designer-payments">
-                        Model Order Payments
-                      </TabsTrigger>
-                    </>
-                  ) : (
-                    <TabsTrigger value="printer-sales">
-                      Recent Printed Models Sales
-                    </TabsTrigger>
-                  )}
-                </TabsList>
+                {/* Analytics Tab Content */}
+                <TabsContent value="analytics" className="space-y-4">
+                  <h2 className="text-2xl font-semibold">Recent Sales Analytics</h2>
+                  <Tabs
+                    defaultValue={
+                      userDetail?.sellerType === "Designer"
+                        ? "designer-sales"
+                        : "printer-sales"
+                    }
+                  >
+                    <TabsList
+                      className={
+                        userDetail?.sellerType === "Designer"
+                          ? "grid grid-cols-2 gap-2"
+                          : "grid grid-cols-1 gap-2"
+                      }
+                    >
+                      {userDetail?.sellerType === "Designer" ? (
+                        <>
+                          <TabsTrigger value="designer-sales">
+                            Recent Sales
+                          </TabsTrigger>
+                          <TabsTrigger value="designer-payments">
+                            Model Order Payments
+                          </TabsTrigger>
+                        </>
+                      ) : (
+                        <TabsTrigger value="printer-sales">
+                          Recent Printed Models Sales
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
 
-                {/* Nested TabsContent for Analytics */}
-                {userDetail?.sellerType === "Designer" && (
-                  <>
-                    <TabsContent value="designer-sales">
-                      <RecentSalesDesigner designerId={sellerId} />
-                    </TabsContent>
-                    <TabsContent value="designer-payments">
-                      <RecentModelOrderPayments designerId={sellerId} />
-                    </TabsContent>
-                  </>
-                )}
-                {userDetail?.sellerType === "Printer Owner" && (
-                  <TabsContent value="printer-sales">
-                    <RecentPrintedModelsSales printerOwnerId={sellerId} />
-                  </TabsContent>
-                )}
-              </Tabs>
-            </TabsContent>
+                    {/* Nested TabsContent for Analytics */}
+                    {userDetail?.sellerType === "Designer" && (
+                      <>
+                        <TabsContent value="designer-sales">
+                          <RecentSalesDesigner designerId={sellerId} />
+                        </TabsContent>
+                        <TabsContent value="designer-payments">
+                          <RecentModelOrderPayments designerId={sellerId} />
+                        </TabsContent>
+                      </>
+                    )}
+                    {userDetail?.sellerType === "Printer Owner" && (
+                      <TabsContent value="printer-sales">
+                        <RecentPrintedModelsSales printerOwnerId={sellerId} />
+                      </TabsContent>
+                    )}
+                  </Tabs>
+
+                  {/* Show Reviews Section */}
+                  <div className="mt-8">
+                    <h2 className="text-2xl font-semibold mb-4">Latest Reviews</h2>
+                    {userDetail?.sellerType === "Designer" ? (
+                      <RecentDesignerReviews designerId={sellerId} />
+                    ) :""}
+                  </div>
+                </TabsContent>
+              </>
+            )}
           </Tabs>
         </div>
       </div>
@@ -463,17 +469,11 @@ const ProfilePage = () => {
         </DialogContent>
       </Dialog>
 
-      {parseInt(profileUserId) !== parseInt(userId) && (
-        <>
-          <div>
-            <Reviews profileId={profileUserId} printerId={undefined} />
-          </div>
-          <div>
-            <RecentDesignerReviews
-              designerId={sellerId}
-            ></RecentDesignerReviews>
-          </div>
-        </>
+      {/* Reviews Component: Only visible if viewing own profile */}
+      {isOwnProfile && (
+        <div>
+          <Reviews profileId={profileUserId} printerId={undefined} />
+        </div>
       )}
     </div>
   );

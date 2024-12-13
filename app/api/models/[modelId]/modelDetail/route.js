@@ -39,6 +39,7 @@ export async function GET(request, { params }) {
       const responseData = {
         type: "designer", // Indicator for model type
         model_id: designerModel.model_id,
+        user_id: designerModel.user_id,
         designer_id: designerModel.designer_id,
         model_name: designerModel.name,
         description: designerModel.description,
@@ -50,6 +51,7 @@ export async function GET(request, { params }) {
           : null,
         user: {
           name: designerModel.Designers.Users.name,
+          user_id: designerModel.Designers.Users.user_id,
           location: designerModel.Designers.Users.location,
           profile_pic: designerModel.Designers.Users.profile_pic
             ? `${designerModel.Designers.Users.profile_pic}` // Relative path

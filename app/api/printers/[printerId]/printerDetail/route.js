@@ -35,6 +35,7 @@ export async function GET(req, { params }) {
               // User details related to the printer owner
               select: {
                 name: true,
+                user_id:true,
                 location: true,
                 profile_pic: true,
               },
@@ -53,6 +54,7 @@ export async function GET(req, { params }) {
     // Structure the response to include specifications and services
     const response = {
       user_name: printer.Printer_Owners.Users.name,
+      user_id: printer.Printer_Owners.Users.user_id,
       user_location: printer.Printer_Owners.Users.location,
       profile_pic: printer.Printer_Owners.Users.profile_pic,
       printer_name: printer.name,
