@@ -22,6 +22,7 @@ export async function GET(req, { params }) {
     const sellerType = userDetails.sellerType;
     let additionalDetails = {};
     let models = [];
+    let printer=[]
     let sellerId = null; // Initialize sellerId
 
     if (sellerType === "Designer") {
@@ -57,7 +58,11 @@ export async function GET(req, { params }) {
 
       if (printerOwnerDetails) {
         additionalDetails = printerOwnerDetails;
-        sellerId = printerOwnerDetails.printer_owner_id; // Set sellerId for Printer Owner
+        sellerId = printerOwnerDetails.printer_owner_id; 
+
+        printer = await prisma.printers.findMany({
+          where: { printer_owner_id: sellerId },
+        });
       }
     }
 
@@ -66,6 +71,7 @@ export async function GET(req, { params }) {
       ...userDetails,
       ...additionalDetails,
       models,
+      printer,
       sellerId,
     };
 

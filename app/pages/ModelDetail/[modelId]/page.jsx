@@ -304,6 +304,7 @@ const ModelPage = () => {
       </div>
     );
   }
+  console.log(model)
 
   return (
     <div className="bg-gray-50 min-h-screen py-10">
@@ -333,6 +334,7 @@ const ModelPage = () => {
           <div className="lg:w-1/3">
             <ModelActions
               model={model}
+              modelUserId={model.user.user_id}
               modelId={modelId}
               desginerId={model.designer_id}
               hasPurchased={hasPurchased}
@@ -353,7 +355,7 @@ const ModelPage = () => {
        
         <ModelDetails model={model} />
 
-        <ReviewSection modelId={model.model_id} />
+      
       </div>
     </div>
   );

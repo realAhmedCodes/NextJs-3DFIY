@@ -62,7 +62,7 @@ const Navbar = () => {
 
   const profileMenuItems = [
     { label: "My Profile", href: profileUrl },
-    { label: "Edit Profile", href: `/pages/users/${userId}/editProfile` },
+    { label: "Edit Profile", href: `/pages/users/updateProfile/${userId}` },
     { label: "Inbox", href: `/pages/users/${userId}/inbox` },
   ];
 
