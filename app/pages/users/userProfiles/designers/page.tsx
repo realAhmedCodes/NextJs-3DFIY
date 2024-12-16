@@ -124,7 +124,6 @@ const DesignersPage: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     const queryParams = new URLSearchParams();
-
     if (initialFilters.name) queryParams.append("name", initialFilters.name);
     if (initialFilters.location)
       queryParams.append("location", initialFilters.location);

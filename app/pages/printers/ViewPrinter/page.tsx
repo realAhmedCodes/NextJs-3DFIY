@@ -46,6 +46,7 @@ const PrintersListPage: React.FC = () => {
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  console.log(printers);
   const [pagination, setPagination] = useState<PaginationInfo>({
     total: 0,
     page: 1,

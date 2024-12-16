@@ -470,7 +470,7 @@ const ProfilePage = () => {
       </Dialog>
 
       {/* Reviews Component: Only visible if viewing own profile */}
-      {isOwnProfile && (
+      {!isOwnProfile && (
         <div>
           <Reviews profileId={profileUserId} printerId={undefined} />
         </div>

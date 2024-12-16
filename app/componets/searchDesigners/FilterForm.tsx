@@ -1,5 +1,5 @@
 // components/searchDesigners/DesignerFilterForm.tsx
-// components/searchDesigners/DesignerFilterForm.tsx
+// /app/components/searchDesigners/FilterForm.tsx
 
 "use client";
 
@@ -34,9 +34,9 @@ const FilterForm: React.FC<FilterFormProps> = ({ initialFilters }) => {
   });
   const router = useRouter();
 
-const { userId, email, profile_pic, sellerType } = useSelector(
-  (state: RootState) => state.user
-);
+  const { userId, email, profile_pic, sellerType } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,8 +58,13 @@ const { userId, email, profile_pic, sellerType } = useSelector(
 
     const queryParams: Record<string, string> = {};
 
-    if (inputFilters.location) {
-      queryParams.location = inputFilters.location;
+    // Include 'name' in query parameters if it's provided
+    if (inputFilters.name.trim() !== "") {
+      queryParams.name = inputFilters.name.trim();
+    }
+
+    if (inputFilters.location.trim() !== "") {
+      queryParams.location = inputFilters.location.trim();
     }
     if (inputFilters.sortBy) {
       queryParams.sortBy = inputFilters.sortBy;
@@ -74,6 +79,7 @@ const { userId, email, profile_pic, sellerType } = useSelector(
         await axios.post("/api/log_search/designers", {
           user_id: userId,
           location: inputFilters.location.trim(),
+          name: inputFilters.name.trim(), // Optionally log the name
         });
         console.log("Designer search logged successfully.");
       } else {
@@ -94,7 +100,7 @@ const { userId, email, profile_pic, sellerType } = useSelector(
         onSubmit={handleSearch}
         className="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
-        {/* Name Input - Ignored for logging */}
+        {/* Name Input */}
         <div className="flex flex-col">
           <Label
             htmlFor="name"
