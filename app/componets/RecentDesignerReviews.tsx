@@ -32,9 +32,7 @@ interface RecentDesignerReviewsProps {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const RecentDesignerReviews: React.FC<RecentDesignerReviewsProps> = ({
-  designerId,
-}) => {
+const RecentDesignerReviews: React.FC<RecentDesignerReviewsProps> = ({ designerId }) => {
   const { data, error, isLoading } = useSWR(
     `/api/reviews/getDesignersReviews/${designerId}`,
     fetcher

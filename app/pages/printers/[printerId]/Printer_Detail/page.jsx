@@ -37,7 +37,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import RecentPrinterReviews from "@/app/componets/printerReview/page";
+import RecentPrinterReviews from "@/app/componets/RecentPrinterReviews";
 import Link from "next/link";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());

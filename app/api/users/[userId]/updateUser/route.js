@@ -23,11 +23,7 @@ function sanitizeFilename(name) {
 }
 
 // Disable Next.js default body parsing for this route
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const runtime = "nodejs";
 
 export async function PUT(req, { params }) {
   const { userId } = params;

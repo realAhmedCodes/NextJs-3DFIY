@@ -42,7 +42,7 @@ import Link from "next/link";
 import RecentSalesDesigner from "@/app/componets/sales/modelRecentSales/RecentSales";
 import RecentModelOrderPayments from "@/app/componets/sales/customModelsRecentPayments/RecentSales";
 import RecentPrintedModelsSales from "@/app/componets/sales/printedModelSales/RecentSales";
-import RecentDesignerReviews from "@/app/componets/designerReview/page";
+import RecentDesignerReviews from "@/app/componets/RecentDesignerReviews";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
