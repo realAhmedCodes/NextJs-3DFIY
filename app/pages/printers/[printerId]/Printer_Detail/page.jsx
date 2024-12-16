@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RecentPrinterReviews from "@/app/componets/printerReview/page";
+import Link from "next/link";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -201,22 +202,21 @@ const Page = () => {
                   <AvatarFallback>{printer.user_name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="text-lg font-semibold">{printer.user_name}</h2>
+                  <Link href={`/pages/users/${printer.user_id}/profile`}>
+                    <h2 className="text-lg font-semibold hover:underline">
+                      {printer.user_name}
+                    </h2>
+                  </Link>
                   <p className="text-sm text-muted-foreground">Printer Owner</p>
                 </div>
               </div>
               <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center">
-                  <Star className="text-yellow-400 mr-1" size={20} />
-                  <span className="font-semibold">{printer.ratings}</span>
-                  
-                </div>
                 <div className="flex items-center text-muted-foreground">
                   <Clock size={16} className="mr-1" />
                   <span>Quick responses</span>
                 </div>
               </div>
-              
+
               {userId === printer.user_id && (
                 <>
                   <div className="mt-4 flex space-x-2">

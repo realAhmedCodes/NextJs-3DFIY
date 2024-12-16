@@ -80,7 +80,7 @@ export default function PrinterUploadForm({ initialSellerId }) {
         toast.error(responseData.error);
       } else {
         toast.success("Printer uploaded successfully:", responseData);
-        router.push('/pages/printers');
+        router.push('/pages/printers/viewPrinter');
       }
     } catch (error) {
       console.error(error);

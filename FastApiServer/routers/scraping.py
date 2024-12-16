@@ -58,7 +58,7 @@ async def trigger_scrape(background_tasks: BackgroundTasks):
 # Scraping Functions
 async def scrape_models():
     base_url = "https://free3d.com/3d-models/"
-    download_limit = 10 
+    download_limit = 50 
     downloaded_count = 0
     page = 1
 
